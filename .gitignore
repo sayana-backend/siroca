@@ -1,3 +1,7 @@
+venv/
+config.py
+main.py
+
 # Django #
 *.log
 *.pot
