@@ -1,6 +1,7 @@
 venv/
 config.py
 main.py
+.env
 
 # Django #
 *.log

@@ -1,6 +1,5 @@
 from rest_framework.viewsets import GenericViewSet
 from rest_framework import mixins
-
 from apps.company.models import Company, JobTitle
 from apps.company.serializers import CompanySerializer, JobTitleSerializer
 

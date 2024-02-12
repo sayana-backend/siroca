@@ -30,6 +30,10 @@ class Company(models.Model):
         verbose_name = 'Компания'
         verbose_name_plural = 'Компании'
 
+    
+    def get_users(self):
+        return self.users.all()
+
 
 class JobTitle(models.Model):
     title = models.CharField(max_length=255, verbose_name='Должность')
@@ -40,3 +44,8 @@ class JobTitle(models.Model):
     class Meta:
         verbose_name = 'Должность'
         verbose_name_plural = 'Должности'
+
+    @classmethod
+    def create_job_title(cls, title):
+        job_title = cls.objects.create(title=title)
+        return job_title
