@@ -18,7 +18,6 @@ class UsersValidateSerializers(serializers.Serializer):
     login = serializers.CharField(max_length=30, min_length=2, required=True)
     password = serializers.CharField(max_length=50, min_length=8, required=True)
     user_role = serializers.CharField(required=True)
-    company_id = serializers.CharField(max_length=30, min_length=5, required=True)
     position_company_id = serializers.CharField(max_length=30, min_length=5, required=False)
     created_at = serializers.DateTimeField(read_only=True)
 
@@ -29,8 +28,3 @@ class UsersValidateSerializers(serializers.Serializer):
         except Users.DoesNotExist:
             raise ValidationError('position company not found')
 
-    def validate_company_id(self, company_id,):
-        try:
-            Users.objects.get(id=company_id,)
-        except Users.DoesNotExist:
-            raise ValidationError('company not found')
