@@ -8,19 +8,23 @@ class Company(models.Model):
         on_delete=models.SET_NULL,
         null=True,
         verbose_name='Менеджер компании',
-        related_name='managed_companies'
+        related_name='managed_companies',
+        blank=True
     )
     users = models.ManyToManyField(
-        'user.AdminProfile',
+        'user.UserProfile',
         verbose_name='Пользователи',
-        related_name='companies'
+        related_name='companies',
+        blank=True, null=True
     )
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='Дата создания')
-    job_titles = models.ManyToManyField(
-        'JobTitle',
-        verbose_name='Должности',
-        related_name='companies'
-    )
+    # job_titles = models.ManyToManyField(
+    #     'JobTitle',
+    #     verbose_name='Должности',
+    #     related_name='companies',
+    #     null=True,
+    #     blank=True
+    # )
 
     def __str__(self):
         return self.name
@@ -36,6 +40,7 @@ class Company(models.Model):
 
 class JobTitle(models.Model):
     title = models.CharField(max_length=255, verbose_name='Должность')
+    company = models.ForeignKey(Company,  on_delete=models.CASCADE, verbose_name='Компания')
 
     def __str__(self):
         return self.title
