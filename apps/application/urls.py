@@ -3,5 +3,6 @@ from . import views
 
 
 urlpatterns = [
-    # path('', ),
+    path('', views.ApplicationFormListCreateAPIView.as_view()),
+    path('<int:id>/', views.ApplicationFormRetrieveUpdateDestroyAPIView.as_view()),
 ]
