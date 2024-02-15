@@ -1,3 +1,8 @@
+venv/
+config.py
+main.py
+.env
+
 # Django #
 *.log
 *.pot
@@ -33,6 +38,8 @@ media
 .idea/**/dbnavigator.xml
 .idea/
 .idea
+.idea/misc.xml
+
 # Gradle
 .idea/**/gradle.xml
 .idea/**/libraries
