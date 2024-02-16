@@ -2,7 +2,7 @@ from django.db import models
 from django.contrib.auth.models import User  
 
 class Company(models.Model):
-    name = models.CharField(max_length=255, verbose_name='Название')
+    name = models.CharField(max_length=255, verbose_name='Название  компании')
     country = models.CharField(max_length=255, verbose_name='Страна')
     manager = models.ForeignKey(
         User,  

@@ -44,6 +44,10 @@ INSTALLED_APPS = [
     'apps.user',
     'apps.application',
 
+    # filter
+    'django_filters',
+
+
     # rest
     'rest_framework',
 ]
@@ -59,6 +63,9 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'config.urls'
+
+
+
 
 TEMPLATES = [
     {

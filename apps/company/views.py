@@ -1,3 +1,4 @@
+from rest_framework import filters
 from rest_framework.viewsets import GenericViewSet
 from rest_framework import mixins
 from apps.company.models import Company, JobTitle
@@ -14,6 +15,9 @@ class BaseViewSet(GenericViewSet,
 class CompanyAPIView(BaseViewSet):
     queryset = Company.objects.all()
     serializer_class = CompanySerializer
+    filter_backends = [filters.SearchFilter, filters.OrderingFilter]
+    search_fields = ['name', 'country']  
+    ordering_fields = '__all__'  
 
 class JobTitleAPIView(BaseViewSet):
     queryset = JobTitle.objects.all()
