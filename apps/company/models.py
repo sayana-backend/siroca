@@ -11,11 +11,11 @@ class Company(models.Model):
         related_name='managed_companies',
         blank=True
     )
-    users = models.ManyToManyField(
+    users = models.OneToOneField(
         'user.UserProfile',
         verbose_name='Пользователи',
         related_name='companies',
-        blank=True, null=True
+        blank=True, null=True, on_delete=models.SET_NULL
     )
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='Дата создания')
     # job_titles = models.ManyToManyField(
