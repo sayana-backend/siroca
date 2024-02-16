@@ -1,18 +1,17 @@
-from django.db import models
-from django.contrib.auth.models import User  
+from django.db import models 
 
 class Company(models.Model):
     name = models.CharField(max_length=255, verbose_name='Название')
     country = models.CharField(max_length=255, verbose_name='Страна')
     manager = models.ForeignKey(
-        User,  
+        'user.ManagerProfile',  
         on_delete=models.SET_NULL,
         null=True,
         verbose_name='Менеджер компании',
         related_name='managed_companies'
     )
     users = models.ManyToManyField(
-        'auth.User',
+        'user.AdminProfile',
         verbose_name='Пользователи',
         related_name='companies'
     )

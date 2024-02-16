@@ -127,3 +127,6 @@ MEDIA_ROOT = BASE_DIR / 'media'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 JAZZMIN_SETTINGS = jazzmin_settings.JAZZMIN_SETTINGS
+
+AUTH_USER_MODEL = 'user.AdminProfile'
+# 0735a50abafda0abb10bc247fdf027ad5182f870
