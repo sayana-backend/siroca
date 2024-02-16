@@ -11,7 +11,7 @@ class Company(models.Model):
         related_name='managed_companies'
     )
     users = models.ManyToManyField(
-        'user.AdminProfile',
+        'user.UserProfile',
         verbose_name='Пользователи',
         related_name='companies'
     )

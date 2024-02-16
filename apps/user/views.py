@@ -8,10 +8,29 @@ from .serializers import (UserProfileSerializer, UserProfileValidateSerializers,
                           AdminProfileSerializer, AdminProfileValidateSerializer)
 
 
+@api_view(['GET', 'POST'])
+def user_view(request):
+    if request.method == 'GET':
+        director = UserProfile.objects.all()
+        serializer = UserProfileSerializer(director, many=True)
+        return Response(data=serializer.data)
+    else:
+        serializer = UserProfileValidateSerializers(data=request.data)
+        if not serializer.is_valid():
+            return Response(status=status.HTTP_400_BAD_REQUEST, data={'errors': serializer.errors})
+
+        elif request.method == 'POST':
+            name = request.data.get('name')
+            director = UserProfile.objects.create(name=name)
+            serializer = UserProfileSerializer(director)
+            return Response(data=serializer.data, status=status.HTTP_201_CREATED)
+
+
+
 @api_view(['GET', 'POST', 'PUT'])
-def userprofile_view(request, pk):
+def userprofile_view(request, id):
     try:
-        userprofile = UserProfile.objects.get(pk=pk)
+        userprofile = UserProfile.objects.get(id=id)
     except UserProfile.DoesNotExist:
         return Response(data={'error: User profile not found'}, status=status.HTTP_404_NOT_FOUND)
     if request.method == 'GET':
