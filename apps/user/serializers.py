@@ -58,6 +58,7 @@ class ManagerProfileSerializer(serializers.ModelSerializer):
 
 
 class ManagerProfileValidateSerializers(serializers.Serializer):
+    username_validate = serializers.CharField()
     first_name = serializers.CharField(max_length=150, min_length=1, required=True)
     last_name = serializers.CharField(max_length=150, min_length=1, required=True)
     username = serializers.CharField(max_length=150, min_length=1, required=True)
@@ -103,6 +104,7 @@ class AdminProfileSerializer(serializers.ModelSerializer):
 
 
 class AdminProfileValidateSerializer(serializers.Serializer):
+    username_validate = serializers.CharField()
     first_name = serializers.CharField(max_length=150, min_length=1, required=True)
     last_name = serializers.CharField(max_length=150, min_length=1, required=True)
     username = serializers.CharField(max_length=150, min_length=1, required=True)
