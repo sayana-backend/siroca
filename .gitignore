@@ -31,7 +31,10 @@ media
 .idea/**/dynamic.xml
 .idea/**/uiDesigner.xml
 .idea/**/dbnavigator.xml
-
+.idea/inspectionProfiles/profiles_settings.xml
+.idea/siroca_technology.iml
+.idea/vcs.xml
+.idea/inspectionProfiles/Project_Default.xml
 # Gradle
 .idea/**/gradle.xml
 .idea/**/libraries
