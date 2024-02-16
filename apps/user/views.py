@@ -48,8 +48,8 @@ def userprofile_view(request, id):
         userprofile.last_name = serializers.validated_data.get('last_name')
         userprofile.username = serializers.validated_data.get('username')
         userprofile.password = serializers.validated_data.get('password')
-        userprofile.job_title_id = serializers.validated_data.get('job_title_id')
-        userprofile.company_id = serializers.validated_data.get('company_id')
+        userprofile.job_title = serializers.validated_data.get('job_title')
+        userprofile.company = serializers.validated_data.get('company')
         userprofile.groups = serializers.validated_data.get('groups')
         userprofile.user_permissions_id = serializers.validated_data.get('user_permissions_id')
         userprofile.save()
@@ -57,9 +57,9 @@ def userprofile_view(request, id):
 
 
 @api_view(['GET', 'POST', 'PUT'])
-def managerprofile_view(request, pk):
+def managerprofile_view(request, id):
     try:
-        managerprofile = ManagerProfile.objects.get(pk=pk)
+        managerprofile = ManagerProfile.objects.get(id=id)
     except ManagerProfile.DoesNotExist:
         return Response(data={'error: Manager profile not found'}, status=status.HTTP_404_NOT_FOUND)
     if request.method == 'GET':
@@ -86,9 +86,9 @@ def managerprofile_view(request, pk):
 
 
 @api_view(['GET', 'POST', 'PUT'])
-def adminprofile_view(request, pk):
+def adminprofile_view(request, id):
     try:
-        adminprofile = UserProfile.objects.get(pk=pk)
+        adminprofile = UserProfile.objects.get(id=id)
     except AdminProfile.DoesNotExist:
         return Response(data={'error: Admin profile not found'}, status=status.HTTP_404_NOT_FOUND)
     if request.method == 'GET':
