@@ -1,3 +1,8 @@
+venv/
+config.py
+main.py
+.env
+
 # Django #
 *.log
 *.pot
@@ -32,9 +37,13 @@ media
 .idea/**/uiDesigner.xml
 .idea/**/dbnavigator.xml
 .idea/inspectionProfiles/profiles_settings.xml
+<<<<<<< HEAD
 .idea/siroca_technology.iml
 .idea/vcs.xml
 .idea/inspectionProfiles/Project_Default.xml
+=======
+
+>>>>>>> 0bfc8a136b828b589f79684a10f300795a98b4a3
 # Gradle
 .idea/**/gradle.xml
 .idea/**/libraries
