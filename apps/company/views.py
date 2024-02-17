@@ -1,8 +1,10 @@
-from rest_framework import filters
 from rest_framework.viewsets import GenericViewSet
 from rest_framework import mixins
-from apps.company.models import Company, JobTitle
-from apps.company.serializers import CompanySerializer, JobTitleSerializer
+from ..company.models import Company, JobTitle
+from ..company.serializers import CompanySerializer, JobTitleSerializer
+from rest_framework.filters import SearchFilter
+from django_filters.rest_framework import DjangoFilterBackend
+
 
 class BaseViewSet(GenericViewSet,
                   mixins.ListModelMixin,
@@ -15,9 +17,9 @@ class BaseViewSet(GenericViewSet,
 class CompanyAPIView(BaseViewSet):
     queryset = Company.objects.all()
     serializer_class = CompanySerializer
-    filter_backends = [filters.SearchFilter, filters.OrderingFilter]
+    filter_backends = (DjangoFilterBackend, SearchFilter)
     search_fields = ['name', 'country']  
-    ordering_fields = '__all__'  
+    filterset_fields = '__all__'
 
 class JobTitleAPIView(BaseViewSet):
     queryset = JobTitle.objects.all()
