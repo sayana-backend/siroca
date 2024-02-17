@@ -17,8 +17,7 @@ class Company(models.Model):
         verbose_name='Пользователи',
         related_name='companies',
         on_delete=models.SET_NULL,
-        blank=True, null=True
-    )
+        blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='Дата создания')
 
     # job_titles = models.ManyToManyField(

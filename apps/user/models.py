@@ -1,4 +1,3 @@
-
 from django.contrib.auth.models import AbstractUser, PermissionsMixin
 from django.db import models
 from django.contrib.auth.models import UserManager
@@ -21,18 +20,18 @@ class UserProfile(AbstractUser):
         verbose_name='Логин'
     )
     password = models.CharField(max_length=128, verbose_name='Пароль')
-    job_title = models.ForeignKey('company.JobTitle', on_delete=models.CASCADE, blank=True, null=True, verbose_name='Должность в компании')
+    job_title = models.ForeignKey('company.JobTitle', on_delete=models.CASCADE, blank=True, null=True,
+                                  verbose_name='Должность в компании')
     company = models.ForeignKey('company.Company', on_delete=models.CASCADE, null=True, verbose_name='Компания')
     groups = models.ManyToManyField(Group, related_name='user_profiles_groups')
     user_permissions = models.ManyToManyField(Permission, related_name='user_profiles_permissions')
 
-
     def __str__(self):
         return self.first_name
-    
+
     class Meta:
-        verbose_name='Клиент'
-        verbose_name_plural='Клиенты'
+        verbose_name = 'Клиент'
+        verbose_name_plural = 'Клиенты'
 
 
 class ManagerProfile(AbstractUser):
@@ -52,24 +51,19 @@ class ManagerProfile(AbstractUser):
     password = models.CharField(max_length=128, verbose_name='Пароль')
     groups = models.ManyToManyField(Group, related_name='manager_profiles_groups')
     user_permissions = models.ManyToManyField(Permission, related_name='manager_profiles_permissions')
-    
 
     def __str__(self):
         return self.first_name
-    
+
     class Meta:
-        verbose_name='Менеджер'
-        verbose_name_plural='Менеджеры'
-
-
-
-
+        verbose_name = 'Менеджер'
+        verbose_name_plural = 'Менеджеры'
 
 
 class AdminProfileManager(UserManager):
     def create_admin(self, username, password=None, **extra_fields):
-
         return self.create_superuser(username, password, **extra_fields)
+
 
 class AdminProfile(AbstractUser, PermissionsMixin):
     username_validator = UnicodeUsernameValidator()
@@ -96,7 +90,7 @@ class AdminProfile(AbstractUser, PermissionsMixin):
 
     def __str__(self):
         return self.first_name
-    
+
     class Meta:
-        verbose_name='Администратор'
-        verbose_name_plural='Администраторы'
+        verbose_name = 'Администратор'
+        verbose_name_plural = 'Администраторы'
