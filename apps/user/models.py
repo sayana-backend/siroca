@@ -35,8 +35,6 @@ class UserProfile(AbstractUser):
         verbose_name_plural='Клиенты'
 
 
-
-
 class ManagerProfile(AbstractUser):
     username_validator = UnicodeUsernameValidator()
     first_name = models.CharField(max_length=150, verbose_name='Имя')
