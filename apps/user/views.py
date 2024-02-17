@@ -3,7 +3,7 @@ from rest_framework.generics import (ListAPIView,
                                      ListCreateAPIView,
                                      RetrieveUpdateDestroyAPIView)
 from .models import UserProfile, ManagerProfile, AdminProfile
-from .serializetors import UserProfileSerializer, ManagerProfileSerializer, AdminProfileSerializer
+from .serializers import UserProfileSerializer, ManagerProfileSerializer, AdminProfileSerializer
 
 
 class UserProfileLISTView(ListCreateAPIView):
