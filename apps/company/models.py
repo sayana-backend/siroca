@@ -10,8 +10,10 @@ class Company(models.Model):
         verbose_name='Менеджер компании',
         related_name='managed_companies'
     )
-    users = models.ManyToManyField(
-        'user.AdminProfile',
+    users = models.OneToOneField(
+        'user.UserProfile',
+        on_delete=models.SET_NULL,
+        blank=True, null=True,
         verbose_name='Пользователи',
         related_name='companies'
     )
