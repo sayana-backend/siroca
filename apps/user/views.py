@@ -1,39 +1,35 @@
-from django.shortcuts import render
-from rest_framework.generics import (ListAPIView,
-                                     ListCreateAPIView,
-                                     RetrieveUpdateDestroyAPIView)
+
+from rest_framework import mixins
+from rest_framework.viewsets import ModelViewSet
+from django.urls import reverse_lazy
 from .models import UserProfile, ManagerProfile, AdminProfile
-from .serializers import UserProfileSerializer, ManagerProfileSerializer, AdminProfileSerializer
+from django.contrib.auth.mixins import PermissionRequiredMixin
+from .serializers import UserProfileSerializer, AdminProfileSerializer, ManagerProfileSerializer
 
 
-class UserProfileLISTView(ListCreateAPIView):
-    queryset = UserProfile.objects.all()
+class AddUserProfileView(PermissionRequiredMixin, ModelViewSet):
+    model = UserProfile
     serializer_class = UserProfileSerializer
-
-
-class UserProfileDetailAPIView(RetrieveUpdateDestroyAPIView):
-    queryset = UserProfile.objects.all()
-    serializer_class = UserProfileSerializer
+    template_name = ''
+    success_url = reverse_lazy('')  
+    permission_required = 'user.add_user_userprofile'
     lookup_field = 'id'
 
 
-class ManagerProfileLISTView(ListCreateAPIView):
-    queryset = ManagerProfile.objects.all()
+class AddManagerProfileView(PermissionRequiredMixin, ModelViewSet):
+    model = ManagerProfile
     serializer_class = ManagerProfileSerializer
-
-
-class ManagerProfileDetailAPIView(RetrieveUpdateDestroyAPIView):
-    queryset = ManagerProfile.objects.all()
-    serializer_class = ManagerProfileSerializer
+    template_name = ''
+    success_url = reverse_lazy('') 
+    permission_required = 'user.add_user_managerprofile'
     lookup_field = 'id'
 
 
-class AdminProfileLISTView(ListCreateAPIView):
-    queryset = AdminProfile.objects.all()
+class AddAdminProfileView(PermissionRequiredMixin, ModelViewSet):
+    model = AdminProfile
     serializer_class = AdminProfileSerializer
-
-
-class AdminProfileDetailAPIView(RetrieveUpdateDestroyAPIView):
-    queryset = AdminProfile.objects.all()
-    serializer_class = AdminProfileSerializer
+    template_name = ''
+    success_url = reverse_lazy('') 
+    permission_required = 'user.add_user_managerprofile'
     lookup_field = 'id'
+

@@ -1,14 +1,9 @@
-from django.urls import path
-from . import views
+from rest_framework.routers import DefaultRouter
+from apps.user.views import AddAdminProfileView, AddManagerProfileView, AddUserProfileView
 
+router = DefaultRouter()
+router.register('', AddUserProfileView, "api_user")
+router.register('manager/', AddManagerProfileView, "api_manager")
+router.register('admin/', AddAdminProfileView, "api_admin")
 
-urlpatterns = [
-
-    path('', views.UserProfileLISTView.as_view()),
-    path('<int:id>/', views.UserProfileDetailAPIView.as_view()),
-    path('manager/', views.ManagerProfileLISTView.as_view()),
-    path('manager/<int:id>/', views.ManagerProfileDetailAPIView.as_view()),
-    path('admin-siroco/', views.AdminProfileLISTView.as_view()),
-    path('admin-siroco/<int:id>/', views.AdminProfileDetailAPIView.as_view()),
-]
-
+urlpatterns =router.urls

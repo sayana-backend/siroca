@@ -3,16 +3,13 @@ from django.contrib.auth.admin import UserAdmin
 from .models import UserProfile, ManagerProfile, AdminProfile
 
 
-
 @admin.register(UserProfile)
 class UserProfileAdmin(UserAdmin):
-    model = UserProfile
-
-    list_display=["first_name", "last_name","username","job_title", "company"]
-
+    list_display = ["username", "photo", "first_name", "last_name", "username", "job_title", "company"]
+    filter_horizontal = ("user_permissions",)
     fieldsets = (
         (None, {"fields": ("username", "password")}),
-        (("Personal info"), {"fields": ("first_name", "last_name")}),
+        (("Personal info"), {"fields": ("photo", "first_name", "last_name", "email", "job_title", "company")}),
         (
             ("Permissions"),
             {
@@ -21,7 +18,6 @@ class UserProfileAdmin(UserAdmin):
                     "is_staff",
                     "is_superuser",
                     "groups",
-                    "user_permissions",
                 ),
             },
         ),
@@ -32,24 +28,19 @@ class UserProfileAdmin(UserAdmin):
             None,
             {
                 "classes": ("wide",),
-                "fields": ("first_name", "last_name","username", "password1", "password2", "job_title", "company"),
+                "fields": ("photo", "first_name", "last_name", "username", "password1", "password2"),
             },
         ),
     )
-
-
-
 
 
 @admin.register(ManagerProfile)
 class ManagerProfileAdmin(UserAdmin):
-    model = ManagerProfile
-
-    list_display=["first_name", "last_name","username"]
-
+    list_display = ["username", "photo", "first_name", "last_name"]
+    filter_horizontal = ("user_permissions",)
     fieldsets = (
         (None, {"fields": ("username", "password")}),
-        (("Personal info"), {"fields": ("first_name", "last_name")}),
+        (("Personal info"), {"fields": ("photo", "first_name", "last_name", "email", "phone")}),
         (
             ("Permissions"),
             {
@@ -58,7 +49,6 @@ class ManagerProfileAdmin(UserAdmin):
                     "is_staff",
                     "is_superuser",
                     "groups",
-                    "user_permissions",
                 ),
             },
         ),
@@ -69,21 +59,20 @@ class ManagerProfileAdmin(UserAdmin):
             None,
             {
                 "classes": ("wide",),
-                "fields": ("first_name", "last_name","username", "password1", "password2"),
+                "fields": ("photo", "first_name", "last_name", "username", "email", "phone", "password1", "password2"),
             },
         ),
     )
+
 
 
 @admin.register(AdminProfile)
-class ProfileAdmin(UserAdmin):
-    model = AdminProfile
-
-    list_display=["first_name", "last_name","username"]
-
+class AdminProfileAdmin(UserAdmin):
+    list_display = ["username", "photo", "first_name", "last_name"]
+    filter_horizontal = ("user_permissions",)
     fieldsets = (
         (None, {"fields": ("username", "password")}),
-        (("Personal info"), {"fields": ("first_name", "last_name")}),
+        (("Personal info"), {"fields": ("photo", "first_name", "last_name", "email", "phone")}),
         (
             ("Permissions"),
             {
@@ -92,18 +81,19 @@ class ProfileAdmin(UserAdmin):
                     "is_staff",
                     "is_superuser",
                     "groups",
-                    "user_permissions",
                 ),
             },
         ),
         (("Important dates"), {"fields": ("last_login", "date_joined")}),
     )
+    search_fields = ["first_name"]
     add_fieldsets = (
         (
             None,
             {
                 "classes": ("wide",),
-                "fields": ("first_name", "last_name","username", "password1", "password2"),
+                "fields": ("photo", "first_name", "last_name", "username", "email", "phone", "password1", "password2"),
             },
         ),
     )
+
