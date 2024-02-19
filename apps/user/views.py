@@ -13,6 +13,7 @@ class AddUserProfileView(PermissionRequiredMixin, ModelViewSet):
     template_name = ''
     success_url = reverse_lazy('')  
     permission_required = 'user.add_user_userprofile'
+    lookup_field = 'id'
 
 
 class AddManagerProfileView(PermissionRequiredMixin, ModelViewSet):
@@ -21,6 +22,7 @@ class AddManagerProfileView(PermissionRequiredMixin, ModelViewSet):
     template_name = ''
     success_url = reverse_lazy('') 
     permission_required = 'user.add_user_managerprofile'
+    lookup_field = 'id'
 
 
 class AddAdminProfileView(PermissionRequiredMixin, ModelViewSet):
@@ -29,5 +31,8 @@ class AddAdminProfileView(PermissionRequiredMixin, ModelViewSet):
     template_name = ''
     success_url = reverse_lazy('') 
     permission_required = 'user.add_user_managerprofile'
+    lookup_field = 'id'
+
+
     
 
