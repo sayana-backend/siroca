@@ -47,7 +47,7 @@ class ApplicationForm(models.Model):
     comments = models.CharField(max_length=200, blank=True, null=True, verbose_name='Комментарии')
     comments_date = models.DateTimeField(auto_now_add=True)
     # check_list = models.CharField(max_length=100, null=True)
-    logs = models.OneToOneField('ApplicationLogs', on_delete=models.CASCADE, null=True, blank=True)
+    # logs = models.OneToOneField('ApplicationLogs', on_delete=models.CASCADE, null=True, blank=True)
 
     def __str__(self):
         return f'{self.title}'

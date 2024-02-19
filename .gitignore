@@ -1,5 +1,6 @@
 venv/
 config.py
+**/migrations/
 main.py
 .env
 

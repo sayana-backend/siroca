@@ -11,8 +11,9 @@ class Company(models.Model):
         related_name='managed_companies',
         blank=True
     )
-    users = models.ManyToManyField(
+    users = models.OneToOneField(
         'user.UserProfile',
+        on_delete=models.SET_NULL,
         verbose_name='Пользователи',
         related_name='companies',
         blank=True, null=True
