@@ -70,4 +70,3 @@ class AdminProfile(CustomUser):
 
 
 
-
