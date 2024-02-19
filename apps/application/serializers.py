@@ -1,7 +1,6 @@
-from .models import *
+
 from rest_framework import serializers
-from rest_framework.exceptions import ValidationError
-from datetime import datetime
+from .models import *
 
 
 class ApplicationFormSerializer(serializers.ModelSerializer):

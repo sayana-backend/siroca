@@ -96,4 +96,3 @@ class AdminProfileAdmin(UserAdmin):
             },
         ),
     )
-

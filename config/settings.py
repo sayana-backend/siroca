@@ -40,10 +40,16 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+    'django_filters',
     'apps.company',
     'apps.user',
     'apps.application',
+
 ]
+
+
+
+
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -55,6 +61,9 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'config.urls'
+
+
+
 
 TEMPLATES = [
     {
@@ -129,4 +138,4 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 JAZZMIN_SETTINGS = jazzmin_settings.JAZZMIN_SETTINGS
 
 AUTH_USER_MODEL = 'user.AdminProfile'
-# 0735a50abafda0abb10bc247fdf027ad5182f870
+

@@ -1,3 +1,4 @@
+
 from rest_framework.routers import DefaultRouter
 from apps.user.views import AddAdminProfileView, AddManagerProfileView, AddUserProfileView
 
@@ -7,3 +8,4 @@ router.register('manager/', AddManagerProfileView, "api_manager")
 router.register('admin/', AddAdminProfileView, "api_admin")
 
 urlpatterns =router.urls
+
