@@ -28,7 +28,7 @@ class UserProfileAdmin(UserAdmin):
             None,
             {
                 "classes": ("wide",),
-                "fields": ("photo", "first_name", "last_name", "username", "password1", "password2"),
+                "fields": ("photo", "first_name", "last_name", "username", "company", "job_title",  "password1", "password2"),
             },
         ),
     )
