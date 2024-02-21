@@ -17,9 +17,14 @@ class Company(models.Model):
         verbose_name='Пользователи',
         related_name='companies',
         on_delete=models.SET_NULL,
-        blank=True, null=True
-    )
+
+        blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='Дата создания')
+    # домен = bonestky
+    # логин екатерина@bonestky.com
+    # логин менеджеров и админов
+
+
 
     # job_titles = models.ManyToManyField(
     #     'JobTitle',

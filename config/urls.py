@@ -22,7 +22,11 @@ urlpatterns = [
     path('api/company/', include('apps.company.urls')),
     path('api/application/', include('apps.application.urls')),
     path('api/users/', include('apps.user.urls')),
-    path('api/checklist/', include('apps.check_list.urls')),
+
+
+    path('api/v1/company/', include('apps.company.urls')),
+    path('api/v1/applications/', include('apps.application.urls')),
+    path('api/v1/users/', include('apps.user.urls')),
 
 ]
 

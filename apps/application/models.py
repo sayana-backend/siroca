@@ -60,3 +60,18 @@ class ApplicationForm(models.Model):
 #
 #     def __str__(self):
 #         return f'{self.username} {self.description} {self.changed_date}'
+
+
+class Checklist(models.Model):
+        text = models.CharField(max_length=255, verbose_name='Текст подзадачи')
+        completed = models.BooleanField(default=False)
+        application = models.ForeignKey(ApplicationForm, on_delete=models.CASCADE, verbose_name='Заявки')
+
+
+        def  __str__(self):
+            return self.text
+
+
+        class  Meta:
+             verbose_name = 'Подзадача'
+             verbose_name_plural = 'Подзадачи'   
