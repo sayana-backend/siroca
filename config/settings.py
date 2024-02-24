@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'apps.company',
     'apps.user',
     'apps.application',
+    'django_filters'
 ]
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -130,3 +131,7 @@ JAZZMIN_SETTINGS = jazzmin_settings.JAZZMIN_SETTINGS
 
 AUTH_USER_MODEL = 'user.AdminProfile'
 # 0735a50abafda0abb10bc247fdf027ad5182f870
+
+REST_FRAMEWORK = {
+    'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend']
+}

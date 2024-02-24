@@ -1,9 +1,9 @@
-from django.urls import path
-from . import views
+from rest_framework.routers import DefaultRouter
+from apps.application.views import ApplicationFormAPIView
+
+router = DefaultRouter()
+router.register('', ApplicationFormAPIView, "api_application")
 
 
-urlpatterns = [
-    path('', views.ApplicationFormListCreateAPIView.as_view()),
-    path('<int:id>/', views.ApplicationFormRetrieveUpdateDestroyAPIView.as_view()),
-]
+urlpatterns =router.urls
 
