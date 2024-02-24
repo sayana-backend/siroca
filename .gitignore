@@ -14,7 +14,7 @@ media
 
 # Backup files #
 *.bak
-
+.idea/misc.xml
 # If you are using PyCharm #
 # User-specific stuff
 .idea/**/workspace.xml
@@ -37,6 +37,7 @@ media
 .idea/**/dynamic.xml
 .idea/**/uiDesigner.xml
 .idea/**/dbnavigator.xml
+.idea/inspectionProfiles/profiles_settings.xml
 
 .idea/inspectionProfiles/profiles_settings.xml
 

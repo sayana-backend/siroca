@@ -18,6 +18,10 @@ class CustomUser(AbstractUser):
         abstract = True
 
 
+class ExampleSuperUser(AbstractUser):
+    pass
+
+
 class UserProfile(CustomUser):
     groups = models.ForeignKey(Group, on_delete=models.CASCADE, related_name='user_profiles', default=3)
     user_permissions = models.ManyToManyField(Permission, blank=True, related_name='user_profiles')

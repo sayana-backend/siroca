@@ -49,7 +49,7 @@ class ApplicationForm(models.Model):
     # check_list = models.CharField(max_length=100, null=True)
     # logs = models.OneToOneField('ApplicationLogs', on_delete=models.CASCADE, null=True, blank=True)
 
-    def str(self):
+    def __str__(self):
         return f'{self.title}'
 
 
@@ -58,5 +58,5 @@ class ApplicationForm(models.Model):
 #     changed_date = models.DateTimeField(auto_now_add=True, verbose_name='Дата изменения')
 #     description = models.CharField(max_length=200, verbose_name='Описание')
 #
-#     def str(self):
+#     def __str__(self):
 #         return f'{self.username} {self.description} {self.changed_date}'

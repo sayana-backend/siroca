@@ -1,19 +1,24 @@
-from django.shortcuts import render
-
-from report.filter import ApplicationFilter
-from .models import ApplicationForm
-from .serializers import ApplicationFormSerializer, ApplicationFormDetailSerializer
-from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
+from rest_framework.filters import SearchFilter
 from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import mixins
+from apps.application.models import ApplicationForm
+from apps.application.serializers import ApplicationFormSerializer
+from rest_framework.viewsets import GenericViewSet
 
 
-class ApplicationFormListCreateAPIView(ListCreateAPIView):
+class BaseViewSet(GenericViewSet,
+                  mixins.ListModelMixin,
+                  mixins.RetrieveModelMixin,
+                  mixins.CreateModelMixin,
+                  mixins.UpdateModelMixin,
+                  mixins.DestroyModelMixin):
+    pass
+
+
+class ApplicationFormAPIView(BaseViewSet):
     queryset = ApplicationForm.objects.all()
     serializer_class = ApplicationFormSerializer
-
-
-class ApplicationFormRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
-    queryset = ApplicationForm.objects.all()
-    serializer_class = ApplicationFormDetailSerializer
-
-    lookup_field = 'id'
+    filter_backends = (DjangoFilterBackend, SearchFilter)
+    search_fields = '__all__'
+    filterset_fields = ['task_number', 'title', 'description', 'username', 'manager', 'start_date', 'priority',
+                        'status']

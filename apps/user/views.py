@@ -8,28 +8,28 @@ from .serializers import UserProfileSerializer, AdminProfileSerializer, ManagerP
 
 
 class AddUserProfileView(PermissionRequiredMixin, ModelViewSet):
-    model = UserProfile
+    queryset = UserProfile.objects.all()
     serializer_class = UserProfileSerializer
     template_name = ''
-    success_url = reverse_lazy('')  
-    permission_required = 'user.add_user_userprofile'
-    lookup_field = 'id'
+    success_url = reverse_lazy('')
+    permission_required = 'user.add_userprofile'
+    # lookup_field = 'id'
 
 
 class AddManagerProfileView(PermissionRequiredMixin, ModelViewSet):
-    model = ManagerProfile
+    queryset = ManagerProfile.objects.all()
     serializer_class = ManagerProfileSerializer
     template_name = ''
-    success_url = reverse_lazy('') 
-    permission_required = 'user.add_user_managerprofile'
+    success_url = reverse_lazy('')
+    permission_required = 'user.add_managerprofile'
     lookup_field = 'id'
 
 
 class AddAdminProfileView(PermissionRequiredMixin, ModelViewSet):
-    model = AdminProfile
+    queryset = AdminProfile.objects.all()
     serializer_class = AdminProfileSerializer
     template_name = ''
-    success_url = reverse_lazy('') 
-    permission_required = 'user.add_user_managerprofile'
+    success_url = reverse_lazy('')
+    permission_required = 'user.add_adminprofile'
     lookup_field = 'id'
 
