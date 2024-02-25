@@ -1,10 +1,11 @@
-from django.db import models 
+from django.db import models
+
 
 class Company(models.Model):
-    name = models.CharField(max_length=255, verbose_name='Название')
+    name = models.CharField(max_length=255, verbose_name='Название  компании')
     country = models.CharField(max_length=255, verbose_name='Страна')
     manager = models.ForeignKey(
-        'user.ManagerProfile',  
+        'user.ManagerProfile',
         on_delete=models.SET_NULL,
         null=True,
         verbose_name='Менеджер компании',
@@ -16,9 +17,14 @@ class Company(models.Model):
         on_delete=models.SET_NULL,
         verbose_name='Пользователи',
         related_name='companies',
-        blank=True, null=True
-    )
+        blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='Дата создания')
+    # домен = bonestky
+    # логин екатерина@bonestky.com
+    # логин менеджеров и админов
+
+
+
     # job_titles = models.ManyToManyField(
     #     'JobTitle',
     #     verbose_name='Должности',
@@ -34,14 +40,13 @@ class Company(models.Model):
         verbose_name = 'Компания'
         verbose_name_plural = 'Компании'
 
-    
     def get_users(self):
         return self.users.all()
 
 
 class JobTitle(models.Model):
     title = models.CharField(max_length=255, verbose_name='Должность')
-    company = models.ForeignKey(Company,  on_delete=models.CASCADE, verbose_name='Компания')
+    company = models.ForeignKey(Company, on_delete=models.CASCADE, verbose_name='Компания')
 
     def __str__(self):
         return self.title

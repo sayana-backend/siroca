@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.auth.models import Group
 
 
 
@@ -60,3 +61,13 @@ class ApplicationForm(models.Model):
 #
 #     def __str__(self):
 #         return f'{self.username} {self.description} {self.changed_date}'
+
+class ApplicationLogs(models.Model):
+    text = models.CharField(max_length=300, null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True, null=True)
+    expiration_time = models.DateTimeField(null=True)
+    changed_app_name = models.CharField(max_length=50, null=True, blank=True)
+
+    def __str__(self):
+        return self.text
+
