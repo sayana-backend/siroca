@@ -50,6 +50,8 @@ class ApplicationForm(models.Model):
     # check_list = models.CharField(max_length=100, null=True)
     # logs = models.OneToOneField('ApplicationLogs', on_delete=models.CASCADE, null=True, blank=True)
 
+    objects = models.Manager()
+
     def __str__(self):
         return f'{self.title}'
 
@@ -67,6 +69,9 @@ class ApplicationLogs(models.Model):
     created_at = models.DateTimeField(auto_now_add=True, null=True)
     expiration_time = models.DateTimeField(null=True)
     changed_app_name = models.CharField(max_length=50, null=True, blank=True)
+    application_form = models.ForeignKey(ApplicationForm, on_delete=models.CASCADE, null=True, blank=True)
+
+    objects = models.Manager()
 
     def __str__(self):
         return self.text
