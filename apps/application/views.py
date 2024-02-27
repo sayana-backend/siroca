@@ -11,17 +11,20 @@ from rest_framework.viewsets import GenericViewSet
 from rest_framework.viewsets import ModelViewSet
 from django.urls import reverse_lazy
 
+
 class ApplicationFormAPIView(ModelViewSet):
     queryset = ApplicationForm.objects.all()
+    serializer_class = ApplicationFormSerializer
 
-    def get_serializer_class(self):
-        if self.action == 'retrieve':
-            return ApplicationFormDetailSerializer
-        return ApplicationFormSerializer
+    # def get_serializer_class(self):
+    #     if self.action == 'retrieve':
+    #         return ApplicationFormDetailSerializer
+    #     return ApplicationFormSerializer
 
     template_name = ''
     success_url = reverse_lazy('')
     lookup_field = 'id'
+
 
 class ApplicationLogsAPIView(ModelViewSet):
     queryset = ApplicationLogs.objects.all()
