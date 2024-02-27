@@ -1,5 +1,26 @@
 from django.db import models
+from apps.user.models import ManagerProfile
+# from apps.application.models import Checklist
+# from apps.application.models import ApplicationForm
 
+
+
+class Checklist(models.Model):
+
+    class Meta:
+        verbose_name = 'Подзадача'
+        verbose_name_plural = 'Подзадач'
+
+    text = models.CharField(max_length=255, verbose_name='Текст подзадачи')
+    completed = models.BooleanField(default=False)
+    application = models.ManyToManyField('application.ApplicationForm',  verbose_name='Заявки', related_name='checklists')    
+    deadline = models.DateField(verbose_name='Дедлайн', blank=True, null=True)
+    manager = models.OneToOneField(ManagerProfile, on_delete=models.CASCADE, verbose_name='Отмеченный менеджер', blank=True, null=True)
+
+    def __str__(self):
+        return self.text
+
+    
 
 
 class ApplicationForm(models.Model):
@@ -46,11 +67,13 @@ class ApplicationForm(models.Model):
     files = models.ImageField(upload_to='', null=True, blank=True, verbose_name='Файлы')
     comments = models.CharField(max_length=200, blank=True, null=True, verbose_name='Комментарии')
     comments_date = models.DateTimeField(auto_now_add=True)
+    checklist = models.ForeignKey('application.Checklist',on_delete=models.CASCADE, max_length=500, verbose_name='Чек-листы', blank=True, related_name='checklists')
     # check_list = models.CharField(max_length=100, null=True)
     # logs = models.OneToOneField('ApplicationLogs', on_delete=models.CASCADE, null=True, blank=True)
 
     def __str__(self):
         return f'{self.title}'
+
 
 
 # class ApplicationLogs(models.Model):
@@ -62,16 +85,4 @@ class ApplicationForm(models.Model):
 #         return f'{self.username} {self.description} {self.changed_date}'
 
 
-class Checklist(models.Model):
-        text = models.CharField(max_length=255, verbose_name='Текст подзадачи')
-        completed = models.BooleanField(default=False)
-        application = models.ForeignKey(ApplicationForm, on_delete=models.CASCADE, verbose_name='Заявки')
-
-
-        def  __str__(self):
-            return self.text
-
-
-        class  Meta:
-             verbose_name = 'Подзадача'
-             verbose_name_plural = 'Подзадачи'   
+    
