@@ -47,6 +47,21 @@ INSTALLED_APPS = [
 
 ]
 
+REST_FRAMEWORK = {
+    "DEFAULT_AUTHENTICATION_CLASSES": (
+        "rest_framework_simplejwt.authentication.JWTAuthentication",
+        # 'rest_framework.permissions.IsAdminUser',
+    ),
+    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
+}
+
+
+SIMPLE_JWT = {
+    "ACCESS_TOKEN_LIFETIME": timedelta(days=1),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=2),
+    "AUTH_HEADER_TYPES": ("JWT",),
+}
+
 
 
 
@@ -114,7 +129,7 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/4.2/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'ru'
 
 TIME_ZONE = 'UTC'
 
@@ -125,11 +140,11 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
-STATIC_URL = 'static/'
-STATIC_ROOT = BASE_DIR / 'static'
+STATIC_URL = 'back_static/'
+STATIC_ROOT = BASE_DIR / 'back_static'
 
-MEDIA_URL = 'media/'
-MEDIA_ROOT = BASE_DIR / 'media'
+MEDIA_URL = 'back_media/'
+MEDIA_ROOT = BASE_DIR / 'back_media'
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
@@ -137,5 +152,5 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 JAZZMIN_SETTINGS = jazzmin_settings.JAZZMIN_SETTINGS
 
-AUTH_USER_MODEL = 'user.AdminProfile'
+AUTH_USER_MODEL = 'user.CustomUser'
 
