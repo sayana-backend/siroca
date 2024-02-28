@@ -1,25 +1,55 @@
 
 from rest_framework import serializers
-from .models import *
-from apps.application.models import Checklist
+from .models import ApplicationForm, Checklist, Comments
 
-class ApplicationFormSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = ApplicationForm
-        fields = 'id task_number title checklist ' \
-                 'company username manager' \
-                 ' application_date'.split() \
-                 
-        # read_only_fields = ("id","task_number", "title", "company", "username", "manager", "application_date")
-
-class ApplicationFormDetailSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = ApplicationForm
-        fields = "__all__"
 
 class ChecklistSerializer(serializers.ModelSerializer):
     class Meta:
         model = Checklist
         fields = "__all__"
+
+
+class CommentsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Comments
+        fields = '__all__'
+
+
+class ApplicationFormSerializer(serializers.ModelSerializer):
+    checklist = ChecklistSerializer(many=True)
+    comments = CommentsSerializer(many=True)
+
+    class Meta:
+        model = ApplicationForm
+        fields = 'id task_number title checklist comments ' \
+                 'company username manager' \
+                 ' application_date'.split() \
+
+
+
+class ApplicationFormDetailSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ApplicationForm
+        fields = "__all__"
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 

@@ -56,7 +56,4 @@ class JobTitle(models.Model):
         verbose_name = 'Должность'
         verbose_name_plural = 'Должности'
 
-    @classmethod
-    def create_job_title(cls, title):
-        job_title = cls.objects.create(title=title)
-        return job_title
+    

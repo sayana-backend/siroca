@@ -3,8 +3,8 @@ from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import mixins
 from rest_framework.viewsets import GenericViewSet
 from rest_framework import filters
-from .models import ApplicationForm, Checklist
-from .serializers import ApplicationFormSerializer, ChecklistSerializer
+from .models import ApplicationForm, Checklist,Comments
+from .serializers import ApplicationFormSerializer, ChecklistSerializer,CommentsSerializer
 
 class BaseViewSet(GenericViewSet,
                   mixins.ListModelMixin,
@@ -19,7 +19,7 @@ class ApplicationFormAPIView(BaseViewSet):
     serializer_class = ApplicationFormSerializer
     filter_backends = (DjangoFilterBackend, filters.SearchFilter)
     search_fields = '__all__'
-    filterset_fields = ['task_number', 'title', 'description', 'username', 'manager', 'start_date', 'priority', 'status', 'checklist' ]
+    filterset_fields = ['task_number', 'title', 'description', 'username', 'manager', 'start_date', 'priority', 'status', 'checklist', 'comments' ]
 
 class ChecklistAPIView(BaseViewSet):
     queryset = Checklist.objects.all()
@@ -27,3 +27,11 @@ class ChecklistAPIView(BaseViewSet):
     filter_backends = (DjangoFilterBackend, filters.SearchFilter)
     search_fields = '__all__'
     filterset_fields = ['completed', 'text', 'manager']
+
+
+class CommentsAPIView(BaseViewSet):
+    queryset = Comments.objects.all()
+    serializer_class = CommentsSerializer
+    filter_backends = (DjangoFilterBackend, filters.SearchFilter)
+    search_fields = '__all__'
+    filterset_fields = '__all__'
