@@ -1,35 +1,44 @@
+from rest_framework import generics, status
+from .models import CustomUser
+from .serializers import UserProfileRegisterSerializer, AllUserSerializers, UserAuthSerializer
+from rest_framework.response import Response
+from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework import permissions
 
-from rest_framework import mixins
-from rest_framework.viewsets import ModelViewSet
-from django.urls import reverse_lazy
-from .models import UserProfile, ManagerProfile, AdminProfile
-from django.contrib.auth.mixins import PermissionRequiredMixin
-from .serializers import UserProfileSerializer, AdminProfileSerializer, ManagerProfileSerializer
+
+class CreateUserView(generics.CreateAPIView):
+    queryset = CustomUser.objects.all()
+    serializer_class = UserProfileRegisterSerializer
 
 
-class AddUserProfileView(PermissionRequiredMixin, ModelViewSet):
-    model = UserProfile
-    serializer_class = UserProfileSerializer
-    template_name = ''
-    success_url = reverse_lazy('')  
-    permission_required = 'user.add_user_userprofile'
+class ListUserProfileView(generics.ListAPIView):
+    queryset = CustomUser.objects.all()
+    serializer_class = UserProfileRegisterSerializer
+
+
+class AllUsersView(generics.RetrieveUpdateAPIView):
+    queryset = CustomUser.objects.all()
+    serializer_class = AllUserSerializers
     lookup_field = 'id'
 
 
-class AddManagerProfileView(PermissionRequiredMixin, ModelViewSet):
-    model = ManagerProfile
-    serializer_class = ManagerProfileSerializer
-    template_name = ''
-    success_url = reverse_lazy('') 
-    permission_required = 'user.add_user_managerprofile'
-    lookup_field = 'id'
+class UserLoginView(generics.CreateAPIView):
+    queryset = CustomUser.objects.all()
+    serializer_class = UserAuthSerializer
 
+    def post(self, request, *args, **kwargs):
+        username = request.data.get('username')
+        try:
+            user = CustomUser.objects.get(username=username)
+        except CustomUser.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
 
-class AddAdminProfileView(PermissionRequiredMixin, ModelViewSet):
-    model = AdminProfile
-    serializer_class = AdminProfileSerializer
-    template_name = ''
-    success_url = reverse_lazy('') 
-    permission_required = 'user.add_user_managerprofile'
-    lookup_field = 'id'
-
+        refresh = RefreshToken.for_user(user=user)
+        return Response({
+            'detail': 'Вы успешно вошли',
+            'name': user.name,
+            'refresh-token': str(refresh),
+            'access': str(refresh.access_token),
+            'refresh_lifetime_days': refresh.lifetime.days,
+            'access_lifetime_days': refresh.access_token.lifetime.days
+        })
