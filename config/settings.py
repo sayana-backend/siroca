@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'apps.company',
     'apps.user',
     'apps.application',
+    
 
 ]
 
@@ -131,7 +132,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'ru'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Bishkek'
 
 USE_I18N = True
 

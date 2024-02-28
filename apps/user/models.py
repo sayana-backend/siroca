@@ -33,13 +33,18 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     def str(self) -> str:
         return f"{self.username}"
 
+
     def save(self, *args, **kwargs):
         if self.role_type == 'Менеджер':
             self.is_manager = True
         super().save(*args, **kwargs)
 
+
     class Meta:
         verbose_name = 'Клиент'
         verbose_name_plural = verbose_name
 
+
     USERNAME_FIELD = 'username'
+
+
