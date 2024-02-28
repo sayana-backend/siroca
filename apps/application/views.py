@@ -6,6 +6,11 @@ from rest_framework import filters
 from .models import ApplicationForm, Checklist,Comments
 from .serializers import ApplicationFormSerializer, ChecklistSerializer,CommentsSerializer
 
+
+
+
+
+
 class BaseViewSet(GenericViewSet,
                   mixins.ListModelMixin,
                   mixins.RetrieveModelMixin,
@@ -19,7 +24,7 @@ class ApplicationFormAPIView(BaseViewSet):
     serializer_class = ApplicationFormSerializer
     filter_backends = (DjangoFilterBackend, filters.SearchFilter)
     search_fields = '__all__'
-    filterset_fields = ['task_number', 'title', 'description', 'username', 'manager', 'start_date', 'priority', 'status', 'checklist', 'comments' ]
+    filterset_fields = ['task_number', 'title', 'description', 'main_client', 'main_manager', 'start_date', 'priority', 'status', 'checklist', 'comments' ]
 
 class ChecklistAPIView(BaseViewSet):
     queryset = Checklist.objects.all()

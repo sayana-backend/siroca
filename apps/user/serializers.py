@@ -26,9 +26,9 @@ class UserProfileRegisterSerializer(serializers.ModelSerializer):
     #         return obj.manager.name if obj.manager else None
     #     return None
 
-    # def create(self, validated_data):
-    #     user = CustomUser.objects.create_user(**validated_data)
-    #     return user
+    def create(self, validated_data):
+        user = CustomUser.objects.create_user(**validated_data)
+        return user
 
 
 class AllUserSerializers(serializers.ModelSerializer):

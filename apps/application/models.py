@@ -1,5 +1,5 @@
 from django.db import models
-from apps.user.models import ManagerProfile, UserProfile
+from apps.user.models import CustomUser
 
 
 class Checklist(models.Model):
@@ -11,7 +11,12 @@ class Checklist(models.Model):
     completed = models.BooleanField(default=False)
     application = models.ManyToManyField('ApplicationForm', verbose_name='Заявки', related_name='checklists')
     deadline = models.DateField(verbose_name='Дедлайн', blank=True, null=True)
-    manager = models.OneToOneField(ManagerProfile, on_delete=models.CASCADE, verbose_name='Отмеченный менеджер', blank=True, null=True)
+    manager = models.OneToOneField(CustomUser,
+                                   on_delete=models.CASCADE,
+                                   verbose_name='Отмеченный менеджер',
+                                   blank=True,
+                                   null=True,
+                                   limit_choices_to={'is_manager': True})
 
     def __str__(self):
         return self.text
@@ -23,8 +28,8 @@ class Comments(models.Model):
         verbose_name_plural = 'Комментарии'
 
     text = models.TextField(verbose_name='Текст комментария')
-    user = models.ForeignKey(UserProfile, related_name='user_comments', on_delete=models.CASCADE, verbose_name='Пользователь')
-    manager = models.ForeignKey(ManagerProfile, related_name='manager_comments', on_delete=models.CASCADE, blank=True,null=True, verbose_name='Менеджер')
+    user = models.ForeignKey(CustomUser, related_name='user_comments', on_delete=models.CASCADE, verbose_name='Пользователь')
+    # manager = models.ForeignKey(CustomUser, related_name='manager_comments', on_delete=models.CASCADE, blank=True,null=True, verbose_name='Менеджер')
     date_added = models.DateTimeField(auto_now_add=True, verbose_name='Дата добавления')
     application = models.ForeignKey('ApplicationForm', on_delete=models.CASCADE, related_name='comments', verbose_name='Заявка')
 
@@ -64,8 +69,10 @@ class ApplicationForm(models.Model):
     priority = models.CharField(max_length=100, choices=PRIORITY, null=True, verbose_name='Приоритет заявки')
     jira = models.URLField(null=True, verbose_name='ссылка JIRA')
     company = models.ForeignKey('company.Company', on_delete=models.CASCADE, null=True, verbose_name='Компания')
-    username = models.ForeignKey(UserProfile, on_delete=models.CASCADE, null=True, verbose_name='Заявитель')
-    manager = models.ForeignKey(ManagerProfile, on_delete=models.CASCADE, null=True, blank=True, verbose_name='Менеджер')
+    main_client = models.ForeignKey('user.CustomUser', on_delete=models.CASCADE, null=True, related_name='client_application',
+                                    verbose_name='Заявитель', limit_choices_to={'is_client': True})
+    main_manager = models.ForeignKey('user.CustomUser', on_delete=models.CASCADE, null=True, blank=True, related_name='manager_application',
+                                     verbose_name='Менеджер', limit_choices_to={'is_manager': True})
     application_date = models.DateTimeField(auto_now_add=True, verbose_name='Дата подачи заявки')
     confirm_date = models.DateTimeField(null=True, blank=True, verbose_name='Дата утверждения заявки')
     offer_date = models.DateTimeField(null=True, blank=True, verbose_name='Дата отправки КП')

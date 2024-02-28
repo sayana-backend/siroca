@@ -22,7 +22,7 @@ class ApplicationFormSerializer(serializers.ModelSerializer):
     class Meta:
         model = ApplicationForm
         fields = 'id task_number title checklist comments ' \
-                 'company username manager' \
+                 'company main_client main_manager' \
                  ' application_date'.split() \
 
 
