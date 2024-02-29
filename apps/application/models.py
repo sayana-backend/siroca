@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import Group
+from ..user.models import CustomUser
 
 
 
@@ -48,7 +49,7 @@ class ApplicationForm(models.Model):
     comments = models.CharField(max_length=200, blank=True, null=True, verbose_name='Комментарии')
     comments_date = models.DateTimeField(auto_now_add=True)
     # check_list = models.CharField(max_length=100, null=True)
-    # logs = models.OneToOneField('ApplicationLogs', on_delete=models.CASCADE, null=True, blank=True)
+    # logs = models.ForeignKey('ApplicationLogs', on_delete=models.CASCADE, null=True, blank=True)
 
     objects = models.Manager()
 
@@ -56,20 +57,13 @@ class ApplicationForm(models.Model):
         return f'{self.title}'
 
 
-# class ApplicationLogs(models.Model):
-#     username = models.ForeignKey('user.UserProfile', on_delete=models.CASCADE, null=True, verbose_name='Заявитель')
-#     changed_date = models.DateTimeField(auto_now_add=True, verbose_name='Дата изменения')
-#     description = models.CharField(max_length=200, verbose_name='Описание')
-#
-#     def __str__(self):
-#         return f'{self.username} {self.description} {self.changed_date}'
-
 class ApplicationLogs(models.Model):
+    task_number = models.CharField(max_length=50, null=True, blank=True)
+    username = models.ForeignKey('user.UserProfile', on_delete=models.CASCADE, null=True, related_name='user')
     text = models.CharField(max_length=300, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True, null=True)
     expiration_time = models.DateTimeField(null=True)
-    changed_app_name = models.CharField(max_length=50, null=True, blank=True)
-    application_form = models.ForeignKey(ApplicationForm, on_delete=models.CASCADE, null=True, blank=True)
+    form = models.ForeignKey(ApplicationForm, on_delete=models.CASCADE, null=True, related_name='logs')
 
     objects = models.Manager()
 

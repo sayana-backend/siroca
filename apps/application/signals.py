@@ -3,12 +3,12 @@ from django.dispatch import receiver
 from datetime import timedelta
 from django.utils import timezone
 from .models import ApplicationForm, ApplicationLogs
-
+from ..user.models import UserProfile
 
 @receiver(pre_save, sender=ApplicationForm)
 def track_application_changes(sender, instance, **kwargs):
     if instance.pk is not None:
-        obj = sender.objects.get(pk=instance.pk)
+        obj = sender.objects.get(id=instance.id)
         changes = {}
         # data = ApplicationForm.objects.all()
         for field in instance._meta.fields:
@@ -19,10 +19,10 @@ def track_application_changes(sender, instance, **kwargs):
         if changes:
             message = ""
             for field, (old_value, new_value) in changes.items():
-                message += f"'{field.name}' changed from '{old_value}' to '{new_value}'. "
+                message += f"'{field.verbose_name}' изменено с '{old_value}' на '{new_value}'\n "
             expiration_time = timezone.now() + timedelta(days=1)
             ApplicationLogs.objects.create(text=message, expiration_time=expiration_time,
-                                           changed_app_name=instance.task_number)
+                                           task_number=instance.task_number, form_id=instance.id)
     expired_messages = ApplicationLogs.objects.filter(expiration_time__lt=timezone.now())
     expired_messages.delete()
 
