@@ -1,19 +1,61 @@
-
 from rest_framework import serializers
-from .models import *
+from .models import ApplicationForm, Checklist, Comments, ApplicationLogs
 
 
-class ApplicationFormSerializer(serializers.ModelSerializer):
+class ChecklistSerializer(serializers.ModelSerializer):
     class Meta:
-        model = ApplicationForm
-        fields = 'id task_number title ' \
-                 'company username manager' \
-                 ' application_date'.split()
-        # read_only_fields = ("id","task_number", "title", "company", "username", "manager", "application_date")
+        model = Checklist
+        fields = "__all__"
+
+
+class CommentsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Comments
+        fields = '__all__'
+
+
 
 class ApplicationFormDetailSerializer(serializers.ModelSerializer):
+    company = serializers.CharField(source='company.name', read_only=True)
+    main_client = serializers.CharField(source='main_client.name', read_only=True)
+    main_manager = serializers.CharField(source='main_manager.name', read_only=True)
+    checklist = ChecklistSerializer(many=True)
+    comments = CommentsSerializer(many=True)
+
+
     class Meta:
         model = ApplicationForm
-        fields = "__all__"
+
+        fields = 'id task_number title checklist comments ' \
+                 'company main_client main_manager' \
+                 ' application_date'.split()
+
+
+
+class ApplicationLogsSerializer(serializers.ModelSerializer):
+    # user = UserProfileSerializer(many=False, read_only=True)
+    class Meta:
+        model = ApplicationLogs
+        fields = ('id', 'task_number', 'text')
+
+
+
+
+class ApplicationFormLogsDetailSerializer(serializers.ModelSerializer):
+    logs = ApplicationLogsSerializer(many=True, read_only=True)
+    company = serializers.CharField(source='company.name', read_only=True)
+    main_client = serializers.CharField(source='main_client.name', read_only=True)
+    main_manager = serializers.CharField(source='main_manager.name', read_only=True)
+    checklist = ChecklistSerializer(many=True)
+    comments = CommentsSerializer(many=True)
+
+    class Meta:
+        model = ApplicationForm
+        fields = ('id', 'task_number', 'title', 'company', 'main_client', 'main_manager', 'status', 'priority', 'comments', 'checklist', 'payment_state', 'application_date', 'logs')
+
+
+
+
+
 
 

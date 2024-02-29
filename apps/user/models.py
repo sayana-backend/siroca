@@ -1,72 +1,51 @@
-
-from django.contrib.auth.models import AbstractUser
 from django.db import models
-from django.contrib.auth.models import Permission, Group
+from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
+from .usermanager import CustomUserManager
 
 
-class CustomUser(AbstractUser):
-    photo = models.ImageField(upload_to='photos/', blank=True, null=True, verbose_name='Фото')
-    first_name = models.CharField(max_length=150, verbose_name='Имя')
-    last_name = models.CharField(max_length=150, verbose_name='Фамилия')
-    phone = models.CharField(max_length=150, blank=True, null=True, verbose_name='Номер телефона')
-    job_title = models.ForeignKey('company.JobTitle', on_delete=models.CASCADE, blank=True, null=True, verbose_name='Должность в компании')
-    company = models.ForeignKey('company.Company', on_delete=models.CASCADE, null=True, verbose_name='Компания')
+class CustomUser(AbstractBaseUser, PermissionsMixin):
+    RoleType = {
+        'Клиент': 'Клиент',
+        'Менеджер': 'Менеджер',
+    }
+    image = models.ImageField(null=True, blank=True)
+    name = models.CharField(max_length=30)
+    role_type = models.CharField(max_length=20, choices=RoleType.items())
+    username = models.CharField(max_length=30, verbose_name="юзернейм", unique=True)
+    surname = models.CharField(max_length=30, verbose_name="Фамилия", null=True, blank=True)
+    job_title = models.CharField(max_length=30)
+    company = models.CharField(max_length=30)
+    created_at = models.DateField(auto_now=True)
+    is_staff = models.BooleanField(default=False)
+    is_superuser = models.BooleanField(default=False)
+    is_client = models.BooleanField(default=True)
+    is_manager = models.BooleanField(default=False, verbose_name="Менеджер")
 
-    USERNAME_FIELD = 'username'
 
-    class Meta:
-        abstract = True
+    # manager = models.ForeignKey('self',
+    #                             on_delete=models.SET_NULL,
+    #                             blank=True,
+    #                             null=True,
+    #                             related_name='Clients',
+    #                             limit_choices_to={'is_manager': True})
+
+    objects = CustomUserManager()
+
+    def str(self) -> str:
+        return f"{self.username}"
 
 
-class ExampleSuperUser(AbstractUser):
-    pass
+    def save(self, *args, **kwargs):
+        if self.role_type == 'Менеджер':
+            self.is_manager = True
+            self.is_client = False
+        super().save(*args, **kwargs)
 
-
-
-class UserProfile(CustomUser):
-    groups = models.ForeignKey(Group, on_delete=models.CASCADE, related_name='user_profiles', default=3)
-    user_permissions = models.ManyToManyField(Permission, blank=True, related_name='user_profiles')
-
-    def __str__(self):
-        return self.first_name
 
     class Meta:
         verbose_name = 'Клиент'
-        verbose_name_plural = 'Клиенты'
+        verbose_name_plural = verbose_name
 
 
-
-class ManagerProfile(CustomUser):
-    groups = models.ForeignKey(Group, on_delete=models.CASCADE, related_name='manager_profiles', default=2)
-    user_permissions = models.ManyToManyField(Permission, blank=True, related_name='manager_profiles')
-
-
-
-    def __str__(self):
-        return self.first_name
-
-    class Meta:
-        verbose_name = 'Менеджер'
-        verbose_name_plural = 'Менеджеры'
-
-
-
-
-
-
-
-class AdminProfile(CustomUser):
-    is_staff = models.BooleanField(default=True)
-    groups = models.ForeignKey(Group, on_delete=models.CASCADE, related_name='admin_profiles', default=1)
-    user_permissions = models.ManyToManyField(Permission, blank=True, related_name='admin_profiles')
-
-
-    def __str__(self):
-        return self.first_name
-
-    class Meta:
-        verbose_name = 'Администратор'
-        verbose_name_plural = 'Администраторы'
-
-
+    USERNAME_FIELD = 'username'
 

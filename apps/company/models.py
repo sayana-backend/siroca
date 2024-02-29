@@ -5,20 +5,24 @@ class Company(models.Model):
     name = models.CharField(max_length=255, verbose_name='Название  компании')
     country = models.CharField(max_length=255, verbose_name='Страна')
     manager = models.ForeignKey(
-        'user.ManagerProfile',
+        'user.CustomUser',
         on_delete=models.SET_NULL,
         null=True,
         verbose_name='Менеджер компании',
         related_name='managed_companies',
-        blank=True
+        blank=True,
+        limit_choices_to={'is_manager': True}
     )
     users = models.OneToOneField(
-        'user.UserProfile',
+        'user.CustomUser',
         verbose_name='Пользователи',
         related_name='companies',
         on_delete=models.SET_NULL,
+        blank=True,
+        null=True,
+        limit_choices_to={'is_client': True}
+    )
 
-        blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='Дата создания')
     # домен = bonestky
     # логин екатерина@bonestky.com
@@ -56,7 +60,4 @@ class JobTitle(models.Model):
         verbose_name = 'Должность'
         verbose_name_plural = 'Должности'
 
-    @classmethod
-    def create_job_title(cls, title):
-        job_title = cls.objects.create(title=title)
-        return job_title
+    

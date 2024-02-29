@@ -22,6 +22,11 @@ media
 .idea/**/usage.statistics.xml
 .idea/**/dictionaries
 .idea/**/shelf
+.idea/inspectionProfiles/profiles_settings.xml
+.idea/misc.xml
+.idea/siroca_technology.iml
+.idea/vcs.xml
+
 
 # AWS User-specific
 .idea/**/aws.xml

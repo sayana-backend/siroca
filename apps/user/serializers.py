@@ -1,20 +1,37 @@
 from rest_framework import serializers
-from .models import UserProfile, ManagerProfile, AdminProfile
+from .models import CustomUser
 
 
-class UserProfileSerializer(serializers.ModelSerializer):
+class UserAuthSerializer(serializers.ModelSerializer):
     class Meta:
-        model = UserProfile
-        fields = '__all__'
+        model = CustomUser
+        fields = ['username', 'password']
 
 
-class ManagerProfileSerializer(serializers.ModelSerializer):
+class ManagerSerializer(serializers.ModelSerializer):
     class Meta:
-        model = ManagerProfile
-        fields = '__all__'
+        model = CustomUser
+        fields = ['name', ]
 
 
-class AdminProfileSerializer(serializers.ModelSerializer):
+class UserProfileRegisterSerializer(serializers.ModelSerializer):
+    # manager = serializers.SerializerMethodField()
+    # manager = ManagerSerializer(many =True)
     class Meta:
-        model = AdminProfile
-        fields = '__all__'
+        model = CustomUser
+        fields = "username role_type surname name password image created_at job_title company".split()
+
+    # def get_manager(self, obj):
+    #     if obj.manager:
+    #         return obj.manager.name if obj.manager else None
+    #     return None
+
+    def create(self, validated_data):
+        user = CustomUser.objects.create_user(**validated_data)
+        return user
+
+
+class AllUserSerializers(serializers.ModelSerializer):
+    class Meta:
+        model = CustomUser
+        fields = "all"

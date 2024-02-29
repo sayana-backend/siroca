@@ -1,6 +1,6 @@
 from rest_framework.routers import DefaultRouter
 
-from apps.company.views import CompanyAPIView,JobTitleAPIView
+from ..company.views import CompanyAPIView,JobTitleAPIView
 
 router = DefaultRouter()
 router.register('', CompanyAPIView, "api_company")
