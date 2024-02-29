@@ -1,12 +1,10 @@
 from django.db import models
 
 
-
 class ApplicationForm(models.Model):
     class Meta:
         verbose_name = 'Заявка',
         verbose_name_plural = 'Заявки'
-
     STATUS = (
         ('Сделать', 'Сделать'),
         ('В работе', 'В работе'),
@@ -36,7 +34,7 @@ class ApplicationForm(models.Model):
     company = models.ForeignKey('company.Company',  on_delete=models.CASCADE, null=True, verbose_name='Компания')
     username = models.ForeignKey('user.UserProfile', on_delete=models.CASCADE, null=True, verbose_name='Заявитель')
     manager = models.ForeignKey('user.ManagerProfile', on_delete=models.CASCADE, null=True, blank=True, verbose_name='Менеджер')
-    application_date = models.DateTimeField(auto_now_add=True, verbose_name='Дата подачи заявки')
+    application_date = models.DateField(auto_now_add=True, verbose_name='Дата подачи заявки')
     confirm_date = models.DateTimeField(null=True, blank=True, verbose_name='Дата утверждения заявки')
     offer_date = models.DateTimeField(null=True, blank=True, verbose_name='Дата отправки КП')
     payment_state = models.CharField(max_length=100, choices=PAYMENT_STATE, null=True, verbose_name='Статус оплаты')
