@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import ApplicationForm
+from .models import ApplicationForm, ApplicationLogs
 
 
 @admin.register(ApplicationForm)
@@ -10,3 +10,5 @@ class ApplicationFormAdmin(admin.ModelAdmin):
                     'status']
     search_fields = ['task_number', 'title', 'manager',
                      'username', 'company']
+
+admin.site.register(ApplicationLogs)
