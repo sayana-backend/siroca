@@ -22,6 +22,7 @@ class Company(models.Model):
         null=True,
         limit_choices_to={'is_client': True}
     )
+
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='Дата создания')
     # домен = bonestky
     # логин екатерина@bonestky.com

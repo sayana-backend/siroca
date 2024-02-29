@@ -1,5 +1,8 @@
 from django.db import models
 from apps.user.models import CustomUser
+from django.contrib.auth.models import Group
+from ..user.models import CustomUser
+
 
 
 class Checklist(models.Model):
@@ -84,5 +87,25 @@ class ApplicationForm(models.Model):
     checklist = models.ManyToManyField(Checklist, verbose_name='Чек-листы', blank=True, related_name='checklists')
     comment = models.ManyToManyField(Comments,  verbose_name='Комментарии', blank=True, related_name='comments')
 
+    objects = models.Manager()
+
     def __str__(self):
         return f'{self.title}'
+
+
+
+
+class ApplicationLogs(models.Model):
+    task_number = models.CharField(max_length=50, null=True, blank=True)
+    # username = models.ForeignKey('user.CustomUser', on_delete=models.CASCADE, null=True, related_name='user')
+    text = models.CharField(max_length=300, null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True, null=True)
+    expiration_time = models.DateTimeField(null=True)
+    form = models.ForeignKey(ApplicationForm, on_delete=models.CASCADE, null=True, related_name='logs')
+
+    objects = models.Manager()
+
+    def __str__(self):
+        return self.text
+
+

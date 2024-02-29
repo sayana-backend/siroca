@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from apps.company.models import Company, JobTitle
+from ..company.models import Company, JobTitle
 
 class CompanySerializer(serializers.ModelSerializer):
     responsible_manager = serializers.StringRelatedField()
