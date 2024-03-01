@@ -1,4 +1,3 @@
-
 from rest_framework import serializers
 from .models import *
 
@@ -12,8 +11,12 @@ class ApplicationFormSerializer(serializers.ModelSerializer):
 
 
 class ApplicationFormDetailSerializer(serializers.ModelSerializer):
+    company = serializers.CharField(source='company.name', read_only=True)
+    username = serializers.CharField(source='username.first_name', read_only=True)
+    manager = serializers.CharField(source='manager.first_name', read_only=True)
     class Meta:
         model = ApplicationForm
+
         fields = "__all__"
 
 
@@ -36,3 +39,22 @@ class ApplicationFormFilterSerializer(serializers.ModelSerializer):
 
     def get_manager(self, obj):
         return obj.manager.first_name if obj.manager else None
+
+
+class ApplicationLogsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ApplicationLogs
+        fields = ('id', 'task_number', 'text')
+
+
+class ApplicationFormLogsDetailSerializer(serializers.ModelSerializer):
+    logs = ApplicationLogsSerializer(many=True, read_only=True)
+    company = serializers.CharField(source='company.name', read_only=True)
+    username = serializers.CharField(source='username.first_name', read_only=True)
+    manager = serializers.CharField(source='manager.first_name', read_only=True)
+
+    class Meta:
+        model = ApplicationForm
+        fields = ('id', 'task_number', 'title', 'company', 'username',
+                  'manager', 'status', 'priority', 'payment_state',
+                  'application_date', 'logs')

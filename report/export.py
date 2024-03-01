@@ -1,4 +1,4 @@
-from apps.application.serializers import ApplicationFormSerializer, ApplicationFormFilterSerializer
+from apps.application.serializers import ApplicationFormFilterSerializer
 from django_filters.rest_framework import DjangoFilterBackend
 from apps.application.models import ApplicationForm
 from report.filters import ApplicationFormFilter
@@ -22,10 +22,10 @@ class ApplicationFormFilterAPIView(viewsets.ReadOnlyModelViewSet):
     filter_backends = [DjangoFilterBackend, SearchFilter]
     filterset_class = ApplicationFormFilter
 
-    def list(self, request, **kwargs):
-        queryset = self.filter_queryset(self.get_queryset())
-        serializer = self.get_serializer(queryset, many=True)
-        return Response(serializer.data)
+    # def list(self, request, **kwargs):
+    #     queryset = self.filter_queryset(self.get_queryset())
+    #     serializer = self.get_serializer(queryset, many=True)
+    #     return Response(serializer.data)
 
 
 class ExportToExcelView(APIView):

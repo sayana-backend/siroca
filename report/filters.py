@@ -13,9 +13,9 @@ class ApplicationFormFilter(django_filters.FilterSet):
     start_date = django_filters.DateFilter(field_name='application_date', method='filter_by_start_date')
     finish_date = django_filters.DateFilter(field_name='finish_date', method='filter_by_finish_date')
 
-    class Mete:
+    class Meta:
         model = ApplicationForm
-        fields = ['start_date', 'finish_date', 'week', 'month', 'all_time']
+        fields = ['company_name', 'manager_first_name', 'start_date', 'finish_date', 'week', 'month', 'all_time']
 
     def filter_by_week(self, queryset, value, name):
         if value:

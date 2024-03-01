@@ -1,6 +1,8 @@
 
 from rest_framework.routers import DefaultRouter
-from apps.user.views import AddAdminProfileView, AddManagerProfileView, AddUserProfileView
+from ..user.views import AddAdminProfileView, AddManagerProfileView, AddUserProfileView
+
+
 
 router = DefaultRouter()
 router.register('client', AddUserProfileView, "api_user")
