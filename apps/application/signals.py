@@ -3,7 +3,7 @@ from django.dispatch import receiver
 from datetime import timedelta
 from django.utils import timezone
 from .models import ApplicationForm, ApplicationLogs
-from ..user.models import UserProfile
+
 
 @receiver(pre_save, sender=ApplicationForm)
 def track_application_changes(sender, instance, **kwargs):
