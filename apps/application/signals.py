@@ -1,8 +1,9 @@
-from django.db.models.signals import pre_save
+from django.db.models.signals import pre_save, post_save
 from django.dispatch import receiver
 from datetime import timedelta
 from django.utils import timezone
 from .models import ApplicationForm, ApplicationLogs
+from datetime import datetime
 
 @receiver(pre_save, sender=ApplicationForm)
 def track_application_changes(sender, instance, **kwargs):
@@ -26,5 +27,16 @@ def track_application_changes(sender, instance, **kwargs):
     expired_messages.delete()
 
 
+    
 
-
+@receiver(post_save, sender=ApplicationForm)
+def fill_task_number(sender, instance, created, **kwargs):
+    if created and not instance.task_number:
+        current_date = timezone.now()
+        num_applications = ApplicationForm.objects.filter(company=instance.company).count()
+        application_count_formatted = str(num_applications).zfill(2)
+        month = str(current_date.month).zfill(2)
+        year = str(current_date.year)[-2:]
+        company_code = instance.company.company_code
+        instance.task_number = f"{company_code}-{application_count_formatted}{month}{year}"
+        instance.save()

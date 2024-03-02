@@ -66,7 +66,7 @@ class ApplicationForm(models.Model):
         ('Не оплачено', 'Не оплачено'),
     )
 
-    task_number = models.PositiveIntegerField(verbose_name='Номер заявки', null=True)
+    task_number = models.CharField(max_length=10, verbose_name='Номер заявки', blank=True, null=True)
     title = models.CharField(max_length=100, verbose_name='Название заявки')
     status = models.CharField(max_length=100, choices=STATUS, null=True, verbose_name='Статус заявки')
     priority = models.CharField(max_length=100, choices=PRIORITY, null=True, verbose_name='Приоритет заявки')

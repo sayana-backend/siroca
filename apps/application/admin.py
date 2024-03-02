@@ -6,12 +6,15 @@ from .models import ApplicationForm, ApplicationLogs
 
 @admin.register(ApplicationForm)
 class ApplicationFormAdmin(admin.ModelAdmin):
-    list_display = ['task_number', 'company', 'title',
+    list_display = ['company', 'title',
                     'description', 'main_client', 'main_manager',
                     'start_date', 'finish_date', 'priority',
                     'status']
-    search_fields = ['task_number', 'title', 'main_manager',
+    search_fields = ['title', 'main_manager',
                      'main_client', 'company']
+    fields = ['company', 'title',
+                    'main_client','priority',
+                    'status']
 
 
 @admin.register(Checklist)
