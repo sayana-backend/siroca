@@ -8,7 +8,6 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 
 
-
 class BaseViewSet(GenericViewSet,
                   mixins.ListModelMixin,
                   mixins.RetrieveModelMixin,
@@ -35,6 +34,6 @@ def generate_codes_view(request):
         company_name = request.GET.get('company_name')
         company = Company()
         codes = company.generate_codes(company_name)
-        return JsonResponse(codes, safe=False)
+        return JsonResponse({'codes': codes}, safe=False)
     else:
         return JsonResponse({'error': 'Method not allowed'}, status=405)

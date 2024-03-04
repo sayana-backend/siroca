@@ -1,6 +1,7 @@
 from django.db import models
 from transliterate import translit
 import random
+from user.models import CustomUser
 
 
 class Company(models.Model):
@@ -39,6 +40,16 @@ class Company(models.Model):
             if not Company.objects.filter(company_code=code).exists():
                 codes.add(code)
         return list(codes)
+    
+    def get_count_users(self):
+        return CustomUser.objects.filter().count()
+    
+    def get_users(self):
+        user_names = [user.name for user in CustomUser.objects.all()]
+        return user_names
+    
+
+
     
 
     def __str__(self):
