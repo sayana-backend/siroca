@@ -8,6 +8,8 @@ from transliterate import translit
 class Company(models.Model):
     name = models.CharField(max_length=255, verbose_name='Название  компании')
     country = models.CharField(max_length=255, verbose_name='Страна')
+    # code =
+    # domen =
     main_manager = models.ForeignKey(
         'user.CustomUser',
         on_delete=models.SET_NULL,
@@ -15,7 +17,7 @@ class Company(models.Model):
         verbose_name='Менеджер компании',
         related_name='managed_companies',
         blank=True,
-        limit_choices_to={'is_manager': True}
+        limit_choices_to={'role_type': 'manager'}
     )
     managers = models.ManyToManyField(
         'user.CustomUser',
