@@ -1,30 +1,30 @@
+import random
 from django.db import models
 from transliterate import translit
 import random
-from user.models import CustomUser
+from ..user.models import CustomUser
+
 
 
 class Company(models.Model):
     name = models.CharField(max_length=255, verbose_name='Название  компании')
     company_code = models.CharField(max_length=255, unique=True, verbose_name='Краткий код')
     country = models.CharField(max_length=255, verbose_name='Страна')
-    manager = models.ForeignKey(
+    main_manager = models.ForeignKey(
         'user.CustomUser',
         on_delete=models.SET_NULL,
         null=True,
         verbose_name='Менеджер компании',
         related_name='managed_companies',
         blank=True,
-        limit_choices_to={'is_manager': True}
+        limit_choices_to={'role_type': 'manager'}
     )
-    users = models.OneToOneField(
+    managers = models.ManyToManyField(
         'user.CustomUser',
         verbose_name='Пользователи',
         related_name='companies',
-        on_delete=models.SET_NULL,
         blank=True,
-        null=True,
-        limit_choices_to={'is_client': True}
+        limit_choices_to={'is_manager': True}
     )
 
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='Дата создания')
@@ -50,19 +50,12 @@ class Company(models.Model):
     
 
 
-    
-
     def __str__(self):
         return self.name
 
     class Meta:
         verbose_name = 'Компания'
         verbose_name_plural = 'Компании'
-
-    def get_users(self):
-        return self.users.all()
-    
-    
 
 
 

@@ -2,8 +2,8 @@ from rest_framework import serializers
 from ..company.models import Company, JobTitle
 
 class CompanySerializer(serializers.ModelSerializer):
-    responsible_manager = serializers.StringRelatedField()
-    users = serializers.StringRelatedField(many=True)
+    # responsible_manager = serializers.StringRelatedField()
+    # users = serializers.StringRelatedField(many=True)
 
     class Meta:
         model = Company
