@@ -16,12 +16,34 @@ class IsClientUser(permissions.BasePermission):
     def has_permission(self, request, view):
         return request.user.is_authenticated and request.user.is_client
 
+class IsManagerCanEdit(permissions.BasePermission):
+    def has_permission(self, request, view):
+        return request.user.is_authenticated and request.user.manager_can_edit
+
+class IsManagerCanGetReports(permissions.BasePermission):
+    def has_permission(self, request, view):
+        return request.user.is_authenticated and request.user.manager_can_get_reports
+
+class IsClientCanGetReports(permissions.BasePermission):
+    def has_permission(self, request, view):
+        return request.user.is_authenticated and request.user.client_can_get_reports
 
 
+class IsClientCanPutComments(permissions.BasePermission):
+    def has_permission(self, request, view):
+        return request.user.is_authenticated and request.user.client_can_put_comments
 
+class IsClientCanDeleteComments(permissions.BasePermission):
+    def has_permission(self, request, view):
+        return request.user.is_authenticated and request.user.client_can_delete_comments
 
+class IsClientCanViewLogs(permissions.BasePermission):
+    def has_permission(self, request, view):
+        return request.user.is_authenticated and request.user.client_can_view_logs
 
-
+class IsClientCanAddChecklist(permissions.BasePermission):
+    def has_permission(self, request, view):
+        return request.user.is_authenticated and request.user.client_can_add_checklist
 
 
 

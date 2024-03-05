@@ -32,7 +32,15 @@ from .models import CustomUser
 #         ),
 #     )
 
-admin.site.register(CustomUser)
+
+@admin.register(CustomUser)
+class AdminUser(admin.ModelAdmin):
+    list_display = ['username', 'role_type', 'is_manager', 'is_client', 'manager_can_edit',
+                    'manager_can_get_reports', 'client_can_put_comments',
+                    'client_can_get_reports', 'client_can_view_logs',
+                    'client_can_delete_comments', 'client_can_add_checklist']
+    list_filter = ['role_type']
+
 
 # class ClientPermissionsAdmin(admin.ModelAdmin):
 #     def has_add_permission(self, request):

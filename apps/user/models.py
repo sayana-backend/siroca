@@ -8,7 +8,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
         'client': 'Клиент',
         'manager': 'Менеджер',
     }
-    role_type = models.CharField(max_length=20, choices=RoleType.items())
+    role_type = models.CharField(max_length=20, choices=RoleType.items(), verbose_name='Тип роли')
     username = models.CharField(max_length=30, verbose_name="Логин", unique=True)
     first_name = models.CharField(max_length=30, verbose_name="Имя")
     surname = models.CharField(max_length=30, verbose_name="фамилия")
@@ -29,6 +29,16 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
                                   blank=True,
                                   on_delete=models.SET_NULL)
 
+    manager_can_edit = models.BooleanField(default=False, verbose_name='Редактирование комментариев')
+    manager_can_get_reports = models.BooleanField(default=False, verbose_name='Отчет по заявкам(Менеджер)')
+
+    client_can_put_comments = models.BooleanField(default=False, verbose_name='Комментарий к заявке')
+    client_can_get_reports = models.BooleanField(default=False, verbose_name='Отчет по заявкам(Клиент)')
+    client_can_view_logs = models.BooleanField(default=False, verbose_name='Просмотр логов')
+    client_can_delete_comments = models.BooleanField(default=False, verbose_name='Удаление комментариев')
+    client_can_add_checklist = models.BooleanField(default=False, verbose_name='Добавление чеклиста')
+
+
     objects = CustomUserManager()
     USERNAME_FIELD = 'username'
 
@@ -39,6 +49,9 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     def save(self, *args, **kwargs):
         if self.role_type == 'manager':
             self.is_manager = True
+        else:
+            self.role_type == 'client'
+            self.is_client = True
         super().save(*args, **kwargs)
 
 
@@ -48,24 +61,6 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
 
 
 
-# class ClientPermissions(models.Model):
-#     logs_view = models.BooleanField(default=False, verbose_name='Просмотр логов')
-#     put_comments = models.BooleanField(default=False, verbose_name='Добавление комментариев')
-#     delete_comments = models.BooleanField(default=False,  verbose_name='Удаление комментариев')
-#     add_checklist = models.BooleanField(default=False,  verbose_name='Добавление чеклиста')
-#     get_report = models.BooleanField(default=False,  verbose_name='Получение отчета по своим заявкам')
-#
-#     class Meta:
-#         verbose_name_plural = 'Права пользователей'
-#
-#
-#
-# class ManagerPermissions(models.Model):
-#     manage_comments = models.BooleanField(default=False, verbose_name='Управлять комментариями')
-#     get_all_reports = models.BooleanField(default=False, verbose_name='Получение отчетов по всем своим заявкам')
-#
-#     class Meta:
-#         verbose_name_plural = 'Права менеджеров'
 
 
 

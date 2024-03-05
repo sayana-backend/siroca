@@ -18,4 +18,15 @@ class UserProfileSerializer(serializers.ModelSerializer):
         return user
 
 
+class ManagerPermissionsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CustomUser
+        fields = ['manager_can_edit', 'manager_can_get_reports']
 
+
+
+
+class ClientPermissionsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CustomUser
+        fields = ['client_can_put_comments', 'client_can_get_reports', 'client_can_view_logs', 'client_can_delete_comments', 'client_can_add_checklist']
