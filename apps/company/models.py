@@ -42,12 +42,12 @@ class Company(models.Model):
         return list(codes)
     
     def get_count_users(self):
-        count_users = CustomUser.objects.filter(company=self).count()
+        count_users = CustomUser.objects.filter(main_company=self).count()
         return count_users
     
     def get_users(self):
-        users = CustomUser.objects.filter(company=self)
-        user_names = [user.name for user in users]
+        users = CustomUser.objects.filter(main_company=self)
+        user_names = [user.first_name for user in users]
         return user_names
     
 
