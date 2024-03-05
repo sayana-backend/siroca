@@ -5,7 +5,11 @@ from .serializers import UserProfileSerializer, UserAuthSerializer
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework import permissions
+# from flask import request
 
+# class ClientPermissionsList(permissions.BasePermission):
+#     def has_permission(self, request, view):
+#         return request.user.is_client
 
 class CreateUserView(generics.CreateAPIView):
     queryset = CustomUser.objects.all()
@@ -37,7 +41,7 @@ class UserLoginView(generics.CreateAPIView):
             access_token = refresh.access_token
             return Response({
                 'detail': 'Вы успешно вошли',
-                'name': user.name,
+                'name': user.first_name,
                 'refresh-token': str(refresh),
                 'access': str(access_token),
                 'refresh_lifetime_days': refresh.lifetime.days,

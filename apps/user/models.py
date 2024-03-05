@@ -18,8 +18,9 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     is_staff = models.BooleanField(default=False)
     is_superuser = models.BooleanField(default=False)
     is_manager = models.BooleanField(default=False, verbose_name="Менеджер")
+    is_client = models.BooleanField(default=False, verbose_name="Клиент")
 
-    main_company = models.ForeignKey('company.Company', verbose_name="Компания", related_name='company_users', on_delete=models.CASCADE)
+    main_company = models.ForeignKey('company.Company', verbose_name="Компания", related_name='company_users', null=True, on_delete=models.CASCADE)
     managers_company = models.ManyToManyField('company.Company', verbose_name="Компании менеджеров", related_name='managers_company', blank=True)
     job_title = models.ForeignKey('company.JobTitle',
                                   verbose_name="Должность",
@@ -44,6 +45,27 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     class Meta:
         verbose_name = 'User'
         verbose_name_plural = verbose_name
+
+
+
+# class ClientPermissions(models.Model):
+#     logs_view = models.BooleanField(default=False, verbose_name='Просмотр логов')
+#     put_comments = models.BooleanField(default=False, verbose_name='Добавление комментариев')
+#     delete_comments = models.BooleanField(default=False,  verbose_name='Удаление комментариев')
+#     add_checklist = models.BooleanField(default=False,  verbose_name='Добавление чеклиста')
+#     get_report = models.BooleanField(default=False,  verbose_name='Получение отчета по своим заявкам')
+#
+#     class Meta:
+#         verbose_name_plural = 'Права пользователей'
+#
+#
+#
+# class ManagerPermissions(models.Model):
+#     manage_comments = models.BooleanField(default=False, verbose_name='Управлять комментариями')
+#     get_all_reports = models.BooleanField(default=False, verbose_name='Получение отчетов по всем своим заявкам')
+#
+#     class Meta:
+#         verbose_name_plural = 'Права менеджеров'
 
 
 

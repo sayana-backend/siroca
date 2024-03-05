@@ -8,7 +8,6 @@ from rest_framework import generics
 
 
 
-
 class ApplicationFormListCreateAPIView(generics.ListCreateAPIView):
     queryset = ApplicationForm.objects.all()
     serializer_class = ApplicationFormLogsDetailSerializer

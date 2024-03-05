@@ -1,6 +1,5 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-
 from .models import CustomUser
 
 
@@ -34,3 +33,22 @@ from .models import CustomUser
 #     )
 
 admin.site.register(CustomUser)
+
+# class ClientPermissionsAdmin(admin.ModelAdmin):
+#     def has_add_permission(self, request):
+#         if ClientPermissions.objects.exists():
+#             return False
+#         return True
+#     list_display = ('logs_view', 'put_comments', 'delete_comments', 'add_checklist', 'get_report')
+#
+# admin.site.register(ClientPermissions, ClientPermissionsAdmin)
+#
+#
+# class ManagerPermissionsAdmin(admin.ModelAdmin):
+#     def has_add_permission(self, request):
+#         if ManagerPermissions.objects.exists():
+#             return False
+#         return True
+#     list_display = ('manage_comments', 'get_all_reports')
+#
+# admin.site.register(ManagerPermissions, ManagerPermissionsAdmin)

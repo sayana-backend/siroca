@@ -12,3 +12,4 @@ class CompanyAdmin(admin.ModelAdmin):
 class JobTitleAdmin(admin.ModelAdmin):
     list_display = ['title']  
     search_fields = ['title']  
+
