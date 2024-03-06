@@ -64,7 +64,7 @@ class ApplicationForm(models.Model):
         ('Не оплачено', 'Не оплачено'),
     )
 
-    task_number = models.PositiveIntegerField(verbose_name='Номер заявки', null=True)
+    task_number = models.CharField(max_length=10, verbose_name='Номер заявки', blank=True, null=True)
     title = models.CharField(max_length=100, verbose_name='Название заявки')
     description = models.CharField(null=True, max_length=200, verbose_name='Описание')
     files = models.ImageField(upload_to='', null=True, verbose_name='Файлы')
