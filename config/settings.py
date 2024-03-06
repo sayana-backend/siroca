@@ -65,8 +65,6 @@ SIMPLE_JWT = {
 }
 
 
-
-
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -155,4 +153,5 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 JAZZMIN_SETTINGS = jazzmin_settings.JAZZMIN_SETTINGS
 
 AUTH_USER_MODEL = 'user.CustomUser'
+
 
