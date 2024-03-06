@@ -22,7 +22,6 @@ class ExampleSuperUser(AbstractUser):
     pass
 
 
-
 class UserProfile(CustomUser):
     groups = models.ForeignKey(Group, on_delete=models.CASCADE, related_name='user_profiles', default=3)
     user_permissions = models.ManyToManyField(Permission, blank=True, related_name='user_profiles')
@@ -33,8 +32,6 @@ class UserProfile(CustomUser):
     class Meta:
         verbose_name = 'Клиент'
         verbose_name_plural = 'Клиенты'
-
-
 
 class ManagerProfile(CustomUser):
     groups = models.ForeignKey(Group, on_delete=models.CASCADE, related_name='manager_profiles', default=2)
