@@ -1,7 +1,7 @@
-from datetime import datetime, timedelta, date
-import django_filters
-from django.http import Http404
 from apps.application.models import ApplicationForm
+from datetime import datetime, timedelta, date
+from django.http import Http404
+import django_filters
 
 
 class ApplicationFormFilter(django_filters.FilterSet):
@@ -15,7 +15,9 @@ class ApplicationFormFilter(django_filters.FilterSet):
 
     class Meta:
         model = ApplicationForm
-        fields = ['company_name', 'manager_first_name', 'start_date', 'finish_date', 'week', 'month', 'all_time']
+        fields = ['company_name', 'manager_first_name',
+                  'start_date', 'finish_date', 'week',
+                  'month', 'all_time']
 
     def filter_by_week(self, queryset, value, name):
         if value:
@@ -46,3 +48,6 @@ class ApplicationFormFilter(django_filters.FilterSet):
             raise Http404()
         return filter_finish_date
 
+    def filter_by_period(self, queryset, name, value):
+        start_date, end_date = value
+        return queryset.filter(application_date__gte=start_date, application_date__lte=end_date, company=value)

@@ -22,7 +22,7 @@ class ApplicationFormSerializer(serializers.ModelSerializer):
     class Meta:
         model = ApplicationForm
         fields = 'id task_number title ' \
-                 'company username manager' \
+                 'company ' \
                  ' application_date'.split()
 
 
@@ -41,27 +41,6 @@ class ApplicationFormDetailSerializer(serializers.ModelSerializer):
                  ' application_date'.split()
 
 
-class ApplicationFormFilterSerializer(serializers.ModelSerializer):
-    company = serializers.SerializerMethodField()
-    username = serializers.SerializerMethodField()
-    manager = serializers.SerializerMethodField()
-
-    class Meta:
-        model = ApplicationForm
-        fields = 'id task_number title ' \
-                 'company username manager' \
-                 ' application_date'.split()
-
-    def get_company(self, obj):
-        return obj.company.name if obj.company else None
-
-    def get_username(self, obj):
-        return obj.main_client.username if obj.main_client else None
-
-    def get_manager(self, obj):
-        return obj.main_manager.username if obj.main_manager else None
-
-
 class ApplicationLogsSerializer(serializers.ModelSerializer):
     class Meta:
         model = ApplicationLogs
@@ -78,6 +57,6 @@ class ApplicationFormLogsDetailSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ApplicationForm
-        fields = ('id', 'task_number', 'title', 'company','main_client', 'main_manager',
-                  'status','priority', 'comments', 'checklist', 'payment_state',
+        fields = ('id', 'task_number', 'title', 'company', 'main_client', 'main_manager',
+                  'status', 'priority', 'comments', 'checklist', 'payment_state',
                   'application_date', 'logs')

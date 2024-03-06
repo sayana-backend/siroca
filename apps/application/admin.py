@@ -3,7 +3,6 @@ from .models import Checklist, Comments
 from .models import ApplicationForm, ApplicationLogs
 
 
-
 @admin.register(ApplicationForm)
 class ApplicationFormAdmin(admin.ModelAdmin):
     list_display = ['task_number', 'company', 'title',

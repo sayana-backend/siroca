@@ -1,4 +1,8 @@
+from datetime import timedelta
+
 from django.db import models
+from django.utils import timezone
+
 from apps.user.models import CustomUser
 from django.contrib.auth.models import Group
 from ..user.models import CustomUser
@@ -71,7 +75,7 @@ class ApplicationForm(models.Model):
     jira = models.URLField(null=True, verbose_name='ссылка JIRA')
     company = models.ForeignKey('company.Company', on_delete=models.CASCADE, null=True, verbose_name='Компания')
     main_client = models.ForeignKey('user.CustomUser', on_delete=models.CASCADE, null=True, related_name='client_application',
-                                    verbose_name='Заявитель', limit_choices_to={'is_client': True})
+                                    verbose_name='Заявитель', limit_choices_to={'is_manager': False})
     main_manager = models.ForeignKey('user.CustomUser', on_delete=models.CASCADE, null=True, blank=True, related_name='manager_application',
                                      verbose_name='Менеджер', limit_choices_to={'is_manager': True})
     application_date = models.DateTimeField(auto_now_add=True, verbose_name='Дата подачи заявки')
@@ -91,6 +95,20 @@ class ApplicationForm(models.Model):
         return f'{self.title}'
 
 
+class TrackingStatus(models.Model):
+    status = models.CharField(max_length=100, null=True, blank=True)
+    date_status = models.DateField(auto_now_add=True, null=True, blank=True)
+    expiration_time = models.DateTimeField()
+    form = models.ForeignKey(ApplicationForm, on_delete=models.CASCADE, null=True, blank=True)
+
+
+class TrackingPriority(models.Model):
+    priority = models.CharField(max_length=100, null=True, blank=True)
+    date_priority = models.DateField(auto_now_add=True, null=True, blank=True)
+    expiration_time = models.DateTimeField()
+    form = models.ForeignKey(ApplicationForm, on_delete=models.CASCADE, null=True, blank=True)
+
+
 class ApplicationLogs(models.Model):
     task_number = models.CharField(max_length=50, null=True, blank=True)
     # username = models.ForeignKey('user.CustomUser', on_delete=models.CASCADE, null=True, related_name='user')
@@ -103,3 +121,4 @@ class ApplicationLogs(models.Model):
 
     def __str__(self):
         return self.text
+

@@ -28,6 +28,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
                                   null=True,
                                   blank=True,
                                   on_delete=models.SET_NULL)
+    websocket_channel_name = models.CharField(max_length=255, blank=True, null=True)
 
     objects = CustomUserManager()
     USERNAME_FIELD = 'username'

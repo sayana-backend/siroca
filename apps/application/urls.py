@@ -1,12 +1,13 @@
-from report.export import ApplicationFormFilterAPIView, ExportToExcelView
-from apps.application.views import (ApplicationFormAPIView)
-from rest_framework.routers import DefaultRouter
-from django.urls import path, include
-from apps.application.views import ChecklistAPIView, CommentsAPIView, CheckListDetailAPIView, CommentsDetailAPIView
+from apps.application.views import (ChecklistAPIView, CommentsAPIView,
+                                    CheckListDetailAPIView, CommentsDetailAPIView)
 from ..application.views import (ApplicationFormListCreateAPIView,
                                  ApplicationLogsListCreateAPIView,
                                  ApplicationLogsRetrieveUpdateDestroyAPIView,
                                  ApplicationFormRetrieveUpdateDestroyAPIView,)
+from report.export import (ApplicationFormFilterAPIView, ExportToExcelView)
+from apps.application.views import (ApplicationFormAPIView)
+from rest_framework.routers import DefaultRouter
+from django.urls import path, include
 
 
 router = DefaultRouter()
@@ -25,4 +26,3 @@ urlpatterns = [
     path('comments/', CommentsAPIView.as_view()),
     path('comments/<int:id>/', CommentsDetailAPIView.as_view()),
 ]
-
