@@ -14,11 +14,10 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     surname = models.CharField(max_length=30, verbose_name="фамилия")
     image = models.ImageField(verbose_name="Изображение", null=True, blank=True)
     created_at = models.DateField(auto_now_add=True, verbose_name="Дата создания")
-
     is_staff = models.BooleanField(default=False)
     is_superuser = models.BooleanField(default=False)
     is_manager = models.BooleanField(default=False, verbose_name="Менеджер")
-
+    is_client = models.BooleanField(default=False)
     main_company = models.ForeignKey('company.Company', verbose_name="Компания", related_name='company_users', on_delete=models.CASCADE, null=True)
     managers_company = models.ManyToManyField('company.Company', verbose_name="Компании менеджеров", related_name='managers_company', blank=True)
     job_title = models.ForeignKey('company.JobTitle',

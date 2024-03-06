@@ -70,7 +70,6 @@ class ApplicationForm(models.Model):
     description = models.CharField(null=True, max_length=200, verbose_name='Описание')
     files = models.ImageField(upload_to='', null=True, verbose_name='Файлы')
     jira = models.URLField(null=True, verbose_name='ссылка JIRA')
-
     status = models.CharField(max_length=100, choices=STATUS, default='К выполнению', verbose_name='Статус заявки')
     payment_state = models.CharField(max_length=100, choices=PAYMENT_STATE, null=True, verbose_name='Статус оплаты')
     priority = models.CharField(max_length=100, choices=PRIORITY, verbose_name='Приоритет заявки')
