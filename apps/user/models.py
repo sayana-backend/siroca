@@ -1,4 +1,3 @@
-from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 from .usermanager import CustomUserManager
@@ -28,7 +27,6 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
                                   null=True,
                                   blank=True,
                                   on_delete=models.SET_NULL)
-    websocket_channel_name = models.CharField(max_length=255, blank=True, null=True)
 
     objects = CustomUserManager()
     USERNAME_FIELD = 'username'
@@ -44,4 +42,5 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     class Meta:
         verbose_name = 'User'
         verbose_name_plural = verbose_name
+
 

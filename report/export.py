@@ -66,39 +66,28 @@ class ExportToExcelView(APIView):
         serializer = ApplicationFormFilterSerializer(queryset, many=True)
         data = serializer.data
 
-        # Создание DataFrame из данных
         df = pd.DataFrame(data)
-
-        # Удаление пустых списков
         df = df.applymap(lambda x: None if x == [] else x)
 
-        # Преобразование значений словарей в строки без скобок и кавычек
-        # df['status_info'] = df['status_info'].apply(
-            # lambda x: ', '.join([f"{item['status']} - {item['date_status']}" for item in x]) if x else None)
         df['status_info'] = df['status_info'].apply(lambda x: ', '.join([f"{item['status']} - {item['date_status']}" for item in x]))
         df['priority_info'] = df['priority_info'].apply(lambda x: ', '.join([f"{item['priority']} - {item['date_priority']}" for item in x]))
 
-        # Создание DataFrame с данными о количестве заявок
         count_df = pd.DataFrame([{'Количество заявок': len(data)}])
 
-        # Объединение основного DataFrame и DataFrame с количеством заявок
         final_df = pd.concat([df, count_df], axis=1)
 
-        # Генерация имени файла
         date_str = datetime.now().strftime('%Y-%m-%d')
         random_suffix = self.generate_random_string()
         filename = f"siroco_{date_str}_report_{random_suffix}.xlsx"
         desktop_path = self.get_desktop_path()
         excel_file_path = os.path.join(desktop_path, filename)
 
-        # Запись данных в Excel с использованием openpyxl
         wb = Workbook()
         ws = wb.active
         ws.append(final_df.columns.tolist())  # Запись заголовков
         for row in dataframe_to_rows(final_df, index=False, header=False):
             ws.append(row)
 
-        # Выравнивание ячеек по левому краю
         for col in ws.columns:
             max_length = 0
             column = col[0].column_letter
