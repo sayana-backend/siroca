@@ -4,7 +4,6 @@ from django.contrib.auth.models import Group
 from ..user.models import CustomUser
 
 
-
 class Checklist(models.Model):
     class Meta:
         verbose_name = 'Подзадача'

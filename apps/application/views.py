@@ -29,38 +29,32 @@ class ApplicationLogsListCreateAPIView(generics.ListCreateAPIView):
     serializer_class = ApplicationLogsSerializer
 
 
-class ApplicationLogsRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
-    queryset = ApplicationLogs.objects.all()
-    serializer_class = ApplicationLogsSerializer
-    lookup_field = 'id'
-
-
-
-
-
-class ChecklistAPIView(generics.CreateAPIView):
+class ChecklistAPIView(generics.ListCreateAPIView):
     queryset = Checklist.objects.all()
     serializer_class = ChecklistSerializer
-    # filter_backends = (DjangoFilterBackend, filters.SearchFilter)
-    # search_fields = '__all__'
-    # filterset_fields = ['completed', 'text', 'manager']
 
 
-class CheckListDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
-    queryset = Checklist.objects.all()
-    serializer_class = ChecklistSerializer
-    lookup_field = 'id'
-
-
-class CommentsAPIView(generics.CreateAPIView):
+class CommentsAPIView(generics.ListCreateAPIView):
     queryset = Comments.objects.all()
     serializer_class = CommentsSerializer
 
 
-class CommentsDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
-    queryset = Comments.objects.all()
-    serializer_class = CommentsSerializer
-    lookup_field = 'id'
+# class ApplicationLogsRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
+#     queryset = ApplicationLogs.objects.all()
+#     serializer_class = ApplicationLogsSerializer
+#     lookup_field = 'id'
+
+
+# class CheckListDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
+#     queryset = Checklist.objects.all()
+#     serializer_class = ChecklistSerializer
+#     lookup_field = 'id'
+#
+#
+# class CommentsDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
+#     queryset = Comments.objects.all()
+#     serializer_class = CommentsSerializer
+#     lookup_field = 'id'
 
 
 

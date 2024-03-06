@@ -18,23 +18,24 @@ class CommentsSerializer(serializers.ModelSerializer):
         return super().create(validated_data)
 
 
+class ApplicationLogsSerializer(serializers.ModelSerializer):
+    # user = UserProfileSerializer(many=False, read_only=True)
+    class Meta:
+        model = ApplicationLogs
+        fields = ('id', 'task_number', 'text')
+
+
 class ApplicationFormDetailSerializer(serializers.ModelSerializer):
     # company = serializers.CharField(source='company.name', read_only=True)
     # main_client = serializers.CharField(source='main_client.name', read_only=True)
     # main_manager = serializers.CharField(source='main_manager.name', read_only=True)
     checklist = ChecklistSerializer(many=True)
     comments = CommentsSerializer(many=True)
+    logs = ApplicationLogsSerializer(many=True)
 
     class Meta:
         model = ApplicationForm
         fields = '__all__'
-
-
-class ApplicationLogsSerializer(serializers.ModelSerializer):
-    # user = UserProfileSerializer(many=False, read_only=True)
-    class Meta:
-        model = ApplicationLogs
-        fields = ('id', 'task_number', 'text')
 
 
 #
