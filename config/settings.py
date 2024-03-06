@@ -78,8 +78,6 @@ MIDDLEWARE = [
 ROOT_URLCONF = 'config.urls'
 
 
-
-
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
@@ -97,6 +95,7 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'config.wsgi.application'
+
 
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
@@ -152,6 +151,8 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 JAZZMIN_SETTINGS = jazzmin_settings.JAZZMIN_SETTINGS
 
-AUTH_USER_MODEL = 'user.CustomUser'
 
+# AUTH_USER_MODEL = 'user.ExampleSuperUser'
+
+AUTH_USER_MODEL = 'user.CustomUser'
 

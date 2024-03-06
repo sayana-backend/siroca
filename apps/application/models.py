@@ -1,10 +1,11 @@
+from datetime import timedelta
 from django.db import models
+from django.utils import timezone
 from apps.user.models import CustomUser
 from django.contrib.auth.models import Group
 from ..user.models import CustomUser
 
 
-<<<<<<< HEAD
 class Checklist(models.Model):
     class Meta:
         verbose_name = 'Подзадача'
@@ -39,8 +40,6 @@ class Comments(models.Model):
         return f"Комментарий от {self.user} по заявке {self.application.title}"
 
 
-=======
->>>>>>> origin/user_register
 class ApplicationForm(models.Model):
     class Meta:
         verbose_name = 'Заявка'
@@ -71,17 +70,8 @@ class ApplicationForm(models.Model):
     description = models.CharField(null=True, max_length=200, verbose_name='Описание')
     files = models.ImageField(upload_to='', null=True, verbose_name='Файлы')
     jira = models.URLField(null=True, verbose_name='ссылка JIRA')
-<<<<<<< HEAD
 
     status = models.CharField(max_length=100, choices=STATUS, default='К выполнению', verbose_name='Статус заявки')
-=======
-    company = models.ForeignKey('company.Company',  on_delete=models.CASCADE, null=True, verbose_name='Компания')
-    username = models.ForeignKey('user.UserProfile', on_delete=models.CASCADE, null=True, verbose_name='Заявитель')
-    manager = models.ForeignKey('user.ManagerProfile', on_delete=models.CASCADE, null=True, blank=True, verbose_name='Менеджер')
-    application_date = models.DateField(auto_now_add=True, verbose_name='Дата подачи заявки')
-    confirm_date = models.DateTimeField(null=True, blank=True, verbose_name='Дата утверждения заявки')
-    offer_date = models.DateTimeField(null=True, blank=True, verbose_name='Дата отправки КП')
->>>>>>> origin/user_register
     payment_state = models.CharField(max_length=100, choices=PAYMENT_STATE, null=True, verbose_name='Статус оплаты')
     priority = models.CharField(max_length=100, choices=PRIORITY, verbose_name='Приоритет заявки')
 
@@ -111,7 +101,18 @@ class ApplicationForm(models.Model):
         return f'{self.title}'
 
 
-<<<<<<< HEAD
+class TrackingStatus(models.Model):
+    status = models.CharField(max_length=100, null=True, blank=True)
+    date_status = models.DateField(auto_now_add=True, null=True, blank=True)
+    expiration_time = models.DateTimeField()
+    form = models.ForeignKey(ApplicationForm, on_delete=models.CASCADE, null=True, blank=True)
+
+
+class TrackingPriority(models.Model):
+    priority = models.CharField(max_length=100, null=True, blank=True)
+    date_priority = models.DateField(auto_now_add=True, null=True, blank=True)
+    expiration_time = models.DateTimeField()
+    form = models.ForeignKey(ApplicationForm, on_delete=models.CASCADE, null=True, blank=True)
 
 
 class ApplicationLogs(models.Model):
@@ -128,12 +129,3 @@ class ApplicationLogs(models.Model):
         return self.text
 
 
-=======
-# class ApplicationLogs(models.Model):
-#     username = models.ForeignKey('user.UserProfile', on_delete=models.CASCADE, null=True, verbose_name='Заявитель')
-#     changed_date = models.DateTimeField(auto_now_add=True, verbose_name='Дата изменения')
-#     description = models.CharField(max_length=200, verbose_name='Описание')
-#
-#     def __str__(self):
-#         return f'{self.username} {self.description} {self.changed_date}'
->>>>>>> origin/user_register

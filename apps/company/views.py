@@ -5,27 +5,11 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 
 
-<<<<<<< HEAD
 class CompanyListAPIView(generics.ListAPIView):
-=======
-
-
-class BaseViewSet(GenericViewSet,
-                  mixins.ListModelMixin,
-                  mixins.RetrieveModelMixin,
-                  mixins.CreateModelMixin,
-                  mixins.UpdateModelMixin,
-                  mixins.DestroyModelMixin):
-    pass
-
-
-class CompanyAPIView(BaseViewSet):
->>>>>>> origin/user_register
     queryset = Company.objects.all()
     serializer_class = CompanySerializer
 
 
-<<<<<<< HEAD
 class CompanyCreateAPIView(generics.CreateAPIView):
     queryset = Company.objects.all()
     serializer_class = CompanySerializer
@@ -38,9 +22,6 @@ class CompanyRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView)
 
 
 class JobTitleListCreateAPIView(generics.ListCreateAPIView):
-=======
-class JobTitleAPIView(BaseViewSet):
->>>>>>> origin/user_register
     queryset = JobTitle.objects.all()
     serializer_class = JobTitleSerializer
 

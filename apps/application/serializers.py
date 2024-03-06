@@ -18,8 +18,16 @@ class CommentsSerializer(serializers.ModelSerializer):
         return super().create(validated_data)
 
 
+class ApplicationFormSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ApplicationForm
+        fields = 'id task_number title ' \
+                 'company ' \
+                 ' application_date'.split()
+
+
+
 class ApplicationLogsSerializer(serializers.ModelSerializer):
-    # user = UserProfileSerializer(many=False, read_only=True)
     class Meta:
         model = ApplicationLogs
         fields = ('id', 'task_number', 'text')
@@ -40,22 +48,17 @@ class ApplicationFormDetailSerializer(serializers.ModelSerializer):
 
 
 
-class ApplicationFormFilterSerializer(serializers.ModelSerializer):
-    company = serializers.SerializerMethodField()
-    username = serializers.SerializerMethodField()
-    manager = serializers.SerializerMethodField()
+class ApplicationFormLogsDetailSerializer(serializers.ModelSerializer):
+    logs = ApplicationLogsSerializer(many=True, read_only=True)
+    company = serializers.CharField(source='company.name', read_only=True)
+    main_client = serializers.CharField(source='main_client.name', read_only=True)
+    main_manager = serializers.CharField(source='main_manager.name', read_only=True)
+    checklist = ChecklistSerializer(many=True)
+    comments = CommentsSerializer(many=True)
 
     class Meta:
         model = ApplicationForm
-        fields = 'id task_number title ' \
-                 'company username manager' \
-                 ' application_date'.split()
+        fields = ('id', 'task_number', 'title', 'company', 'main_client', 'main_manager',
+                  'status', 'priority', 'comments', 'checklist', 'payment_state',
+                  'application_date', 'logs')
 
-    def get_company(self, obj):
-        return obj.company.name if obj.company else None
-
-    def get_username(self, obj):
-        return obj.username.first_name if obj.username else None
-
-    def get_manager(self, obj):
-        return obj.manager.first_name if obj.manager else None
