@@ -73,6 +73,8 @@ class ExportToExcelView(APIView):
         df = df.applymap(lambda x: None if x == [] else x)
 
         # Преобразование значений словарей в строки без скобок и кавычек
+        # df['status_info'] = df['status_info'].apply(
+            # lambda x: ', '.join([f"{item['status']} - {item['date_status']}" for item in x]) if x else None)
         df['status_info'] = df['status_info'].apply(lambda x: ', '.join([f"{item['status']} - {item['date_status']}" for item in x]))
         df['priority_info'] = df['priority_info'].apply(lambda x: ', '.join([f"{item['priority']} - {item['date_priority']}" for item in x]))
 
