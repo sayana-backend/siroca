@@ -14,7 +14,7 @@ class Checklist(models.Model):
     completed = models.BooleanField(default=False)
     application = models.ForeignKey('ApplicationForm', verbose_name='Заявки', on_delete=models.CASCADE, related_name='checklists')
     deadline = models.DateField(verbose_name='Дедлайн', blank=True, null=True)
-    manager = models.OneToOneField(CustomUser,
+    manager = models.ForeignKey(CustomUser,
                                    on_delete=models.CASCADE,
                                    verbose_name='Отмеченный менеджер',
                                    blank=True,
