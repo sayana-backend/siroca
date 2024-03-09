@@ -3,6 +3,7 @@ from ..company.models import Company, JobTitle
 from ..company.serializers import CompanySerializer, JobTitleSerializer
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
+from rest_framework.permissions import IsAuthenticated
 
 
 class CompanyListAPIView(generics.ListAPIView):
