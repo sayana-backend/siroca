@@ -17,3 +17,5 @@ class UserProfileSerializer(serializers.ModelSerializer):
         user = CustomUser.objects.create_user(**validated_data)
         return user
 
+
+

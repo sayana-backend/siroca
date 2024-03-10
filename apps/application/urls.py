@@ -1,6 +1,6 @@
-from django.urls import path
 from report.export import (ApplicationFormFilterAPIView, ExportToExcelView)
 from ..application.views import *
+from django.urls import path
 
 
 urlpatterns = [

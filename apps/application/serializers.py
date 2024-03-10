@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import ApplicationForm, Checklist, Comments, ApplicationLogs
+from .models import ApplicationForm, Checklist, Comments, ApplicationLogs, Notification
 
 
 class ChecklistSerializer(serializers.ModelSerializer):
@@ -26,7 +26,6 @@ class ApplicationFormSerializer(serializers.ModelSerializer):
                  ' application_date'.split()
 
 
-
 class ApplicationLogsSerializer(serializers.ModelSerializer):
     class Meta:
         model = ApplicationLogs
@@ -46,8 +45,6 @@ class ApplicationFormDetailSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-
-
 class ApplicationFormLogsDetailSerializer(serializers.ModelSerializer):
     logs = ApplicationLogsSerializer(many=True, read_only=True)
     company = serializers.CharField(source='company.name', read_only=True)
@@ -61,4 +58,10 @@ class ApplicationFormLogsDetailSerializer(serializers.ModelSerializer):
         fields = ('id', 'task_number', 'title', 'company', 'main_client', 'main_manager',
                   'status', 'priority', 'comments', 'checklist', 'payment_state',
                   'application_date', 'logs')
+
+
+class NotificationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Notification
+        fields = ('id', 'task_number', 'text', 'created_at')
 

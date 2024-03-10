@@ -10,6 +10,5 @@ urlpatterns = [
     path('api/v1/users/', include('apps.user.urls')),
 ]
 
-
 urlpatterns += swagger.urlpatterns
 

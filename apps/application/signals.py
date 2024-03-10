@@ -1,10 +1,8 @@
+from .models import ApplicationForm, ApplicationLogs, TrackingStatus, TrackingPriority, Notification
 from django.db.models.signals import post_save, pre_save
 from django.dispatch import receiver
-from datetime import timedelta
 from django.utils import timezone
-
-from .models import ApplicationForm, ApplicationLogs, TrackingStatus, TrackingPriority
-
+from datetime import timedelta
 
 
 @receiver(pre_save, sender=ApplicationForm)
@@ -29,9 +27,6 @@ def track_application_changes(sender, instance, **kwargs):
     expired_messages.delete()
 
 
-
-    
-
 @receiver(post_save, sender=ApplicationForm)
 def fill_task_number(sender, instance, created, **kwargs):
     if created and not instance.task_number:
@@ -43,7 +38,6 @@ def fill_task_number(sender, instance, created, **kwargs):
         company_code = instance.company.company_code
         instance.task_number = f"{company_code}-{application_count_formatted}{month}{year}"
         instance.save()
-
 
 
 @receiver(post_save, sender=ApplicationForm)
@@ -79,3 +73,25 @@ def record_priority(sender, instance, *args, **kwargs):
     expired_messages = TrackingPriority.objects.filter(expiration_time__lt=timezone.now())
     expired_messages.delete()
 
+
+@receiver(pre_save, sender=ApplicationForm)
+def notifications_applications_track(sender, instance, **kwargs):
+    if instance.pk is not None:
+        obj = sender.objects.get(pk=instance.pk)
+        changes = {}
+        for field in instance._meta.fields:
+            old_value = getattr(obj, field.name)
+            new_value = getattr(instance, field.name)
+            if old_value != new_value:
+                changes[field] = (old_value, new_value)
+        if changes:
+            message = ""
+            for field, (old_value, new_value) in changes.items():
+                message += f"'{field.verbose_name}' изменено с '{old_value}' на '{new_value}'\n "
+            expiration_time = timezone.now() + timedelta(days=1)  # или None, если нужно NULL в базе
+            Notification.objects.create(text=message, expiration_time=expiration_time,
+                                        task_number=instance.task_number, application_id=instance,
+                                        user_id=instance.main_client)
+
+    expired_messages = Notification.objects.filter(expiration_time__lt=timezone.now())
+    expired_messages.delete()
