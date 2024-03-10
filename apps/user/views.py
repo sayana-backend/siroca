@@ -6,6 +6,7 @@ from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 # from rest_framework import permissions
 # from flask import request
+from .permissions import IsManagerCanEdit
 
 # class ClientPermissionsList(permissions.BasePermission):
 #     def has_permission(self, request, view):
@@ -57,6 +58,7 @@ class UserLoginView(generics.CreateAPIView):
 class ManagerPermissionsView(generics.UpdateAPIView):
     queryset = CustomUser.objects.filter(role_type='manager')
     serializer_class = ManagerPermissionsSerializer
+    permission_classes = [IsManagerCanEdit]
 
     def update(self, request, *args, **kwargs):
         manager_can_edit = request.data.get('manager_can_edit')
@@ -65,11 +67,12 @@ class ManagerPermissionsView(generics.UpdateAPIView):
             self.queryset.update(manager_can_edit=True)
         if manager_can_get_reports:
             self.queryset.update(manager_can_get_reports=True)
-            return Response('Права менеджера предоставлены')
+        return Response('Права менеджера предоставлены')
 
 class ClientPermissionsView(generics.UpdateAPIView):
     queryset = CustomUser.objects.filter(role_type='client')
     serializer_class = ClientPermissionsSerializer
+    # lookup_field = 'id'
 
     def update(self, request, *args, **kwargs):
         client_can_put_comments = request.data.get('client_can_put_comments')
@@ -88,3 +91,8 @@ class ClientPermissionsView(generics.UpdateAPIView):
         if client_can_add_checklist:
             self.queryset.update(client_can_add_checklist=True)
         return Response('Права клиента предоставлены')
+
+
+# class ClientPermissionsListView(generics.ListAPIView):
+#     queryset = CustomUser.objects.all()
+#     serializer_class = ClientPermissionsSerializer

@@ -1,4 +1,6 @@
 from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework.permissions import IsAuthenticated
+
 from ..application.models import ApplicationForm, ApplicationLogs
 from ..application.serializers import ApplicationLogsSerializer, ApplicationFormLogsDetailSerializer
 from rest_framework import filters
@@ -6,6 +8,7 @@ from .models import ApplicationForm, Checklist,Comments
 from .serializers import ApplicationFormDetailSerializer, ChecklistSerializer,CommentsSerializer
 from rest_framework import generics
 from apps.user.permissions import *
+from rest_framework import permissions
 
 
 
@@ -21,14 +24,11 @@ class ApplicationFormRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroy
     serializer_class = ApplicationFormLogsDetailSerializer
     lookup_field = 'id'
 
-
-
-
 class ApplicationLogsListCreateAPIView(generics.ListCreateAPIView):
     queryset = ApplicationLogs.objects.all()
     serializer_class = ApplicationLogsSerializer
-    permission_classes = [IsClientCanViewLogs, ]
-
+    # permission_classes = [IsClientCanViewLogs, IsManagerUser, IsAuthenticated]
+    permission_classes = [IsAuthenticated]
 class ApplicationLogsRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
     queryset = ApplicationLogs.objects.all()
     serializer_class = ApplicationLogsSerializer

@@ -42,6 +42,8 @@ class AdminUser(admin.ModelAdmin):
     list_filter = ['role_type']
 
 
+
+
 # class ClientPermissionsAdmin(admin.ModelAdmin):
 #     def has_add_permission(self, request):
 #         if ClientPermissions.objects.exists():
