@@ -27,7 +27,7 @@ class ApplicationFormRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroy
 class ApplicationLogsListCreateAPIView(generics.ListCreateAPIView):
     queryset = ApplicationLogs.objects.all()
     serializer_class = ApplicationLogsSerializer
-    # permission_classes = [IsClientCanViewLogs, IsManagerUser, IsAuthenticated]
+    # permission_classes = [IsClientCanViewLogs,]
     permission_classes = [IsAuthenticated]
 class ApplicationLogsRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
     queryset = ApplicationLogs.objects.all()
