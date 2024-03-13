@@ -31,37 +31,36 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
 
 
    
-   def save(self, *args, **kwargs):
-    if not self.username:
-        if self.surname and self.name:
-            self.username = f"{slugify(self.surname)}{slugify(self.name)}"
-        elif self.surname:
-            self.username = f"{slugify(self.surname)}"
-        elif self.name:
-            self.username = f"{slugify(self.name)}"
-        else:
-            raise ValueError("Surname and name cannot be both empty")
+#    def save(self, *args, **kwargs):
+#     if not self.username:
+#         if self.surname and self.name:
+#             self.username = f"{slugify(self.surname)}{slugify(self.name)}"
+#         elif self.surname:
+#             self.username = f"{slugify(self.surname)}"
+#         elif self.name:
+#             self.username = f"{slugify(self.name)}"
+#         else:
+#             raise ValueError("Surname and name cannot be both empty")
 
-    if self.role_type == 'Клиент':
-        self.is_client = True
-    elif self.role_type == 'Менеджер':
-        self.is_manager = True
+#     if self.role_type == 'Клиент':
+#         self.is_client = True
+#     elif self.role_type == 'Менеджер':
+#         self.is_manager = True
 
-    if self.company_relation:
-        company_domain = self.company_relation.domain
-        self.username += f"@{company_domain}.com"
+#     if self.company_relation:
+#         company_domain = self.company_relation.domain
+#         self.username += f"@{company_domain}.com"
 
-    super().save(*args, **kwargs)
+#     super().save(*args, **kwargs)
 
-
-    def __str__(self):
+   def __str__(self):
         return self.username
 
-    class Meta:
+   class Meta:
         verbose_name = _('Пользователь')
         verbose_name_plural = _('Пользователи')
 
-    # USERNAME_FIELD = 'username'
+   USERNAME_FIELD = 'username'
 
 
 
