@@ -1,57 +1,14 @@
 from django.db import models
-
-
-class Company(models.Model):
-    name = models.CharField(max_length=255, verbose_name='Название  компании')
-    country = models.CharField(max_length=255, verbose_name='Страна')
-    manager = models.ForeignKey(
-        'user.CustomUser',
-        on_delete=models.SET_NULL,
-        null=True,
-        verbose_name='Менеджер компании',
-        related_name='managed_companies',
-        blank=True,
-        limit_choices_to={'is_manager': True}
-    )
-    users = models.OneToOneField(
-        'user.CustomUser',
-        verbose_name='Пользователи',
-        related_name='companies',
-        on_delete=models.SET_NULL,
-        blank=True,
-        null=True,
-        limit_choices_to={'is_client': True}
-    )
-
-    created_at = models.DateTimeField(auto_now_add=True, verbose_name='Дата создания')
-    # домен = bonestky
-    # логин екатерина@bonestky.com
-    # логин менеджеров и админов
-
-
-
-    # job_titles = models.ManyToManyField(
-    #     'JobTitle',
-    #     verbose_name='Должности',
-    #     related_name='companies',
-    #     null=True,
-    #     blank=True
-    # )
-
-    def __str__(self):
-        return self.name
-
-    class Meta:
-        verbose_name = 'Компания'
-        verbose_name_plural = 'Компании'
-
-    def get_users(self):
-        return self.users.all()
-
+# from apps.user.models import CustomUser
 
 class JobTitle(models.Model):
     title = models.CharField(max_length=255, verbose_name='Должность')
-    company = models.ForeignKey(Company, on_delete=models.CASCADE, verbose_name='Компания')
+    company = models.ForeignKey(
+        'Company',
+        on_delete=models.CASCADE,
+        related_name='jobtitles',
+        verbose_name='Компания'
+    )
 
     def __str__(self):
         return self.title
@@ -60,4 +17,29 @@ class JobTitle(models.Model):
         verbose_name = 'Должность'
         verbose_name_plural = 'Должности'
 
-    
+ # Импортируем CustomUser из вашего приложения users
+
+
+class Company(models.Model):
+    name = models.CharField(max_length=255, verbose_name='Название компании')
+    country = models.CharField(max_length=255, verbose_name='Страна')
+    manager = models.ForeignKey('apps.CustomUser', 
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        verbose_name='Менеджер компании',
+        related_name='managed_companies',
+        limit_choices_to={'is_manager': True}
+    )
+    users = models.ManyToManyField('apps.CustomUser',
+        blank=True,
+        verbose_name='Пользователи',
+        related_name='companies',
+        limit_choices_to={'is_client': True}
+    )
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name='Дата создания')
+    jobtitle = models.ManyToManyField('JobTitle', verbose_name='Должности', blank=True, related_name='jobtitles')
+    domain = models.CharField(max_length=100, unique=True)
+
+    def __str__(self):
+        return self.name

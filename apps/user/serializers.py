@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from .models import CustomUser
+from apps.company.models import Company
 
 
 class UserAuthSerializer(serializers.ModelSerializer):
@@ -15,20 +16,34 @@ class ManagerSerializer(serializers.ModelSerializer):
 
 
 class UserProfileRegisterSerializer(serializers.ModelSerializer):
-    # manager = serializers.SerializerMethodField()
-    # manager = ManagerSerializer(many =True)
+    username = serializers.SerializerMethodField()
+
     class Meta:
         model = CustomUser
-        fields = "username role_type surname name password image created_at job_title company".split()
+        fields = ['username', 'role_type', 'surname', 'name', 'image', 'created_at', 'job_title', 'company_relation']
 
-    # def get_manager(self, obj):
-    #     if obj.manager:
-    #         return obj.manager.name if obj.manager else None
-    #     return None
+    def get_username(self, obj):
+        return f"{obj.username}@{obj.company_relation.domain}.com" if obj.company_relation else obj.username
 
     def create(self, validated_data):
-        user = CustomUser.objects.create_user(**validated_data)
+        company_id = self.context['request'].data.get('company_id')
+        if not company_id:
+            raise serializers.ValidationError("Не указан идентификатор компании")
+        company = Company.objects.get(pk=company_id)
+        validated_data['company_relation'] = company
+        
+        # Создание пользователя без company_domain в username
+        user = CustomUser.objects.create(**validated_data)
+
+        # Обновление username с company_domain после сохранения пользователя
+        if company:
+            company_domain = company.domain
+            user.username = f"{user.username}@{company_domain}.com"
+            user.save()
+
         return user
+
+  
 
 
 class AllUserSerializers(serializers.ModelSerializer):

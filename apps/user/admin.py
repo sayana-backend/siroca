@@ -33,4 +33,5 @@ from .models import CustomUser
 #         ),
 #     )
 
+
 admin.site.register(CustomUser)
