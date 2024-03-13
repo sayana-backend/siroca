@@ -9,7 +9,7 @@ class UserAuthSerializer(serializers.ModelSerializer):
         fields = ['username', 'password']
 
 
-class ManagerSerializer(serializers.ModelSerializer):
+class UserProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
         fields = ['name', ]
@@ -46,7 +46,4 @@ class UserProfileRegisterSerializer(serializers.ModelSerializer):
   
 
 
-class AllUserSerializers(serializers.ModelSerializer):
-    class Meta:
-        model = CustomUser
-        fields = "all"
+
