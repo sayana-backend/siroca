@@ -6,6 +6,7 @@ from django.contrib.auth import get_user_model
 from apps.company.models import JobTitle, Company
 from .usermanager import CustomUserManager
 
+
 class CustomUser(AbstractBaseUser, PermissionsMixin):
    USERNAME_FIELD = 'username'
    ROLE_CHOICES = (
@@ -23,6 +24,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
    is_superuser = models.BooleanField(default=False)
    is_client = models.BooleanField(default=False)
    is_manager = models.BooleanField(default=False)
+   is_anonymous = False
    company_relation = models.ForeignKey('Company', null=True, blank=True, on_delete=models.SET_NULL, related_name='users')
 
    objects = CustomUserManager()
