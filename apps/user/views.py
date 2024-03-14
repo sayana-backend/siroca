@@ -29,7 +29,7 @@ class UserLoginView(generics.CreateAPIView):
     def post(self, request, *args, **kwargs):
         username = request.data.get('username')
         password = request.data.get('password')
-        user = authenticate(request, username=username, password=password)
+        user = CustomUser.objects.get(username=username)
 
 
         if user is not None:
