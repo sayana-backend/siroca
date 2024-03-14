@@ -22,7 +22,6 @@ class DetailUserProfileView(generics.RetrieveUpdateAPIView):
     serializer_class = UserProfileSerializer
     lookup_field = 'id'
 
-
 class UserLoginView(generics.CreateAPIView):
     queryset = CustomUser.objects.all()
     serializer_class = UserAuthSerializer
@@ -32,9 +31,12 @@ class UserLoginView(generics.CreateAPIView):
         password = request.data.get('password')
         user = authenticate(request, username=username, password=password)
 
+
         if user is not None:
             refresh = RefreshToken.for_user(user)
             access_token = refresh.access_token
+
+
             return Response({
                 'detail': 'Вы успешно вошли',
                 'name': user.first_name,

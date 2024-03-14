@@ -1,4 +1,4 @@
-from rest_framework import generics
+from rest_framework import generics, request
 from ..company.models import Company, JobTitle
 from ..company.serializers import CompanySerializer, JobTitleSerializer
 from django.http import JsonResponse
@@ -9,6 +9,8 @@ from rest_framework.permissions import IsAuthenticated
 class CompanyListAPIView(generics.ListAPIView):
     queryset = Company.objects.all()
     serializer_class = CompanySerializer
+    permission_classes = [IsAuthenticated]
+
 
 
 class CompanyCreateAPIView(generics.CreateAPIView):
