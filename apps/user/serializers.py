@@ -9,10 +9,10 @@ class UserAuthSerializer(serializers.ModelSerializer):
         fields = ['username', 'password']
 
 
-class ManagerSerializer(serializers.ModelSerializer):
+class UserProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
-        fields = ['name', ]
+        fields = ['surname', ]
 
 
 class UserProfileRegisterSerializer(serializers.ModelSerializer):
@@ -20,7 +20,7 @@ class UserProfileRegisterSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = CustomUser
-        fields = ['username', 'role_type', 'surname', 'name', 'image', 'created_at', 'job_title', 'company_relation']
+        fields = ['username', 'role_type', 'surname', 'first_name', 'image', 'created_at', 'job_title', 'company_relation']
 
     # def get_username(self, obj):
     #     return f"{obj.username}@{obj.company_relation.domain}.com" if obj.company_relation else obj.username
@@ -46,7 +46,4 @@ class UserProfileRegisterSerializer(serializers.ModelSerializer):
   
 
 
-class AllUserSerializers(serializers.ModelSerializer):
-    class Meta:
-        model = CustomUser
-        fields = "all"
+
