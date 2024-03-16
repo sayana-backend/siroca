@@ -69,9 +69,6 @@ class ExportToExcelView(APIView):
         df = pd.DataFrame(data)
         for column in df.columns:
             df[column] = df[column].map(lambda x: None if x == [] else x)
-        # if df is not None:
-        #     df = df.applymap(lambda x: None if x == [] else x)
-        # df = df.applymap(lambda x: None if x == [] else x)
 
         df['status_info'] = df['status_info'].apply(lambda x: ', '.join([f"{item['status']} - {item['date_status']}" for item in x]))
         df['priority_info'] = df['priority_info'].apply(lambda x: ', '.join([f"{item['priority']} - {item['date_priority']}" for item in x]))

@@ -1,9 +1,8 @@
-from .models import ApplicationForm, Checklist, Comments, ApplicationLogs, Notification
+from .models import ApplicationForm, Checklist, Comments, ApplicationLogs
 from .serializers import (ApplicationFormDetailSerializer,
                           ChecklistSerializer,
                           CommentsSerializer,
-                          ApplicationLogsSerializer,
-                          NotificationSerializer)
+                          ApplicationLogsSerializer)
 from rest_framework import generics
 
 
@@ -56,11 +55,4 @@ class CommentsDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
     lookup_field = 'id'
 
 
-class NotificationListAPIView(generics.ListAPIView):
-    # queryset = Notification.objects.all()
-    serializer_class = NotificationSerializer
-
-    def get_queryset(self):
-        user_id = self.kwargs['id']
-        return Notification.objects.filter(user_id=user_id)
 

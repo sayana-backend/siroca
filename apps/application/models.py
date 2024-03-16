@@ -128,12 +128,5 @@ class ApplicationLogs(models.Model):
         return self.text
 
 
-class Notification(models.Model):
-    task_number = models.CharField(max_length=50,null=True,blank=True)
-    text = models.CharField(max_length=300, null=True, blank=True)
-    created_at = models.DateField(auto_now_add=True, null=True, blank=True)
-    expiration_time = models.DateTimeField(null=True)
-    user_id = models.ForeignKey(CustomUser, on_delete=models.CASCADE, null=True)
-    application_id = models.ForeignKey(ApplicationForm, on_delete=models.CASCADE, null=True)
 
 

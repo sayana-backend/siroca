@@ -1,5 +1,7 @@
-from .models import ApplicationForm, ApplicationLogs, TrackingStatus, TrackingPriority, Notification
+from .models import ApplicationForm, ApplicationLogs, TrackingStatus, TrackingPriority
 from django.db.models.signals import post_save, pre_save
+from channels.layers import get_channel_layer
+from asgiref.sync import async_to_sync
 from django.dispatch import receiver
 from django.utils import timezone
 from datetime import timedelta
@@ -19,7 +21,7 @@ def track_application_changes(sender, instance, **kwargs):
         if changes:
             message = ""
             for field, (old_value, new_value) in changes.items():
-                message += f"'{field.verbose_name}' изменено с '{old_value}' на '{new_value}'\n "
+                message += f"{field.verbose_name} изменено с {old_value} на {new_value}\n "
             expiration_time = timezone.now() + timedelta(days=1)
             ApplicationLogs.objects.create(text=message, expiration_time=expiration_time,
                                            task_number=instance.task_number, form_id=instance.id)
@@ -75,9 +77,9 @@ def record_priority(sender, instance, *args, **kwargs):
 
 
 @receiver(pre_save, sender=ApplicationForm)
-def notifications_applications_track(sender, instance, **kwargs):
+def track_application_send_notification(sender, instance, **kwargs):
     if instance.pk is not None:
-        obj = sender.objects.get(pk=instance.pk)
+        obj = sender.objects.get(id=instance.id)
         changes = {}
         for field in instance._meta.fields:
             old_value = getattr(obj, field.name)
@@ -87,11 +89,17 @@ def notifications_applications_track(sender, instance, **kwargs):
         if changes:
             message = ""
             for field, (old_value, new_value) in changes.items():
-                message += f"'{field.verbose_name}' изменено с '{old_value}' на '{new_value}'\n "
-            expiration_time = timezone.now() + timedelta(days=1)  # или None, если нужно NULL в базе
-            Notification.objects.create(text=message, expiration_time=expiration_time,
-                                        task_number=instance.task_number, application_id=instance,
-                                        user_id=instance.main_client)
-
-    expired_messages = Notification.objects.filter(expiration_time__lt=timezone.now())
-    expired_messages.delete()
+                message += f"{field.verbose_name} изменено с {old_value} на {new_value}\n"
+            message += f"Номер заявки: {instance.task_number}\n"
+            message += f"Название заявки: {instance.title}\n"
+            message += f"Дата изменения: {timezone.now().strftime('%Y-%m-%d')}\n"
+            message += f"Внес изменения: {instance.main_manager.first_name} {instance.main_manager.surname}\n"
+            channel_layer = get_channel_layer()
+            print(message)
+            async_to_sync(channel_layer.group_send)(
+                f"user_{instance.main_client_id and instance.main_manager_id}",
+                {
+                    'type': 'send_notification',
+                    'message': message,
+                }
+            )
