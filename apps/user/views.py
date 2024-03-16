@@ -31,11 +31,10 @@ class UserLoginView(generics.CreateAPIView):
         password = request.data.get('password')
         user = CustomUser.objects.get(username=username)
 
-
         if user is not None:
             refresh = RefreshToken.for_user(user)
             access_token = refresh.access_token
-
+            print(request.user)
 
             return Response({
                 'detail': 'Вы успешно вошли',

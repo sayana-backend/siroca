@@ -11,6 +11,10 @@ class CompanyListAPIView(generics.ListAPIView):
     serializer_class = CompanySerializer
     permission_classes = [IsAuthenticated]
 
+    def list(self, request, *args, **kwargs):
+        print(request.user)
+        return super().list(request, *args, **kwargs)
+
 
 
 class CompanyCreateAPIView(generics.CreateAPIView):
