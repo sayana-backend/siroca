@@ -6,6 +6,28 @@ from .usermanager import CustomUserManager
 # from apps.application.models import ApplicationForm
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 
+
+class Contact(models.Model):
+    user = models.OneToOneField('CustomUser', on_delete=models.CASCADE, related_name='contact')
+    email = models.EmailField(verbose_name='Электронная почта')
+    phone_number = models.CharField(max_length=20, verbose_name='Телефонный номер')
+    whatsapp_number = models.CharField(max_length=20, verbose_name='Номер WhatsApp')
+
+    def __str__(self):
+        return f"Contact for {self.user.username}"
+
+
+    class  Meta:
+        verbose_name = 'Контакт'
+        verbose_name_plural = "Контакты"
+    
+
+
+    
+
+
+
+
 class CustomUser(AbstractBaseUser, PermissionsMixin):
     RoleType = {
         'client': 'Клиент',

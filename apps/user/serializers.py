@@ -1,6 +1,7 @@
 from rest_framework import serializers
-from .models import CustomUser
+from .models import CustomUser,Contact
 from apps.company.models import Company
+
 
 
 class UserAuthSerializer(serializers.ModelSerializer):
@@ -43,7 +44,11 @@ class UserProfileRegisterSerializer(serializers.ModelSerializer):
 
     #     return user
 
-  
+
+class ContactSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Contact
+        fields = ['email', 'phone_number', 'whatsapp_number']
 
 
 

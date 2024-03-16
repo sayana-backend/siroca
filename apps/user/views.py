@@ -1,10 +1,13 @@
-from .serializers import UserProfileSerializer, UserAuthSerializer
+from .serializers import UserProfileSerializer, UserAuthSerializer,ContactSerializer
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.response import Response
 from django.contrib.auth import authenticate
 from rest_framework import generics, status
 from rest_framework import permissions
 from .models import CustomUser
+from rest_framework.permissions import IsAuthenticated, IsAdminUser
+from .models import Contact
+
 
 
 class CreateUserView(generics.CreateAPIView):
@@ -51,3 +54,18 @@ class UserLoginView(generics.CreateAPIView):
 #     permission_required = 'user.add_userprofile'
 
 
+
+
+class ContactDetailView(generics.RetrieveUpdateAPIView):
+    serializer_class = ContactSerializer
+    permission_classes = [IsAuthenticated, IsAdminUser]
+
+    def get_queryset(self):
+        return Contact.objects.filter(user=self.request.user)
+
+    def get_object(self):
+        queryset = self.get_queryset()
+        obj = queryset.first()
+        if obj is None:
+            obj = Contact.objects.create(user=self.request.user)
+        return obj
