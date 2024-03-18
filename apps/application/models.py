@@ -1,8 +1,11 @@
+import json
 from datetime import timedelta
 from django.db import models
 from django.utils import timezone
 from django.contrib.auth.models import Group
 from ..user.models import CustomUser
+from asgiref.sync import async_to_sync
+from channels.layers import get_channel_layer
 
 
 class Checklist(models.Model):
@@ -12,7 +15,8 @@ class Checklist(models.Model):
 
     text = models.CharField(max_length=255, verbose_name='Текст подзадачи')
     completed = models.BooleanField(default=False)
-    application = models.ForeignKey('ApplicationForm', verbose_name='Заявки', on_delete=models.CASCADE, related_name='checklists')
+    application = models.ForeignKey('ApplicationForm', verbose_name='Заявки', on_delete=models.CASCADE,
+                                    related_name='checklists')
     deadline = models.DateField(verbose_name='Дедлайн', blank=True, null=True)
     manager = models.OneToOneField(CustomUser,
                                    on_delete=models.CASCADE,
@@ -31,9 +35,11 @@ class Comments(models.Model):
         verbose_name_plural = 'Комментарии'
 
     text = models.TextField(verbose_name='Текст комментария')
-    user = models.ForeignKey(CustomUser, related_name='user_comments', on_delete=models.CASCADE, verbose_name='Пользователь')
+    user = models.ForeignKey(CustomUser, related_name='user_comments', on_delete=models.CASCADE,
+                             verbose_name='Пользователь')
     date_added = models.DateTimeField(auto_now_add=True, verbose_name='Дата добавления')
-    application = models.ForeignKey('ApplicationForm', on_delete=models.CASCADE, related_name='comments', verbose_name='Заявка')
+    application = models.ForeignKey('ApplicationForm', on_delete=models.CASCADE, related_name='comments',
+                                    verbose_name='Заявка')
 
     def __str__(self):
         return f"Комментарий от {self.user} по заявке {self.application.title}"
@@ -43,6 +49,7 @@ class ApplicationForm(models.Model):
     class Meta:
         verbose_name = 'Заявка'
         verbose_name_plural = 'Заявки'
+
     STATUS = (
         ('К выполнению', 'К выполнению'),
         ('В работе', 'В работе'),
@@ -128,5 +135,29 @@ class ApplicationLogs(models.Model):
         return self.text
 
 
+class Notification(models.Model):
+    task_number = models.CharField(max_length=50, null=True, blank=True)
+    title = models.CharField(max_length=50, blank=True, null=True)
+    text = models.CharField(max_length=300, null=True, blank=True)
+    created_at = models.DateField(auto_now_add=True, null=True)
+    made_change = models.CharField(max_length=70, null=True, blank=True)
 
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        channel_layer = get_channel_layer()
 
+        messages_dict = {
+            "task_number": self.task_number,
+            "title": self.title,
+            "text": self.text,
+            "created_at": str(self.created_at),
+            "made_change": self.made_change.first_name if self.made_change else None,
+        }
+
+        async_to_sync(channel_layer.group_send)(
+            "notifications",
+            {
+                "type": "send_notification",
+                "message": messages_dict
+            }
+        )

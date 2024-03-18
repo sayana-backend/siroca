@@ -70,8 +70,10 @@ class ExportToExcelView(APIView):
         for column in df.columns:
             df[column] = df[column].map(lambda x: None if x == [] else x)
 
-        df['status_info'] = df['status_info'].apply(lambda x: ', '.join([f"{item['status']} - {item['date_status']}" for item in x]))
-        df['priority_info'] = df['priority_info'].apply(lambda x: ', '.join([f"{item['priority']} - {item['date_priority']}" for item in x]))
+        df['status_info'] = df['status_info'].apply(
+            lambda x: ', '.join([f"{item['status']} - {item['date_status']}" for item in x]))
+        df['priority_info'] = df['priority_info'].apply(
+            lambda x: ', '.join([f"{item['priority']} - {item['date_priority']}" for item in x]))
 
         count_df = pd.DataFrame([{'Количество заявок': len(data)}])
 
@@ -85,7 +87,7 @@ class ExportToExcelView(APIView):
 
         wb = Workbook()
         ws = wb.active
-        ws.append(final_df.columns.tolist())  # Запись заголовков
+        ws.append(final_df.columns.tolist())
         for row in dataframe_to_rows(final_df, index=False, header=False):
             ws.append(row)
 

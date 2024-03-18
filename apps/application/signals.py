@@ -1,4 +1,4 @@
-from .models import ApplicationForm, ApplicationLogs, TrackingStatus, TrackingPriority
+from .models import ApplicationForm, ApplicationLogs, TrackingStatus, TrackingPriority, Notification
 from django.db.models.signals import post_save, pre_save
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
@@ -12,7 +12,6 @@ def track_application_changes(sender, instance, **kwargs):
     if instance.pk is not None:
         obj = sender.objects.get(id=instance.id)
         changes = {}
-        # data = ApplicationForm.objects.all()
         for field in instance._meta.fields:
             old_value = getattr(obj, field.name)
             new_value = getattr(instance, field.name)
@@ -80,26 +79,28 @@ def record_priority(sender, instance, *args, **kwargs):
 def track_application_send_notification(sender, instance, **kwargs):
     if instance.pk is not None:
         obj = sender.objects.get(id=instance.id)
-        changes = {}
         for field in instance._meta.fields:
             old_value = getattr(obj, field.name)
             new_value = getattr(instance, field.name)
             if old_value != new_value:
-                changes[field] = (old_value, new_value)
-        if changes:
-            message = ""
-            for field, (old_value, new_value) in changes.items():
-                message += f"{field.verbose_name} изменено с {old_value} на {new_value}\n"
-            message += f"Номер заявки: {instance.task_number}\n"
-            message += f"Название заявки: {instance.title}\n"
-            message += f"Дата изменения: {timezone.now().strftime('%Y-%m-%d')}\n"
-            message += f"Внес изменения: {instance.main_manager.first_name} {instance.main_manager.surname}\n"
-            channel_layer = get_channel_layer()
-            print(message)
-            async_to_sync(channel_layer.group_send)(
-                f"user_{instance.main_client_id and instance.main_manager_id}",
-                {
-                    'type': 'send_notification',
-                    'message': message,
-                }
-            )
+                message = f"{field.verbose_name} изменено с {old_value} на {new_value}"
+                Notification.objects.create(task_number=instance.task_number, title=instance.title,
+                                            text=message, made_change=instance.main_manager)
+
+
+@receiver(post_save, sender=ApplicationForm)
+def send_notification_on_create_close(sender, instance, created, **kwargs):
+    admin = CustomUser.objects.filter(is_superuser=True).first()
+    if created:
+        Notification.objects.create(
+            title=f'Создана новая заявка: {instance.title}',
+            text=f'Номер заявки: {instance.task_number}',
+            made_change=admin
+        )
+    elif instance.status == 'Закрыто':
+        Notification.objects.create(
+            title=f'Заявка закрыта: {instance.title}',
+            text=f'Номер заявки: {instance.task_number}',
+            made_change=admin
+        )
+

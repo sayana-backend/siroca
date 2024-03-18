@@ -16,6 +16,7 @@ class ApplicationFormListAPIView(generics.ListAPIView):
     serializer_class = ApplicationFormDetailSerializer
 
 
+
 class ApplicationFormRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
     queryset = ApplicationForm.objects.all()
     serializer_class = ApplicationFormDetailSerializer
@@ -53,6 +54,4 @@ class CommentsDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Comments.objects.all()
     serializer_class = CommentsSerializer
     lookup_field = 'id'
-
-
 

@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import ApplicationForm, Checklist, Comments, ApplicationLogs
+from .models import ApplicationForm, Checklist, Comments, ApplicationLogs, Notification
 
 
 class ChecklistSerializer(serializers.ModelSerializer):
@@ -58,6 +58,12 @@ class ApplicationFormLogsDetailSerializer(serializers.ModelSerializer):
         fields = ('id', 'task_number', 'title', 'company', 'main_client', 'main_manager',
                   'status', 'priority', 'comments', 'checklist', 'payment_state',
                   'application_date', 'logs')
+
+
+class NotificationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Notification
+        fields = ('task_number', 'title', 'text', 'create_at', 'made_change')
 
 
 

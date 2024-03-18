@@ -26,7 +26,14 @@ SECRET_KEY = 'django-insecure-#)307js-u)hl19%@!4i$90_24)2f7m!ro61)&$rbgq2+0p-x@z
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
+CORS_ALLOW_ALL_ORIGINS = True
+CSRF_TRUSTED_ORIGINS = ['http://localhost',
+                        'http://127.0.0.1:8000/', 'http://16.171.68.251', 'http://16.171.68.251:80']
+
+
+
+
 
 # Application definition
 
@@ -43,11 +50,13 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'drf_spectacular',
+    'corsheaders',
     'django_filters',
     'apps.company',
     'apps.user',
     'apps.application',
     'drf_yasg',
+    'rest_framework.authtoken',
 ]
 
 REST_FRAMEWORK = {
@@ -67,6 +76,7 @@ SIMPLE_JWT = {
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -138,10 +148,10 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
-STATIC_URL = 'back_static/'
+STATIC_URL = '/back_static/'
 STATIC_ROOT = BASE_DIR / 'back_static'
 
-MEDIA_URL = 'back_media/'
+MEDIA_URL = '/back_media/'
 MEDIA_ROOT = BASE_DIR / 'back_media'
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
@@ -150,7 +160,6 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 JAZZMIN_SETTINGS = jazzmin_settings.JAZZMIN_SETTINGS
 
-# AUTH_USER_MODEL = 'user.ExampleSuperUser'
 
 AUTH_USER_MODEL = 'user.CustomUser'
 
