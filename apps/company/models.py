@@ -1,4 +1,3 @@
-import random
 from django.db import models
 from transliterate import translit
 import random
@@ -10,6 +9,7 @@ class Company(models.Model):
     name = models.CharField(max_length=255, verbose_name='Название  компании')
     company_code = models.CharField(max_length=255, unique=True, verbose_name='Краткий код')
     country = models.CharField(max_length=255, verbose_name='Страна')
+    domain = models.CharField(max_length=100, unique=True)
     main_manager = models.ForeignKey(
         'user.CustomUser',
         on_delete=models.SET_NULL,
@@ -63,7 +63,12 @@ class Company(models.Model):
 
 class JobTitle(models.Model):
     title = models.CharField(max_length=255, verbose_name='Должность')
-    company = models.ForeignKey(Company, on_delete=models.CASCADE, verbose_name='Компания')
+    company = models.ForeignKey(
+        'Company',
+        on_delete=models.CASCADE,
+        related_name='jobtitles',
+        verbose_name='Компания'
+    )
 
     def __str__(self):
         return self.title
@@ -71,6 +76,3 @@ class JobTitle(models.Model):
     class Meta:
         verbose_name = 'Должность'
         verbose_name_plural = 'Должности'
-
-    
-

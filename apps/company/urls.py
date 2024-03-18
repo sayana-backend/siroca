@@ -1,9 +1,6 @@
 from django.urls import path
-from ..company.views import (CompanyListAPIView,
-                             CompanyCreateAPIView,
-                             CompanyRetrieveUpdateDestroyAPIView,
-                             JobTitleListCreateAPIView,
-                             generate_codes_view)
+from .views import *
+
 
 
 urlpatterns = [
@@ -13,4 +10,5 @@ urlpatterns = [
     path('job-title/', JobTitleListCreateAPIView.as_view()),
     path('code/', generate_codes_view)
 ]
+
 

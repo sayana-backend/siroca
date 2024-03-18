@@ -1,10 +1,13 @@
-from .serializers import UserProfileSerializer, UserAuthSerializer
+from .serializers import UserProfileSerializer, UserAuthSerializer,ContactSerializer
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.response import Response
 from django.contrib.auth import authenticate
 from rest_framework import generics, status
 from rest_framework import permissions
 from .models import CustomUser
+from rest_framework.permissions import IsAuthenticated, IsAdminUser
+from .models import Contact
+
 
 
 class CreateUserView(generics.CreateAPIView):
@@ -29,13 +32,11 @@ class UserLoginView(generics.CreateAPIView):
     def post(self, request, *args, **kwargs):
         username = request.data.get('username')
         password = request.data.get('password')
-        user = CustomUser.objects.get(username=username)
+        user = authenticate(request, username=username, password=password)
 
         if user is not None:
             refresh = RefreshToken.for_user(user)
             access_token = refresh.access_token
-            print(request.user)
-
             return Response({
                 'detail': 'Вы успешно вошли',
                 'name': user.first_name,
@@ -52,3 +53,21 @@ class UserLoginView(generics.CreateAPIView):
 #     permission_required = 'user.add_userprofile'
 
 
+class ContactListView(generics.ListAPIView):
+    queryset = Contact.objects.all()
+    serializer_class = ContactSerializer
+
+
+class ContactDetailView(generics.RetrieveUpdateAPIView):
+    serializer_class = ContactSerializer
+    permission_classes = [IsAuthenticated, IsAdminUser]
+
+    def get_queryset(self):
+        return Contact.objects.filter(user=self.request.user)
+
+    def get_object(self):
+        queryset = self.get_queryset()
+        obj = queryset.first()
+        if obj is None:
+            obj = Contact.objects.create(user=self.request.user)
+        return obj

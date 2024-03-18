@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 
-from .models import CustomUser
+from .models import CustomUser,Contact
 
 
 # @@admin.register(CustomUser)
@@ -33,4 +33,6 @@ from .models import CustomUser
 #         ),
 #     )
 
+
 admin.site.register(CustomUser)
+admin.site.register(Contact)

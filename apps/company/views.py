@@ -1,20 +1,8 @@
-from rest_framework import generics, request
+from rest_framework import generics
 from ..company.models import Company, JobTitle
 from ..company.serializers import CompanySerializer, JobTitleSerializer
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
-from rest_framework.permissions import IsAuthenticated
-
-
-class CompanyListAPIView(generics.ListAPIView):
-    queryset = Company.objects.all()
-    serializer_class = CompanySerializer
-    permission_classes = [IsAuthenticated]
-
-    def list(self, request, *args, **kwargs):
-        print(request.user)
-        return super().list(request, *args, **kwargs)
-
 
 
 class CompanyCreateAPIView(generics.CreateAPIView):
@@ -28,9 +16,15 @@ class CompanyRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView)
     lookup_field = 'id'
 
 
+class CompanyListAPIView(generics.ListAPIView):
+    queryset = Company.objects.all()
+    serializer_class = CompanySerializer
+
+
 class JobTitleListCreateAPIView(generics.ListCreateAPIView):
     queryset = JobTitle.objects.all()
     serializer_class = JobTitleSerializer
+
 
 
 @csrf_exempt
