@@ -7,19 +7,19 @@ from .usermanager import CustomUserManager
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 
 
-class Contact(models.Model):
+class AdminContact(models.Model):
     user = models.OneToOneField('CustomUser', on_delete=models.CASCADE, related_name='contact')
     email = models.EmailField(verbose_name='Электронная почта')
     phone_number = models.CharField(max_length=20, verbose_name='Телефонный номер')
     whatsapp_number = models.CharField(max_length=20, verbose_name='Номер WhatsApp')
 
     def __str__(self):
-        return f"Contact for {self.user.username}"
+        return f"Контакт для админа {self.user}"
 
 
     class  Meta:
-        verbose_name = 'Контакт'
-        verbose_name_plural = "Контакты"
+        verbose_name = 'Контакт для админа'
+        verbose_name_plural = "Контакты для админа"
     
 
 
@@ -45,7 +45,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     is_manager = models.BooleanField(default=False, verbose_name="Менеджер")
     is_client = models.BooleanField(default=True, verbose_name="Клиент")
 
-    company_relation = models.ForeignKey('company.Company', null=True, blank=True, on_delete=models.SET_NULL,
+    company_relation = models.ForeignKey('company.Company', null=True,verbose_name='отношения с компанией', blank=True, on_delete=models.SET_NULL,
                                          related_name='users')
     main_company = models.ForeignKey('company.Company', verbose_name="Компания", related_name='company_users', on_delete=models.CASCADE, null=True)
     managers_company = models.ManyToManyField('company.Company', verbose_name="Компании менеджеров", related_name='managers_company', blank=True)
@@ -63,26 +63,20 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
 
    
     def save(self, *args, **kwargs):
-     if not self.username:
-         if self.surname and self.name:
-             self.username = f"{slugify(self.surname)}{slugify(self.name)}"
-         elif self.surname:
-             self.username = f"{slugify(self.surname)}"
-         elif self.name:
-             self.username = f"{slugify(self.name)}"
-         else:
-             raise ValueError("Surname and name cannot be both empty")
-
-     if self.role_type == 'Клиент':
-         self.is_client = True
-     elif self.role_type == 'Менеджер':
+        if not self.username:
+            raise ValueError("Username cannot be empty")
+    
+        if self.role_type == 'Клиент':
+            self.is_client = True
+        elif self.role_type == 'Менеджер':
          self.is_manager = True
 
-     if self.company_relation:
-         company_domain = self.company_relation.domain
-         self.username += f"@{company_domain}.com"
+        if self.company_relation:
+            company_domain = self.company_relation.domain
+            self.username += f"@{company_domain}.com"
 
-     super().save(*args, **kwargs)
+        super().save(*args, **kwargs)
+
 
     def __str__(self):
         return self.username

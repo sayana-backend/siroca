@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import CustomUser,Contact
+from .models import CustomUser,AdminContact
 from apps.company.models import Company
 
 
@@ -45,9 +45,9 @@ class UserProfileRegisterSerializer(serializers.ModelSerializer):
     #     return user
 
 
-class ContactSerializer(serializers.ModelSerializer):
+class AdminContactSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Contact
+        model = AdminContact
         fields = ['email', 'phone_number', 'whatsapp_number']
 
 
