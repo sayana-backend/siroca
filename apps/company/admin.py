@@ -2,8 +2,9 @@ from django.contrib import admin
 from .models import Company, JobTitle
 
 
-admin.site.register(Company)
-admin.site.register(JobTitle)
+# admin.site.register(Company)
+# admin.site.register(JobTitle)
+
 
 # @admin.register(Company)
 # class CompanyAdmin(admin.ModelAdmin):
@@ -15,3 +16,10 @@ admin.site.register(JobTitle)
 # class JobTitleAdmin(admin.ModelAdmin):
 #     list_display = ['title']
 #     search_fields = ['title']
+
+
+@admin.register(JobTitle)
+class JobTitleAdmin(admin.ModelAdmin):
+    list_display = ['title']  
+    search_fields = ['title']  
+
