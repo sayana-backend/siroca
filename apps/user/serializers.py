@@ -52,3 +52,16 @@ class AdminContactSerializer(serializers.ModelSerializer):
 
 
 
+class ChangePasswordSerializer(serializers.Serializer):
+    old_password = serializers.CharField(required=True)
+    new_password1 = serializers.CharField(required=True)
+    new_password2 = serializers.CharField(required=True)
+
+    def validate(self, data):
+        new_password1 = data.get('new_password1')
+        new_password2 = data.get('new_password2')
+
+        if new_password1 != new_password2:
+            raise serializers.ValidationError("Новые пароли не совпадают")
+
+        return data
