@@ -1,20 +1,39 @@
+from .serializers import *
+from .permissions import IsManagerCanEdit
+from .serializers import UserProfileSerializer, UserAuthSerializer,AdminContactSerializer,ChangePasswordSerializer
+from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework.response import Response
 from django.contrib.auth import authenticate
 from rest_framework import generics, status
+from .models import CustomUser,AdminContact
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
-from .serializers import *
-from rest_framework.response import Response
-from rest_framework_simplejwt.tokens import RefreshToken
-from .permissions import IsManagerCanEdit
-
+from django.http import Http404
 
 class CreateUserView(generics.CreateAPIView):
     queryset = CustomUser.objects.all()
     serializer_class = UserProfileSerializer
 
 
+
+
 class ListUserProfileView(generics.ListAPIView):
     queryset = CustomUser.objects.all()
     serializer_class = UserProfileSerializer
+    permission_classes = [IsAdminUser]
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        if self.request.user.is_superuser:
+            for user in queryset:
+                user.password = self.decrypt_password(user.password)
+        return queryset
+
+    def decrypt_password(self, password):
+        if self.request.user.is_superuser:
+            return password
+        else:
+            return "*****"  
+
 
 
 class DetailUserProfileView(generics.RetrieveUpdateAPIView):
@@ -50,23 +69,22 @@ class UserLoginView(generics.CreateAPIView):
 #     permission_required = 'user.add_userprofile'
 
 
-class ContactListView(generics.ListAPIView):
-    queryset = Contact.objects.all()
-    serializer_class = ContactSerializer
 
 
-class ContactDetailView(generics.RetrieveUpdateAPIView):
-    serializer_class = ContactSerializer
-    permission_classes = [IsAdminUser]
+class AdminContactDetailView(generics.RetrieveUpdateAPIView):
+    serializer_class = AdminContactSerializer
+    permission_classes = [IsAuthenticated]
+
 
     def get_queryset(self):
-        return Contact.objects.filter(user=self.request.user)
+        return AdminContact.objects.filter(admin=self.request.user)
 
     def get_object(self):
         queryset = self.get_queryset()
         obj = queryset.first()
+
         if obj is None:
-            obj = Contact.objects.create(user=self.request.user)
+            return Response({'detail': 'Ошибка аутентификации'}, status=status.HTTP_404_NOT_FOUND)
         return obj
 
 
@@ -108,4 +126,39 @@ class ClientPermissionsView(generics.UpdateAPIView):
         return Response('Права клиента предоставлены')
 
 
+
+
+class AdminContactListView(generics.ListAPIView):
+    serializer_class = AdminContactSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return AdminContact.objects.all()
+
+
+
+class ChangePasswordView(generics.UpdateAPIView):
+    queryset = CustomUser.objects.all()
+    serializer_class = ChangePasswordSerializer
+    permission_classes = [IsAuthenticated]
+
+    def update(self, request, *args, **kwargs):
+        user = self.request.user
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        old_password = serializer.validated_data.get('old_password')
+        new_password1 = serializer.validated_data.get('new_password1')
+        new_password2 = serializer.validated_data.get('new_password2')
+
+        if not user.check_password(old_password):
+            return Response({'detail': 'Старый пароль неверен'}, status=status.HTTP_400_BAD_REQUEST)
+
+        if new_password1 != new_password2:
+            return Response({'detail': 'Новые пароли не совпадают'}, status=status.HTTP_400_BAD_REQUEST)
+
+        user.set_password(new_password1)
+        user.save()
+
+        return Response({'detail': 'Пароль успешно изменен'}, status=status.HTTP_200_OK)
 

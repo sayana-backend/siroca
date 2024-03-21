@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-from .models import CustomUser,Contact
+from .models import CustomUser,AdminContact
 
 
 
@@ -36,7 +36,7 @@ from .models import CustomUser,Contact
 
 
 # admin.site.register(CustomUser)
-admin.site.register(Contact)
+
 
 @admin.register(CustomUser)
 class AdminUser(admin.ModelAdmin):
@@ -67,3 +67,4 @@ class AdminUser(admin.ModelAdmin):
 #     list_display = ('manage_comments', 'get_all_reports')
 #
 # admin.site.register(ManagerPermissions, ManagerPermissionsAdmin)
+

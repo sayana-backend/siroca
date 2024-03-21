@@ -1,14 +1,11 @@
 from rest_framework import serializers
-from .models import CustomUser, Contact
-from apps.company.models import Company
-
+from .models import *
 
 
 class UserAuthSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
         fields = ['username', 'password']
-
 
 
 class UserProfileSerializer(serializers.ModelSerializer):
@@ -50,12 +47,10 @@ class UserProfileRegisterSerializer(serializers.ModelSerializer):
     #     return user
 
 
-class ContactSerializer(serializers.ModelSerializer):
+class AdminContactSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Contact
+        model = AdminContact
         fields = ['email', 'phone_number', 'whatsapp_number']
-
-
 
 
 class ManagerPermissionsSerializer(serializers.ModelSerializer):
@@ -64,9 +59,23 @@ class ManagerPermissionsSerializer(serializers.ModelSerializer):
         fields = ['manager_can_edit', 'manager_can_get_reports']
 
 
-
-
 class ClientPermissionsSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
         fields = ['client_can_put_comments', 'client_can_get_reports', 'client_can_view_logs', 'client_can_delete_comments', 'client_can_add_checklist']
+
+
+class ChangePasswordSerializer(serializers.Serializer):
+    old_password = serializers.CharField(required=True)
+    new_password1 = serializers.CharField(required=True)
+    new_password2 = serializers.CharField(required=True)
+
+    def validate(self, data):
+        new_password1 = data.get('new_password1')
+        new_password2 = data.get('new_password2')
+
+        if new_password1 != new_password2:
+            raise serializers.ValidationError("Новые пароли не совпадают")
+
+        return data
+
