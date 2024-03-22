@@ -11,7 +11,8 @@ class UserAuthSerializer(serializers.ModelSerializer):
 class UserProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
-        fields = "role_type image first_name surname username password main_company job_title".split()
+        fields = "id role_type image first_name surname username password main_company job_title".split()
+
 
     def create(self, validated_data):
         user = CustomUser.objects.create_user(**validated_data)
@@ -23,7 +24,7 @@ class UserProfileRegisterSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = CustomUser
-        fields = ['username', 'role_type', 'surname', 'first_name', 'image', 'created_at', 'job_title', 'company_relation']
+        fields = ['id', 'username', 'role_type', 'surname', 'first_name', 'image', 'created_at', 'job_title', 'company_relation']
 
     # def get_username(self, obj):
     #     return f"{obj.username}@{obj.company_relation.domain}.com" if obj.company_relation else obj.username

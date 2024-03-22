@@ -26,7 +26,7 @@ class ApplicationFormRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroy
 class ApplicationLogsListCreateAPIView(generics.ListCreateAPIView):
     queryset = ApplicationLogs.objects.all()
     serializer_class = ApplicationLogsSerializer
-    permission_classes = [IsClientCanViewLogs]
+    # permission_classes = [IsClientCanViewLogs]
 
 
 class ApplicationLogsRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
@@ -41,7 +41,7 @@ class ApplicationLogsRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroy
 class ChecklistAPIView(generics.ListCreateAPIView):
     queryset = Checklist.objects.all()
     serializer_class = ChecklistSerializer
-    permission_classes = [IsClientCanAddChecklist, ]
+    # permission_classes = [IsClientCanAddChecklist, ]
     # filter_backends = (DjangoFilterBackend, filters.SearchFilter)
     # search_fields = '__all__'
     # filterset_fields = ['completed', 'text', 'manager']
@@ -59,13 +59,13 @@ class CheckListDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
 class CommentsAPIView(generics.ListCreateAPIView):
     queryset = Comments.objects.all()
     serializer_class = CommentsSerializer
-    permission_classes = [IsManagerCanEdit, IsClientCanPutComments]
+    # permission_classes = [IsManagerCanEdit, IsClientCanPutComments]
 
 class CommentsDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Comments.objects.all()
     serializer_class = CommentsSerializer
     lookup_field = 'id'
-    permission_classes = [IsManagerCanEdit, IsClientCanPutComments, IsClientCanDeleteComments, ]
+    # permission_classes = [IsManagerCanEdit, IsClientCanPutComments, IsClientCanDeleteComments, ]
 
 
 class NotificationListAPIView(generics.ListAPIView):

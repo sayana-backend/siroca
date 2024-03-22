@@ -18,7 +18,7 @@ class CreateUserView(generics.CreateAPIView):
 class ListUserProfileView(generics.ListAPIView):
     queryset = CustomUser.objects.all()
     serializer_class = UserProfileSerializer
-    permission_classes = [IsAdminUser]
+    # permission_classes = [IsAdminUser]
 
     def get_queryset(self):
         queryset = super().get_queryset()
