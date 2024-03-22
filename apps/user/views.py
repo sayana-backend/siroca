@@ -9,11 +9,10 @@ from .models import CustomUser,AdminContact
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from django.http import Http404
 
+
 class CreateUserView(generics.CreateAPIView):
     queryset = CustomUser.objects.all()
     serializer_class = UserProfileSerializer
-
-
 
 
 class ListUserProfileView(generics.ListAPIView):
@@ -35,11 +34,11 @@ class ListUserProfileView(generics.ListAPIView):
             return "*****"  
 
 
-
-class DetailUserProfileView(generics.RetrieveUpdateAPIView):
+class DetailUserProfileView(generics.RetrieveUpdateDestroyAPIView):
     queryset = CustomUser.objects.all()
     serializer_class = UserProfileSerializer
     lookup_field = 'id'
+
 
 class UserLoginView(generics.CreateAPIView):
     queryset = CustomUser.objects.all()
@@ -55,6 +54,7 @@ class UserLoginView(generics.CreateAPIView):
             access_token = refresh.access_token
             return Response({
                 'detail': 'Вы успешно вошли',
+                'id': user.id,
                 'name': user.first_name,
                 'refresh-token': str(refresh),
                 'access': str(access_token),

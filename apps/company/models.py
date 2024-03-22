@@ -63,12 +63,7 @@ class Company(models.Model):
 
 class JobTitle(models.Model):
     title = models.CharField(max_length=255, verbose_name='Должность')
-    company = models.ForeignKey(
-        'Company',
-        on_delete=models.CASCADE,
-        related_name='jobtitles',
-        verbose_name='Компания'
-    )
+
 
     def __str__(self):
         return self.title
