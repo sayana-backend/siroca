@@ -1,75 +1,76 @@
-from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework.permissions import IsAuthenticated
-
-from ..application.models import ApplicationForm, ApplicationLogs
-from ..application.serializers import ApplicationLogsSerializer, ApplicationFormLogsDetailSerializer
-from rest_framework import filters
-from .models import ApplicationForm, Checklist,Comments
-from .serializers import ApplicationFormDetailSerializer, ChecklistSerializer,CommentsSerializer
+from .models import ApplicationForm, Checklist, Comments, ApplicationLogs, Notification
+from .serializers import (ApplicationFormDetailSerializer,
+                          ChecklistSerializer,
+                          CommentsSerializer,
+                          ApplicationLogsSerializer,
+                          NotificationSerializer)
 from rest_framework import generics
 from apps.user.permissions import *
 from rest_framework import permissions
+# from rest_framework.permissions import IsAuthenticated
 
 
-
-class ApplicationFormListCreateAPIView(generics.ListCreateAPIView):
+class ApplicationFormCreateAPIView(generics.CreateAPIView):
     queryset = ApplicationForm.objects.all()
-    serializer_class = ApplicationFormLogsDetailSerializer
-    # filter_backends = (DjangoFilterBackend, filters.SearchFilter)
-    # search_fields = '__all__'
-    # filterset_fields = ['task_number', 'title', 'description', 'main_client', 'main_manager', 'start_date', 'priority', 'status', 'checklist', 'comments' ]
+    serializer_class = ApplicationFormDetailSerializer
+    permission_classes = [IsAdminUser, IsManagerUser]
+
+
+class ApplicationFormListAPIView(generics.ListAPIView):
+    queryset = ApplicationForm.objects.all()
+    serializer_class = ApplicationFormDetailSerializer
+    permission_classes = [IsAdminUser]
+
 
 class ApplicationFormRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
     queryset = ApplicationForm.objects.all()
-    serializer_class = ApplicationFormLogsDetailSerializer
-    lookup_field = 'id'
-
-class ApplicationLogsListCreateAPIView(generics.ListCreateAPIView):
-    queryset = ApplicationLogs.objects.all()
-    serializer_class = ApplicationLogsSerializer
-    # permission_classes = [IsClientCanViewLogs,]
-    permission_classes = [IsAuthenticated]
-    
-class ApplicationLogsRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
-    queryset = ApplicationLogs.objects.all()
-    serializer_class = ApplicationLogsSerializer
+    serializer_class = ApplicationFormDetailSerializer
+    permission_classes = [IsManagerCanEdit, IsAdminUser]
     lookup_field = 'id'
 
 
+class ApplicationLogsListCreateAPIView(generics.ListCreateAPIView):  ### внимательно посмотреть нужен ли CREATE - запрос
+    queryset = ApplicationLogs.objects.all()
+    serializer_class = ApplicationLogsSerializer
+    permission_classes = [IsClientCanViewLogs, IsAdminUser, IsManagerUser]
 
+
+class ApplicationLogsRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):   #### убрать DELETE - запрос
+    queryset = ApplicationLogs.objects.all()
+    serializer_class = ApplicationLogsSerializer
+    lookup_field = 'id'
 
 
 class ChecklistAPIView(generics.ListCreateAPIView):
     queryset = Checklist.objects.all()
     serializer_class = ChecklistSerializer
-    permission_classes = [IsClientCanAddChecklist, ]
-    # filter_backends = (DjangoFilterBackend, filters.SearchFilter)
-    # search_fields = '__all__'
-    # filterset_fields = ['completed', 'text', 'manager']
+    permission_classes = [IsClientCanAddChecklist, IsAdminUser, IsManagerUser]
 
-class CheckListDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
+
+class CheckListDetailAPIView(generics.RetrieveUpdateDestroyAPIView):   ### посмотреть внимательно
     queryset = Checklist.objects.all()
     serializer_class = ChecklistSerializer
     lookup_field = 'id'
-
-
-
+    permission_classes = [IsAdminUser, IsManagerUser]
 
 
 class CommentsAPIView(generics.ListCreateAPIView):
     queryset = Comments.objects.all()
     serializer_class = CommentsSerializer
-    permission_classes = [IsManagerCanEdit, IsClientCanPutComments]
+    permission_classes = [IsClientCanPutComments, IsAdminUser, IsManagerUser]
+
 
 class CommentsDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Comments.objects.all()
     serializer_class = CommentsSerializer
     lookup_field = 'id'
-    permission_classes = [IsManagerCanEdit, IsClientCanPutComments, IsClientCanDeleteComments, ]
+    permission_classes = [IsManagerCanEdit, IsClientCanPutComments, IsClientCanDeleteComments, IsAdminUser, IsManagerUser]
 
 
-
-
-
-
+class NotificationListAPIView(generics.ListAPIView):
+    # queryset = Notification.objects.all()
+    serializer_class = NotificationSerializer
+    def get_queryset(self):
+        user_id = self.kwargs['id']
+        return Notification.objects.filter(user_id=user_id)
 

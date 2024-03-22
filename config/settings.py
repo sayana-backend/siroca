@@ -40,11 +40,14 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+    'drf_spectacular',
     'django_filters',
     'apps.company',
     'apps.user',
     'apps.application',
-    
+    'drf_yasg',
+    # 'rest_framework.authtoken',
+    'rest_framework_simplejwt'
 
 ]
 
@@ -64,8 +67,6 @@ SIMPLE_JWT = {
 }
 
 
-
-
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -77,8 +78,6 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'config.urls'
-
-
 
 
 TEMPLATES = [
@@ -98,6 +97,7 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'config.wsgi.application'
+
 
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
@@ -141,10 +141,10 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
-STATIC_URL = 'back_static/'
+STATIC_URL = '/back_static/'
 STATIC_ROOT = BASE_DIR / 'back_static'
 
-MEDIA_URL = 'back_media/'
+MEDIA_URL = '/back_media/'
 MEDIA_ROOT = BASE_DIR / 'back_media'
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
@@ -152,6 +152,8 @@ MEDIA_ROOT = BASE_DIR / 'back_media'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 JAZZMIN_SETTINGS = jazzmin_settings.JAZZMIN_SETTINGS
+
+
 
 AUTH_USER_MODEL = 'user.CustomUser'
 

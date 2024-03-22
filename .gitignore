@@ -14,7 +14,7 @@ media
 
 # Backup files #
 *.bak
-
+.idea/misc.xml
 # If you are using PyCharm #
 # User-specific stuff
 .idea/**/workspace.xml
@@ -22,11 +22,12 @@ media
 .idea/**/usage.statistics.xml
 .idea/**/dictionaries
 .idea/**/shelf
-.idea/inspectionProfiles/profiles_settings.xml
 .idea/misc.xml
+.idea/inspectionProfiles/profiles_settings.xml
 .idea/siroca_technology.iml
 .idea/vcs.xml
 
+>>>>>>> 25fa27324c10568ed359b928b5bbbd8b2cf83676
 
 # AWS User-specific
 .idea/**/aws.xml

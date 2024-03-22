@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 from .usermanager import CustomUserManager
+# from apps.application.models import ApplicationForm
 
 
 class CustomUser(AbstractBaseUser, PermissionsMixin):
@@ -20,7 +21,8 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     is_manager = models.BooleanField(default=False, verbose_name="Менеджер")
     is_client = models.BooleanField(default=False, verbose_name="Клиент")
 
-    main_company = models.ForeignKey('company.Company', verbose_name="Компания", related_name='company_users', null=True, on_delete=models.CASCADE)
+
+    main_company = models.ForeignKey('company.Company', verbose_name="Компания", related_name='company_users', on_delete=models.CASCADE, null=True)
     managers_company = models.ManyToManyField('company.Company', verbose_name="Компании менеджеров", related_name='managers_company', blank=True)
     job_title = models.ForeignKey('company.JobTitle',
                                   verbose_name="Должность",
@@ -45,7 +47,6 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     def __str__(self) -> str:
         return f"{self.username}"
 
-
     def save(self, *args, **kwargs):
         if self.role_type == 'manager':
             self.is_manager = True
@@ -54,14 +55,17 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
             self.is_client = True
         super().save(*args, **kwargs)
 
-
     class Meta:
         verbose_name = 'User'
         verbose_name_plural = verbose_name
 
 
 
-
-
-
+# class Notification(models.Model):
+#     task_number = models.CharField(max_length=50,null=True,blank=True)
+#     text = models.CharField(max_length=300, null=True, blank=True)
+#     created_at = models.DateField(auto_now_add=True, null=True, blank=True)
+#     expiration_time = models.DateTimeField(null=True)
+#     user_id = models.ForeignKey(CustomUser, on_delete=models.CASCADE, null=True)
+#     application_id = models.ForeignKey(ApplicationForm, on_delete=models.CASCADE, null=True)
 
