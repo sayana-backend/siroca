@@ -1,5 +1,7 @@
 from rest_framework import serializers
 from .models import ApplicationForm, Checklist, Comments, ApplicationLogs, Notification
+from django.core.serializers.json import DjangoJSONEncoder
+import json
 
 
 class ChecklistSerializer(serializers.ModelSerializer):
@@ -63,5 +65,4 @@ class ApplicationFormLogsDetailSerializer(serializers.ModelSerializer):
 class NotificationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Notification
-        fields = ('id', 'task_number', 'text', 'created_at')
-
+        fields = ('task_number', 'title', 'text', 'create_at', 'made_change', 'is_sent')

@@ -19,9 +19,9 @@ import random
 import os
 
 
-# class ApplicationFormFilterAPIView(viewsets.GenericViewSet):
-# class ApplicationFormFilterAPIView(generics.ListAPIView):
-class ApplicationFormFilterAPIView(viewsets.ReadOnlyModelViewSet):
+class ApplicationFormFilterAPIView(viewsets.GenericViewSet):
+    # class ApplicationFormFilterAPIView(generics.ListAPIView):
+    # class ApplicationFormFilterAPIView(viewsets.ReadOnlyModelViewSet):
     queryset = ApplicationForm.objects.all()
     serializer_class = ApplicationFormFilterSerializer
     filter_backends = [DjangoFilterBackend, SearchFilter]
@@ -69,15 +69,11 @@ class ExportToExcelView(APIView):
         df = pd.DataFrame(data)
         for column in df.columns:
             df[column] = df[column].map(lambda x: None if x == [] else x)
-        # if df is not None:
-        #     df = df.applymap(lambda x: None if x == [] else x)
-        # df = df.applymap(lambda x: None if x == [] else x)
 
-        # df = df.applymap(lambda x: None if x == [] else x)
-        # df = df.applymap(lambda x: None if isinstance(x, list) and x == [] else x)
-
-        df['status_info'] = df['status_info'].apply(lambda x: ', '.join([f"{item['status']} - {item['date_status']}" for item in x]))
-        df['priority_info'] = df['priority_info'].apply(lambda x: ', '.join([f"{item['priority']} - {item['date_priority']}" for item in x]))
+        df['status_info'] = df['status_info'].apply(
+            lambda x: ', '.join([f"{item['status']} - {item['date_status']}" for item in x]))
+        df['priority_info'] = df['priority_info'].apply(
+            lambda x: ', '.join([f"{item['priority']} - {item['date_priority']}" for item in x]))
 
         count_df = pd.DataFrame([{'Количество заявок': len(data)}])
 

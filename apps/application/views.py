@@ -1,5 +1,7 @@
+
 from .serializers import *
 from .models import *
+
 from rest_framework import generics
 from apps.user.permissions import *
 from rest_framework import permissions
@@ -71,11 +73,4 @@ class CommentsDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = [IsManagerCanEdit, IsClientCanPutComments, IsClientCanDeleteComments, IsAdminUser, IsManagerUser]
 
 
-
-class NotificationListAPIView(generics.ListAPIView):
-    # queryset = Notification.objects.all()
-    serializer_class = NotificationSerializer
-    def get_queryset(self):
-        user_id = self.kwargs['id']
-        return Notification.objects.filter(user_id=user_id)
 
