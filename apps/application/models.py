@@ -1,11 +1,11 @@
-import json
+from channels.layers import get_channel_layer
+from django.contrib.auth.models import Group
+from asgiref.sync import async_to_sync
+from ..user.models import CustomUser
+from django.utils import timezone
 from datetime import timedelta
 from django.db import models
-from django.utils import timezone
-from django.contrib.auth.models import Group
-from ..user.models import CustomUser
-from asgiref.sync import async_to_sync
-from channels.layers import get_channel_layer
+import json
 
 
 class Checklist(models.Model):
@@ -146,7 +146,7 @@ class Notification(models.Model):
         super().save(*args, **kwargs)
         channel_layer = get_channel_layer()
 
-        messages_dict = {
+        notification = {
             "task_number": self.task_number,
             "title": self.title,
             "text": self.text,
@@ -158,6 +158,7 @@ class Notification(models.Model):
             "notifications",
             {
                 "type": "send_notification",
-                "message": messages_dict
+                "message": notification
             }
         )
+

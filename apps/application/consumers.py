@@ -2,6 +2,7 @@ import json
 import jwt
 from asgiref.sync import sync_to_async
 from channels.generic.websocket import AsyncWebsocketConsumer
+from .models import Notification
 
 
 class NotificationConsumer(AsyncWebsocketConsumer):

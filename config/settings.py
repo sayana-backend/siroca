@@ -33,14 +33,11 @@ CSRF_TRUSTED_ORIGINS = ['http://localhost',
 
 
 
-
-
 # Application definition
 
 INSTALLED_APPS = [
     'channels',
     'daphne',
-    'redis',
     'jazzmin',
     'django.contrib.admin',
     'django.contrib.auth',

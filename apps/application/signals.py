@@ -1,10 +1,13 @@
 from .models import ApplicationForm, ApplicationLogs, TrackingStatus, TrackingPriority, Notification
+from django.core.serializers.json import DjangoJSONEncoder
 from django.db.models.signals import post_save, pre_save
 from channels.layers import get_channel_layer
+from apps.user.models import CustomUser
 from asgiref.sync import async_to_sync
 from django.dispatch import receiver
 from django.utils import timezone
 from datetime import timedelta
+import json
 
 
 @receiver(pre_save, sender=ApplicationForm)
@@ -90,17 +93,21 @@ def track_application_send_notification(sender, instance, **kwargs):
 
 @receiver(post_save, sender=ApplicationForm)
 def send_notification_on_create_close(sender, instance, created, **kwargs):
-    admin = CustomUser.objects.filter(is_superuser=True).first()
     if created:
+        admin = CustomUser.objects.filter(is_superuser=True).first()
         Notification.objects.create(
-            title=f'Создана новая заявка: {instance.title}',
-            text=f'Номер заявки: {instance.task_number}',
-            made_change=admin
+            task_number=f'Номер заявки: {instance.task_number}',
+            text=f'Создана новая заявка',
+            title=instance.title,
+            made_change=admin.first_name,
         )
+
     elif instance.status == 'Закрыто':
+        admin = CustomUser.objects.filter(is_superuser=True).first()
         Notification.objects.create(
-            title=f'Заявка закрыта: {instance.title}',
-            text=f'Номер заявки: {instance.task_number}',
-            made_change=admin
+            task_number=f'Номер заявки: {instance.task_number}',
+            text=f"Заявка закрыто",
+            title=instance.title,
+            made_change=admin.first_name,
         )
 
