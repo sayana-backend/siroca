@@ -1,6 +1,5 @@
 from .serializers import *
 from .permissions import IsManagerCanEdit
-from .serializers import UserProfileSerializer, UserAuthSerializer,AdminContactSerializer,ChangePasswordSerializer
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.response import Response
 from django.contrib.auth import authenticate
@@ -12,7 +11,7 @@ from django.http import Http404
 
 class CreateUserView(generics.CreateAPIView):
     queryset = CustomUser.objects.all()
-    serializer_class = UserProfileSerializer
+    serializer_class = UserProfileRegisterSerializer
 
 
 class ListUserProfileView(generics.ListAPIView):
@@ -55,8 +54,9 @@ class UserLoginView(generics.CreateAPIView):
             return Response({
                 'detail': 'Вы успешно вошли',
                 'id': user.id,
+                'role_type': user.role_type,
                 'name': user.first_name,
-                'refresh-token': str(refresh),
+                'refreshToken': str(refresh),
                 'access': str(access_token),
                 'refresh_lifetime_days': refresh.lifetime.days,
                 'access_lifetime_days': access_token.lifetime.days
@@ -73,7 +73,7 @@ class UserLoginView(generics.CreateAPIView):
 
 class AdminContactDetailView(generics.RetrieveUpdateAPIView):
     serializer_class = AdminContactSerializer
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated]
 
 
     def get_queryset(self):

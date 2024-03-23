@@ -1,5 +1,7 @@
 from rest_framework import serializers
 from .models import *
+from ..company.models import Company
+from ..company.serializers import CompanySerializer
 
 
 class UserAuthSerializer(serializers.ModelSerializer):
@@ -8,44 +10,33 @@ class UserAuthSerializer(serializers.ModelSerializer):
         fields = ['username', 'password']
 
 
-class UserProfileSerializer(serializers.ModelSerializer):
+class UserProfileRegisterSerializer(serializers.ModelSerializer):
+
     class Meta:
         model = CustomUser
         fields = "id role_type image first_name surname username password main_company job_title".split()
-
 
     def create(self, validated_data):
         user = CustomUser.objects.create_user(**validated_data)
         return user
 
 
-class UserProfileRegisterSerializer(serializers.ModelSerializer):
-    username = serializers.SerializerMethodField()
+class UserProfileSerializer(serializers.ModelSerializer):
+    main_company = serializers.StringRelatedField()
 
     class Meta:
         model = CustomUser
-        fields = ['id', 'username', 'role_type', 'surname', 'first_name', 'image', 'created_at', 'job_title', 'company_relation']
+        fields = ['id', 'username', 'role_type', 'surname', 'first_name', 'image', 'created_at', 'job_title', 'main_company']
 
-    # def get_username(self, obj):
-    #     return f"{obj.username}@{obj.company_relation.domain}.com" if obj.company_relation else obj.username
-
-    # def create(self, validated_data):
-    #     company_id = self.context['request'].data.get('company_id')
-    #     if not company_id:
-    #         raise serializers.ValidationError("Не указан идентификатор компании")
-    #     company = Company.objects.get(pk=company_id)
-    #     validated_data['company_relation'] = company
-        
-    #     # Создание пользователя без company_domain в username
-    #     user = CustomUser.objects.create(**validated_data)
-
-    #     # Обновление username с company_domain после сохранения пользователя
-    #     if company:
-    #         company_domain = company.domain
-    #         user.username = f"{user.username}@{company_domain}.com"
-    #         user.save()
-
-    #     return user
+    # def to_representation(self, instance):
+    #     representation = super().to_representation(instance)
+    #     main_company_id = representation['main_company']
+    #     try:
+    #         main_company = Company.objects.get(id=main_company_id)
+    #         representation['main_company'] = CompanySerializer(main_company).data
+    #     except Company.DoesNotExist:
+    #         representation['main_company'] = None
+    #     return representation
 
 
 class AdminContactSerializer(serializers.ModelSerializer):

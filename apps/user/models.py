@@ -41,8 +41,6 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     is_manager = models.BooleanField(default=False, verbose_name="Менеджер")
     is_client = models.BooleanField(default=False, verbose_name="Клиент")
 
-    company_relation = models.ForeignKey('company.Company', null=True,verbose_name='отношения с компанией', blank=True, on_delete=models.SET_NULL,
-                                         related_name='users')
     main_company = models.ForeignKey('company.Company', verbose_name="Компания", related_name='company_users', on_delete=models.CASCADE)
     managers_company = models.ManyToManyField('company.Company', verbose_name="Компании менеджеров", related_name='managers_company', blank=True)
     job_title = models.ForeignKey('company.JobTitle',
@@ -65,8 +63,8 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     objects = CustomUserManager()
 
     def save(self, *args, **kwargs):
-        if self.company_relation:
-            company_domain = self.company_relation.domain
+        if self.main_company:
+            company_domain = self.main_company.domain
             self.username += f"@{company_domain}.com"
 
         if self.role_type == 'client':
