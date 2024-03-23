@@ -41,7 +41,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     is_manager = models.BooleanField(default=False, verbose_name="Менеджер")
     is_client = models.BooleanField(default=False, verbose_name="Клиент")
 
-    main_company = models.ForeignKey('company.Company', verbose_name="Компания", related_name='company_users', on_delete=models.CASCADE)
+    main_company = models.ForeignKey('company.Company', verbose_name="Компания", related_name='company_users', on_delete=models.CASCADE, default=1)
     managers_company = models.ManyToManyField('company.Company', verbose_name="Компании менеджеров", related_name='managers_company', blank=True)
     job_title = models.ForeignKey('company.JobTitle',
                                   verbose_name="Должность",
