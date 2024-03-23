@@ -11,6 +11,7 @@ class CompanySerializer(serializers.ModelSerializer):
     # users = serializers.StringRelatedField()
     count_users = serializers.SerializerMethodField()
     users = serializers.SerializerMethodField()
+    company = serializers.CharField(source='company.name', read_only=True)
 
 
     class Meta:

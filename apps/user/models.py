@@ -1,6 +1,5 @@
 from django.db import models
 from django.utils.translation import gettext_lazy as _
-from django.utils.text import slugify
 from .usermanager import CustomUserManager
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 
@@ -14,14 +13,9 @@ class AdminContact(models.Model):
     def __str__(self):
         return f"Контакт для админа {self.user}"
 
-    class  Meta:
+    class Meta:
         verbose_name = 'Контакт для админа'
         verbose_name_plural = "Контакты для админа"
-    
-
-
-    
-
 
 
 class CustomUser(AbstractBaseUser, PermissionsMixin):
@@ -83,11 +77,6 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
         verbose_name_plural = _('Пользователи')
 
     USERNAME_FIELD = 'username'
-
-
-
-
-
 
 
 

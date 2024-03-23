@@ -1,35 +1,39 @@
-import mimetypes
-
 from rest_framework import generics, status
 from rest_framework.response import Response
-
 from ..company.models import Company, JobTitle
 from ..company.serializers import CompanySerializer, JobTitleSerializer
 from django.http import JsonResponse, HttpResponse
 from django.views.decorators.csrf import csrf_exempt
-from django.http import FileResponse
 from rest_framework.views import APIView
+from rest_framework.permissions import IsAuthenticated
+from apps.user.permissions import *
+
+
+class CompanyListAPIView(generics.ListAPIView):
+    queryset = Company.objects.all()
+    serializer_class = CompanySerializer
+    permission_classes = [IsAdminUser]
 
 
 class CompanyCreateAPIView(generics.CreateAPIView):
     queryset = Company.objects.all()
     serializer_class = CompanySerializer
+    permission_classes = [IsAdminUser]
 
 
 class CompanyRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Company.objects.all()
     serializer_class = CompanySerializer
     lookup_field = 'id'
+    permission_classes = [IsAdminUser]
 
 
-class CompanyListAPIView(generics.ListAPIView):
-    queryset = Company.objects.all()
-    serializer_class = CompanySerializer
 
 
 class JobTitleListAPIView(generics.ListAPIView):
     queryset = JobTitle.objects.all()
     serializer_class = JobTitleSerializer
+    permission_classes = [IsAdminUser]
 
 
 class JobTitleCreateAPIView(generics.CreateAPIView):

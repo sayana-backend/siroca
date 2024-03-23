@@ -1,23 +1,31 @@
-from .serializers import *
-from .permissions import IsManagerCanEdit
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.response import Response
 from django.contrib.auth import authenticate
 from rest_framework import generics, status
+
 from .models import CustomUser,AdminContact
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from django.http import Http404
+
+from .serializers import *
+from .permissions import IsManagerCanEdit
+from rest_framework import permissions
+from .models import CustomUser
+from .permissions import IsAdminUser, IsClientUser, IsManagerUser
+
+
 
 
 class CreateUserView(generics.CreateAPIView):
     queryset = CustomUser.objects.all()
     serializer_class = UserProfileRegisterSerializer
+    permission_classes = [IsAdminUser]
 
 
 class ListUserProfileView(generics.ListAPIView):
     queryset = CustomUser.objects.all()
     serializer_class = UserProfileSerializer
-    # permission_classes = [IsAdminUser]
+    permission_classes = [IsAdminUser]
 
     def get_queryset(self):
         queryset = super().get_queryset()
@@ -33,15 +41,18 @@ class ListUserProfileView(generics.ListAPIView):
             return "*****"  
 
 
+
 class DetailUserProfileView(generics.RetrieveUpdateDestroyAPIView):
     queryset = CustomUser.objects.all()
     serializer_class = UserProfileSerializer
     lookup_field = 'id'
+    permission_classes = [IsAdminUser]
 
 
 class UserLoginView(generics.CreateAPIView):
     queryset = CustomUser.objects.all()
     serializer_class = UserAuthSerializer
+    # permission_classes = [IsAdminUser]
 
     def post(self, request, *args, **kwargs):
         username = request.data.get('username')
@@ -64,9 +75,6 @@ class UserLoginView(generics.CreateAPIView):
         else:
             return Response({'detail': 'Ошибка аутентификации'}, status=status.HTTP_401_UNAUTHORIZED)
 
-#     template_name = ''
-#     success_url = reverse_lazy('')
-#     permission_required = 'user.add_userprofile'
 
 
 
@@ -74,7 +82,6 @@ class UserLoginView(generics.CreateAPIView):
 class AdminContactDetailView(generics.RetrieveUpdateAPIView):
     serializer_class = AdminContactSerializer
     # permission_classes = [IsAuthenticated]
-
 
     def get_queryset(self):
         return AdminContact.objects.filter(admin=self.request.user)
@@ -88,24 +95,39 @@ class AdminContactDetailView(generics.RetrieveUpdateAPIView):
         return obj
 
 
-class ManagerPermissionsView(generics.UpdateAPIView):
+
+class ManagerPermissionsView(generics.UpdateAPIView, generics.ListAPIView):
     queryset = CustomUser.objects.filter(role_type='manager')
     serializer_class = ManagerPermissionsSerializer
-    permission_classes = [IsManagerCanEdit]
+    # permission_classes = [IsAdminUser]
 
     def update(self, request, *args, **kwargs):
         manager_can_edit = request.data.get('manager_can_edit')
         manager_can_get_reports = request.data.get('manager_can_get_reports')
-        if manager_can_edit:
-            self.queryset.update(manager_can_edit=True)
-        if manager_can_get_reports:
-            self.queryset.update(manager_can_get_reports=True)
-        return Response('Права менеджера предоставлены')
 
-class ClientPermissionsView(generics.UpdateAPIView):
+        self.queryset.update(
+            manager_can_edit=bool(manager_can_edit),
+            manager_can_get_reports=bool(manager_can_get_reports)
+        )
+
+    def get(self, request, *args, **kwargs):
+        managers = CustomUser.objects.filter(role_type='manager')
+        manager_permissions = {}
+        if managers.exists():
+            first_manager = managers.first()
+            print(f'first_manager: {first_manager}')
+            manager_permissions = {
+                "manager_can_edit": first_manager.manager_can_edit,
+                "manager_can_get_reports": first_manager.manager_can_get_reports
+            }
+        return Response(manager_permissions)
+
+
+class ClientPermissionsView(generics.UpdateAPIView, generics.ListAPIView):
     queryset = CustomUser.objects.filter(role_type='client')
     serializer_class = ClientPermissionsSerializer
-    # lookup_field = 'id'
+    # permission_classes = [IsAdminUser]
+
 
     def update(self, request, *args, **kwargs):
         client_can_put_comments = request.data.get('client_can_put_comments')
@@ -113,17 +135,34 @@ class ClientPermissionsView(generics.UpdateAPIView):
         client_can_view_logs = request.data.get('client_can_view_logs')
         client_can_delete_comments = request.data.get('client_can_delete_comments')
         client_can_add_checklist = request.data.get('client_can_add_checklist')
-        if client_can_put_comments:
-            self.queryset.update(client_can_put_comments=True)
-        if client_can_get_reports:
-            self.queryset.update(client_can_get_reports=True)
-        if client_can_view_logs:
-            self.queryset.update(client_can_view_logs=True)
-        if client_can_delete_comments:
-            self.queryset.update(client_can_delete_comments=True)
-        if client_can_add_checklist:
-            self.queryset.update(client_can_add_checklist=True)
-        return Response('Права клиента предоставлены')
+
+        self.queryset.update(
+            client_can_put_comments=bool(client_can_put_comments),
+            client_can_get_reports=bool(client_can_get_reports),
+            client_can_view_logs=bool(client_can_view_logs),
+            client_can_delete_comments=bool(client_can_delete_comments),
+            client_can_add_checklist=bool(client_can_add_checklist)
+        )
+        return Response('Права клиента обновлены')
+
+    def get(self, request, *args, **kwargs):
+        clients = CustomUser.objects.filter(role_type='client')
+        client_permissions = {}
+        if clients.exists():
+            first_client = clients.first()
+            print(f'first_client: {first_client}')
+            client_permissions = {
+                "client_can_put_comments": first_client.client_can_put_comments,
+                "client_can_get_reports": first_client.client_can_get_reports,
+                "client_can_view_logs": first_client.client_can_view_logs,
+                "client_can_delete_comments": first_client.client_can_delete_comments,
+                "client_can_add_checklist": first_client.client_can_add_checklist
+            }
+
+        return Response(client_permissions)
+
+
+
 
 
 

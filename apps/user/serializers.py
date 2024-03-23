@@ -1,7 +1,9 @@
 from rest_framework import serializers
 from .models import *
-from ..company.models import Company
-from ..company.serializers import CompanySerializer
+from django.contrib.auth import get_user_model, authenticate
+
+
+User = get_user_model()
 
 
 class UserAuthSerializer(serializers.ModelSerializer):
@@ -11,7 +13,6 @@ class UserAuthSerializer(serializers.ModelSerializer):
 
 
 class UserProfileRegisterSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = CustomUser
         fields = "id role_type image first_name surname username password main_company job_title".split()
@@ -27,16 +28,6 @@ class UserProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
         fields = ['id', 'username', 'role_type', 'surname', 'first_name', 'image', 'created_at', 'job_title', 'main_company']
-
-    # def to_representation(self, instance):
-    #     representation = super().to_representation(instance)
-    #     main_company_id = representation['main_company']
-    #     try:
-    #         main_company = Company.objects.get(id=main_company_id)
-    #         representation['main_company'] = CompanySerializer(main_company).data
-    #     except Company.DoesNotExist:
-    #         representation['main_company'] = None
-    #     return representation
 
 
 class AdminContactSerializer(serializers.ModelSerializer):
