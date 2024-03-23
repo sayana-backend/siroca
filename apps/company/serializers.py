@@ -7,11 +7,8 @@ class JobTitleSerializer(serializers.ModelSerializer):
         fields = ['id', 'title']
 
 class CompanySerializer(serializers.ModelSerializer):
-    # responsible_manager = serializers.StringRelatedField()
-    # users = serializers.StringRelatedField()
     count_users = serializers.SerializerMethodField()
-    users = serializers.SerializerMethodField()
-    company = serializers.CharField(source='company.name', read_only=True)
+    # users = serializers.SerializerMethodField()
 
 
     class Meta:

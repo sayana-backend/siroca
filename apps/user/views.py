@@ -2,11 +2,9 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.response import Response
 from django.contrib.auth import authenticate
 from rest_framework import generics, status
-
 from .models import CustomUser,AdminContact
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from django.http import Http404
-
 from .serializers import *
 from .permissions import IsManagerCanEdit
 from rest_framework import permissions
@@ -52,7 +50,7 @@ class DetailUserProfileView(generics.RetrieveUpdateDestroyAPIView):
 class UserLoginView(generics.CreateAPIView):
     queryset = CustomUser.objects.all()
     serializer_class = UserAuthSerializer
-    # permission_classes = [IsAdminUser]
+    '''no permission. Everyone can login'''
 
     def post(self, request, *args, **kwargs):
         username = request.data.get('username')

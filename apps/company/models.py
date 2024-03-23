@@ -6,7 +6,7 @@ from ..user.models import CustomUser
 
 
 class Company(models.Model):
-    name = models.CharField(max_length=255, verbose_name='Название  компании')
+    name = models.CharField(max_length=255, verbose_name='Название  компании', unique=True)
     company_code = models.CharField(max_length=255, unique=True, verbose_name='Краткий код')
     country = models.CharField(max_length=255, verbose_name='Страна')
     domain = models.CharField(max_length=100, unique=True)

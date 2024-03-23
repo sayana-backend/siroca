@@ -3,7 +3,7 @@ from .models import *
 from rest_framework import generics
 from apps.user.permissions import *
 from rest_framework import permissions
-# from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated
 
 
 class ApplicationFormCreateAPIView(generics.CreateAPIView):
@@ -15,9 +15,14 @@ class ApplicationFormCreateAPIView(generics.CreateAPIView):
 class ApplicationFormListAPIView(generics.ListAPIView):
     queryset = ApplicationForm.objects.all()
     serializer_class = ApplicationFormDetailSerializer
-    permission_classes = [IsAdminUser]
+    permission_classes = [IsAuthenticated]
 
 
+class ApplicationFormRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = ApplicationForm.objects.all()
+    serializer_class = ApplicationFormDetailSerializer
+    permission_classes = [IsManagerCanEdit, IsAdminUser]
+    lookup_field = 'id'
 
 class ApplicationFormRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
     queryset = ApplicationForm.objects.all()
@@ -33,10 +38,10 @@ class ApplicationLogsListCreateAPIView(generics.ListCreateAPIView):  ### вни�
     permission_classes = [IsClientCanViewLogs, IsAdminUser, IsManagerUser]
 
 
-class ApplicationLogsRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):   #### убрать DELETE - запрос
-    queryset = ApplicationLogs.objects.all()
-    serializer_class = ApplicationLogsSerializer
-    lookup_field = 'id'
+# class ApplicationLogsRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):   #### убрать DELETE - запрос
+#     queryset = ApplicationLogs.objects.all()
+#     serializer_class = ApplicationLogsSerializer
+#     lookup_field = 'id'
 
 
 class ChecklistAPIView(generics.ListCreateAPIView):
