@@ -19,9 +19,9 @@ import random
 import os
 
 
-# class ApplicationFormFilterAPIView(viewsets.GenericViewSet):
-# class ApplicationFormFilterAPIView(generics.ListAPIView):
-class ApplicationFormFilterAPIView(viewsets.ReadOnlyModelViewSet):
+class ApplicationFormFilterAPIView(viewsets.GenericViewSet):
+    # class ApplicationFormFilterAPIView(generics.ListAPIView):
+    # class ApplicationFormFilterAPIView(viewsets.ReadOnlyModelViewSet):
     queryset = ApplicationForm.objects.all()
     serializer_class = ApplicationFormFilterSerializer
     filter_backends = [DjangoFilterBackend, SearchFilter]
