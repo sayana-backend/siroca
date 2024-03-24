@@ -1,4 +1,4 @@
-from .serializers import UserProfileSerializer, UserAuthSerializer,AdminContactSerializer
+from .serializers import UserProfileSerializer, UserAuthSerializer,AdminContactSerializer,ChangePasswordSerializer
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.response import Response
 from django.contrib.auth import authenticate
@@ -7,7 +7,8 @@ from rest_framework import permissions
 from .models import CustomUser,AdminContact
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from django.contrib.auth.hashers import check_password
-
+from django.contrib.auth.hashers import make_password
+from django.http import Http404
 
 class CreateUserView(generics.CreateAPIView):
     queryset = CustomUser.objects.all()
@@ -86,3 +87,38 @@ class AdminContactDetailView(generics.RetrieveUpdateAPIView):
         if obj is None:
             raise Http404("Контакт не существует.")
         return obj
+
+
+class AdminContactListView(generics.ListAPIView):
+    serializer_class = AdminContactSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return AdminContact.objects.all()
+
+
+
+class ChangePasswordView(generics.UpdateAPIView):
+    queryset = CustomUser.objects.all()
+    serializer_class = ChangePasswordSerializer
+    permission_classes = [IsAuthenticated]
+
+    def update(self, request, *args, **kwargs):
+        user = self.request.user
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        old_password = serializer.validated_data.get('old_password')
+        new_password1 = serializer.validated_data.get('new_password1')
+        new_password2 = serializer.validated_data.get('new_password2')
+
+        if not user.check_password(old_password):
+            return Response({'detail': 'Старый пароль неверен'}, status=status.HTTP_400_BAD_REQUEST)
+
+        if new_password1 != new_password2:
+            return Response({'detail': 'Новые пароли не совпадают'}, status=status.HTTP_400_BAD_REQUEST)
+
+        user.set_password(new_password1)
+        user.save()
+
+        return Response({'detail': 'Пароль успешно изменен'}, status=status.HTTP_200_OK)
