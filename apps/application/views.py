@@ -12,9 +12,27 @@ class ApplicationFormCreateAPIView(generics.CreateAPIView):
     serializer_class = ApplicationFormDetailSerializer
 
 
+
 class ApplicationFormListAPIView(generics.ListAPIView):
-    queryset = ApplicationForm.objects.all()
     serializer_class = ApplicationFormDetailSerializer
+
+    def get_queryset(self):
+        queryset = ApplicationForm.objects.all()
+        interval = self.request.query_params.get('interval', None)
+        status = self.request.query_params.get('status', None)
+
+        if interval == 'week':
+            start_date = timezone.now() - timedelta(days=7)
+            queryset = queryset.filter(application_date__gte=start_date)
+        elif interval == 'month':
+            start_date = timezone.now() - timedelta(days=30)
+            queryset = queryset.filter(application_date__gte=start_date)
+
+        if status:
+            queryset = queryset.filter(status=status)
+
+        return queryset
+
 
 
 class ApplicationFormRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
@@ -63,4 +81,7 @@ class NotificationListAPIView(generics.ListAPIView):
     def get_queryset(self):
         user_id = self.kwargs['id']
         return Notification.objects.filter(user_id=user_id)
+
+
+
 
