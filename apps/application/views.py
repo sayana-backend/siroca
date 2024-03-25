@@ -10,7 +10,7 @@ from rest_framework.permissions import IsAuthenticated
 
 class ApplicationFormCreateAPIView(generics.CreateAPIView):
     queryset = ApplicationForm.objects.all()
-    serializer_class = ApplicationFormDetailSerializer
+    serializer_class = ApplicationFormCreateSerializer
     permission_classes = [IsAdminUser, IsManagerUser]
 
 
@@ -20,11 +20,12 @@ class ApplicationFormListAPIView(generics.ListAPIView):
     permission_classes = [IsAuthenticated]
 
 
-class ApplicationFormRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
+class ApplicationFormRetrieveAPIView(generics.RetrieveAPIView):
     queryset = ApplicationForm.objects.all()
     serializer_class = ApplicationFormDetailSerializer
-    permission_classes = [IsManagerCanEdit, IsAdminUser]
+    permission_classes = [IsAuthenticated]
     lookup_field = 'id'
+
 
 class ApplicationFormRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
     queryset = ApplicationForm.objects.all()

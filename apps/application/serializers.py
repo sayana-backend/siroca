@@ -20,12 +20,12 @@ class CommentsSerializer(serializers.ModelSerializer):
         return super().create(validated_data)
 
 
-class ApplicationFormSerializer(serializers.ModelSerializer):
+class ApplicationFormCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = ApplicationForm
-        fields = 'id task_number title ' \
-                 'company ' \
-                 ' application_date'.split()
+        fields = ['id', 'title', 'company', 'main_client', 'main_manager',
+                  'status', 'priority', 'comments', 'checklist', 'payment_state',
+                  'application_date']
 
 
 class ApplicationLogsSerializer(serializers.ModelSerializer):

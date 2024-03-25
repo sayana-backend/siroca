@@ -24,10 +24,11 @@ class UserProfileRegisterSerializer(serializers.ModelSerializer):
 
 class UserProfileSerializer(serializers.ModelSerializer):
     main_company = serializers.StringRelatedField()
+    job_title = serializers.StringRelatedField()
 
     class Meta:
         model = CustomUser
-        fields = ['id', 'username', 'role_type', 'surname', 'first_name', 'image', 'created_at', 'job_title', 'main_company']
+        fields = ['id', 'username', 'role_type', 'password', 'surname', 'first_name', 'image', 'created_at', 'job_title', 'main_company']
 
 
 class AdminContactSerializer(serializers.ModelSerializer):
