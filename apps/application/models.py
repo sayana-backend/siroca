@@ -2,6 +2,7 @@ from channels.layers import get_channel_layer
 from django.contrib.auth.models import Group
 from asgiref.sync import async_to_sync
 from ..user.models import CustomUser
+from django_redis import get_redis_connection
 from django.utils import timezone
 from datetime import timedelta
 from django.db import models
@@ -161,4 +162,6 @@ class Notification(models.Model):
                 "message": notification
             }
         )
+
+
 
