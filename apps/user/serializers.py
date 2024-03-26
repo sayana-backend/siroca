@@ -40,13 +40,30 @@ class AdminContactSerializer(serializers.ModelSerializer):
 class ManagerPermissionsSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
-        fields = ['manager_can_edit', 'manager_can_get_reports']
+        fields = ['id',
+
+                  'role_type',
+                  'manager_can_delete_comments',
+                  'manager_can_get_reports',
+                  'manager_can_view_profiles',
+                  'manager_can_delete_application']
 
 
 class ClientPermissionsSerializer(serializers.ModelSerializer):
+    # role_type = serializers.CharField(source='role_type', read_only=True)
+
+    # company = serializers.CharField(source='company.name', read_only=True)
     class Meta:
         model = CustomUser
-        fields = ['client_can_put_comments', 'client_can_get_reports', 'client_can_view_logs', 'client_can_delete_comments', 'client_can_add_checklist']
+        fields = ['id',
+                  'username',
+                  'role_type',
+                  'client_can_edit_comments',
+                  'client_can_get_reports',
+                  'client_can_view_logs',
+                  'client_can_add_files',
+                  'client_can_add_checklist',
+                  'client_can_view_profiles']
 
 
 class ChangePasswordSerializer(serializers.Serializer):

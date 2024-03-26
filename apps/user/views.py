@@ -6,10 +6,10 @@ from .models import CustomUser,AdminContact
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from django.http import Http404
 from .serializers import *
-from .permissions import IsManagerCanEdit
+from .permissions import IsManagerCanDeleteComments
 from rest_framework import permissions
 from .models import CustomUser
-from .permissions import IsAdminUser, IsClientUser, IsManagerUser
+from .permissions import IsAdminUser, IsClientUser, IsManagerUser, IsClientCanViewProfiles
 
 
 
@@ -23,7 +23,7 @@ class CreateUserView(generics.CreateAPIView):
 class ListUserProfileView(generics.ListAPIView):
     queryset = CustomUser.objects.all()
     serializer_class = UserProfileSerializer
-    permission_classes = [IsAdminUser]
+    # permission_classes = [IsAdminUser]
 
     def get_queryset(self):
         queryset = super().get_queryset()
@@ -44,7 +44,7 @@ class DetailUserProfileView(generics.RetrieveUpdateDestroyAPIView):
     queryset = CustomUser.objects.all()
     serializer_class = UserProfileSerializer
     lookup_field = 'id'
-    permission_classes = [IsAdminUser]
+    permission_classes = [IsAdminUser, IsClientCanViewProfiles]
 
 
 class UserLoginView(generics.CreateAPIView):
@@ -77,6 +77,7 @@ class UserLoginView(generics.CreateAPIView):
 
 
 
+
 class AdminContactDetailView(generics.RetrieveUpdateAPIView):
     serializer_class = AdminContactSerializer
     # permission_classes = [IsAuthenticated]
@@ -94,18 +95,23 @@ class AdminContactDetailView(generics.RetrieveUpdateAPIView):
 
 
 
-class ManagerPermissionsView(generics.UpdateAPIView, generics.ListAPIView):
+
+class ManagerPermissionsGeneralView(generics.UpdateAPIView, generics.ListAPIView):
     queryset = CustomUser.objects.filter(role_type='manager')
     serializer_class = ManagerPermissionsSerializer
     # permission_classes = [IsAdminUser]
 
     def update(self, request, *args, **kwargs):
-        manager_can_edit = request.data.get('manager_can_edit')
+        manager_can_delete_comments = request.data.get('manager_can_delete_comments')
         manager_can_get_reports = request.data.get('manager_can_get_reports')
+        manager_can_view_profiles = request.data.get('manager_can_view_profiles')
+        manager_can_delete_application = request.data.get('manager_can_delete_application')
 
         self.queryset.update(
-            manager_can_edit=bool(manager_can_edit),
-            manager_can_get_reports=bool(manager_can_get_reports)
+            manager_can_delete_comments=bool(manager_can_delete_comments),
+            manager_can_get_reports=bool(manager_can_get_reports),
+            manager_can_view_profiles=bool(manager_can_view_profiles),
+            manager_can_delete_application=bool(manager_can_delete_application)
         )
 
     def get(self, request, *args, **kwargs):
@@ -115,13 +121,15 @@ class ManagerPermissionsView(generics.UpdateAPIView, generics.ListAPIView):
             first_manager = managers.first()
             print(f'first_manager: {first_manager}')
             manager_permissions = {
-                "manager_can_edit": first_manager.manager_can_edit,
-                "manager_can_get_reports": first_manager.manager_can_get_reports
+                "manager_can_delete_comments": first_manager.manager_can_delete_comments,
+                "manager_can_get_reports": first_manager.manager_can_get_reports,
+                "manager_can_view_profiles": first_manager.manager_can_view_profiles,
+                "manager_can_delete_application": first_manager.manager_can_delete_application
             }
         return Response(manager_permissions)
 
 
-class ClientPermissionsView(generics.UpdateAPIView, generics.ListAPIView):
+class ClientPermissionsGeneralView(generics.UpdateAPIView, generics.ListAPIView):
     queryset = CustomUser.objects.filter(role_type='client')
     serializer_class = ClientPermissionsSerializer
     # permission_classes = [IsAdminUser]
@@ -161,6 +169,24 @@ class ClientPermissionsView(generics.UpdateAPIView, generics.ListAPIView):
 
 
 
+class ClientPermissionsDetailAPIView(generics.ListAPIView):
+    queryset = CustomUser.objects.filter(role_type='client')
+    serializer_class = ClientPermissionsSerializer
+
+    def put(self, request, *args, **kwargs):
+        users_data = request.data
+        for user_data in users_data:
+            user_id = user_data.get('id')
+            try:
+                user_instance = CustomUser.objects.get(id=user_id)
+            except CustomUser.DoesNotExist:
+                return Response(f'Пользователь с id={user_id} не найден', status=404)
+
+            serializer = self.get_serializer(user_instance, data=user_data, partial=True)
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+
+        return Response('Права пользователей обновлены')
 
 
 
@@ -198,4 +224,24 @@ class ChangePasswordView(generics.UpdateAPIView):
         user.save()
 
         return Response({'detail': 'Пароль успешно изменен'}, status=status.HTTP_200_OK)
+
+
+class ManagerPermissionsDetailAPIView(generics.ListAPIView):
+    queryset = CustomUser.objects.filter(role_type='manager')
+    serializer_class = ManagerPermissionsSerializer
+
+    def put(self, request, *args, **kwargs):
+        users_data = request.data
+        for user_data in users_data:
+            user_id = user_data.get('id')
+            try:
+                user_instance = CustomUser.objects.get(id=user_id)
+            except CustomUser.DoesNotExist:
+                return Response(f'Пользователь с id={user_id} не найден', status=404)
+
+            serializer = self.get_serializer(user_instance, data=user_data, partial=True)
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+
+        return Response('Права пользователей обновлены')
 
