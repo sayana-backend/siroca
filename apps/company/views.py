@@ -12,20 +12,20 @@ from apps.user.permissions import *
 class CompanyListAPIView(generics.ListAPIView):
     queryset = Company.objects.all()
     serializer_class = CompanySerializer
-    permission_classes = [IsAdminUser]
+    # permission_classes = [IsAdminUser]
 
 
 class CompanyCreateAPIView(generics.CreateAPIView):
     queryset = Company.objects.all()
     serializer_class = CompanySerializer
-    permission_classes = [IsAdminUser]
+    # permission_classes = [IsAdminUser]
 
 
 class CompanyRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Company.objects.all()
     serializer_class = CompanySerializer
     lookup_field = 'id'
-    permission_classes = [IsAdminUser]
+    # permission_classes = [IsAdminUser]
 
 
 
@@ -33,7 +33,7 @@ class CompanyRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView)
 class JobTitleListAPIView(generics.ListAPIView):
     queryset = JobTitle.objects.all()
     serializer_class = JobTitleSerializer
-    permission_classes = [IsAdminUser]
+    # permission_classes = [IsAdminUser]
 
 
 class JobTitleCreateAPIView(generics.CreateAPIView):

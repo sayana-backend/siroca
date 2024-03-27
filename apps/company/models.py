@@ -27,8 +27,8 @@ class Company(models.Model):
         limit_choices_to={'is_manager': True}
     )
 
-    created_at = models.DateTimeField(auto_now_add=True, verbose_name='Дата создания')
-    last_updated_at = models.DateTimeField(auto_now=True, verbose_name='Дата последнего редактирования')
+    created_at = models.DateField(auto_now_add=True, verbose_name='Дата создания')
+    last_updated_at = models.DateField(auto_now=True, verbose_name='Дата последнего редактирования')
 
 
     def generate_codes(self, company_name):

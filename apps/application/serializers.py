@@ -21,6 +21,11 @@ class CommentsSerializer(serializers.ModelSerializer):
 
 
 class ApplicationFormCreateSerializer(serializers.ModelSerializer):
+    company = serializers.CharField(source='company.name', read_only=True)
+    main_client = serializers.CharField(source='main_client.name', read_only=True)
+    main_manager = serializers.CharField(source='main_manager.name', read_only=True)
+    checklist = ChecklistSerializer(many=True)
+    comments = CommentsSerializer(many=True)
     class Meta:
         model = ApplicationForm
         fields = ['id', 'title', 'company', 'main_client', 'main_manager',
@@ -35,13 +40,6 @@ class ApplicationLogsSerializer(serializers.ModelSerializer):
 
 
 class ApplicationFormDetailSerializer(serializers.ModelSerializer):
-    # company = serializers.CharField(source='company.name', read_only=True)
-    # main_client = serializers.CharField(source='main_client.name', read_only=True)
-    # main_manager = serializers.CharField(source='main_manager.name', read_only=True)
-    # checklist = ChecklistSerializer(many=True)
-    # comments = CommentsSerializer(many=True)
-    # logs = ApplicationLogsSerializer(many=True)
-
     class Meta:
         model = ApplicationForm
         fields = '__all__'

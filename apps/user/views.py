@@ -17,26 +17,14 @@ from .permissions import IsAdminUser, IsClientUser, IsManagerUser, IsClientCanVi
 class CreateUserView(generics.CreateAPIView):
     queryset = CustomUser.objects.all()
     serializer_class = UserProfileRegisterSerializer
-    permission_classes = [IsAdminUser]
+    # permission_classes = [IsAdminUser]
 
 
 class ListUserProfileView(generics.ListAPIView):
     queryset = CustomUser.objects.all()
     serializer_class = UserProfileSerializer
-    permission_classes = [IsAdminUser]
 
-    def get_queryset(self):
-        queryset = super().get_queryset()
-        if self.request.user.is_superuser:
-            for user in queryset:
-                user.password = self.decrypt_password(user.password)
-        return queryset
-
-    def decrypt_password(self, password):
-        if self.request.user.is_superuser:
-            return password
-        else:
-            return "*****"  
+   
 
 
 
@@ -44,7 +32,7 @@ class DetailUserProfileView(generics.RetrieveUpdateDestroyAPIView):
     queryset = CustomUser.objects.all()
     serializer_class = UserProfileSerializer
     lookup_field = 'id'
-    permission_classes = [IsAdminUser, IsClientCanViewProfiles]
+    # permission_classes = [IsAdminUser, IsClientCanViewProfiles]
 
 
 class UserLoginView(generics.CreateAPIView):
@@ -80,7 +68,7 @@ class UserLoginView(generics.CreateAPIView):
 
 class AdminContactDetailView(generics.RetrieveUpdateAPIView):
     serializer_class = AdminContactSerializer
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
         return AdminContact.objects.filter(admin=self.request.user)
@@ -196,7 +184,7 @@ class ClientPermissionsDetailAPIView(generics.ListAPIView):
 
 class AdminContactListView(generics.ListAPIView):
     serializer_class = AdminContactSerializer
-    permission_classes = [IsAuthenticated]
+
 
     def get_queryset(self):
         return AdminContact.objects.all()
