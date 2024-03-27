@@ -94,7 +94,7 @@ class ApplicationForm(models.Model):
     offer_date = models.DateField(null=True, verbose_name='Дата отправки КП')
     start_date = models.DateField(null=True, verbose_name='Дата начала')
     finish_date = models.DateField(null=True, verbose_name='Дата окончания')
-    time_application_date = models.DateField(null=True, verbose_name='Срок выполнения')
+    deadline_date = models.DateField(null=True, verbose_name='Срок выполнения')
 
 
     objects = models.Manager()
