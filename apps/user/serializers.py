@@ -19,7 +19,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = CustomUser
-        fields = "role_type image first_name surname username password main_company job_title".split()
+        fields = "role_type image first_name surname username password image main_company job_title".split()
 
     def create(self, validated_data):
         user = CustomUser.objects.create_user(**validated_data)
