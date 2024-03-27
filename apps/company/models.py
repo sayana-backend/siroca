@@ -2,7 +2,7 @@ from django.db import models
 from transliterate import translit
 import random
 from ..user.models import CustomUser
-
+from ..application.models import ApplicationForm
 
 
 class Company(models.Model):
@@ -27,7 +27,9 @@ class Company(models.Model):
         limit_choices_to={'is_manager': True}
     )
 
-    created_at = models.DateField(auto_now_add=True, verbose_name='Дата создания')
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name='Дата создания')
+    last_updated_at = models.DateTimeField(auto_now=True, verbose_name='Дата последнего редактирования')
+
 
     def generate_codes(self, company_name):
         company_name = translit(company_name.replace(' ', ''), 'ru', reversed=True).upper()
@@ -44,6 +46,10 @@ class Company(models.Model):
     def get_count_users(self):
         count_users = CustomUser.objects.filter(main_company=self).count()
         return count_users
+
+    def get_count_applications(self):
+        count_applications = ApplicationForm.objects.filter(company=self).count()
+        return count_applications
     
     def get_users(self):
         users = CustomUser.objects.filter(main_company=self)

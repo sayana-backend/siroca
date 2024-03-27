@@ -136,18 +136,20 @@ class ClientPermissionsGeneralView(generics.UpdateAPIView, generics.ListAPIView)
 
 
     def update(self, request, *args, **kwargs):
-        client_can_put_comments = request.data.get('client_can_put_comments')
+        client_can_edit_comments = request.data.get('client_can_edit_comments')
         client_can_get_reports = request.data.get('client_can_get_reports')
         client_can_view_logs = request.data.get('client_can_view_logs')
-        client_can_delete_comments = request.data.get('client_can_delete_comments')
+        client_can_add_files = request.data.get('client_can_add_files')
         client_can_add_checklist = request.data.get('client_can_add_checklist')
+        client_can_view_profiles = request.data.get('client_can_view_profiles')
 
         self.queryset.update(
-            client_can_put_comments=bool(client_can_put_comments),
+            client_can_edit_comments=bool(client_can_edit_comments),
             client_can_get_reports=bool(client_can_get_reports),
             client_can_view_logs=bool(client_can_view_logs),
-            client_can_delete_comments=bool(client_can_delete_comments),
-            client_can_add_checklist=bool(client_can_add_checklist)
+            client_can_add_files=bool(client_can_add_files),
+            client_can_add_checklist=bool(client_can_add_checklist),
+            client_can_view_profiles=bool(client_can_view_profiles)
         )
         return Response('Права клиента обновлены')
 
@@ -158,11 +160,12 @@ class ClientPermissionsGeneralView(generics.UpdateAPIView, generics.ListAPIView)
             first_client = clients.first()
             print(f'first_client: {first_client}')
             client_permissions = {
-                "client_can_put_comments": first_client.client_can_put_comments,
+                "client_can_edit_comments": first_client.client_can_edit_comments,
                 "client_can_get_reports": first_client.client_can_get_reports,
                 "client_can_view_logs": first_client.client_can_view_logs,
-                "client_can_delete_comments": first_client.client_can_delete_comments,
-                "client_can_add_checklist": first_client.client_can_add_checklist
+                "client_can_add_files": first_client.client_can_add_files,
+                "client_can_add_checklist": first_client.client_can_add_checklist,
+                "client_can_view_profiles": first_client.client_can_view_profiles,
             }
 
         return Response(client_permissions)
