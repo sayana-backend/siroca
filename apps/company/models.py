@@ -23,7 +23,6 @@ class Company(models.Model):
         'user.CustomUser',
         verbose_name='Пользователи',
         related_name='companies',
-        null=True,
         blank=True,
         limit_choices_to={'is_manager': True}
     )

@@ -40,7 +40,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     job_title = models.ForeignKey('company.JobTitle',
                                   verbose_name="Должность",
                                   related_name='user_job_titles',
-                                  on_delete=models.SET_NULL)
+                                  on_delete=models.CASCADE)
 
     manager_can_delete_comments = models.BooleanField(default=False, verbose_name='Удаление комментариев')
     manager_can_get_reports = models.BooleanField(default=False, verbose_name='Отчет по заявкам(Менеджер)')

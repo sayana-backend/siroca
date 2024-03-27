@@ -17,7 +17,7 @@ from .permissions import IsAdminUser, IsClientUser, IsManagerUser, IsClientCanVi
 class CreateUserView(generics.CreateAPIView):
     queryset = CustomUser.objects.all()
     serializer_class = UserProfileRegisterSerializer
-    permission_classes = [IsAdminUser]
+    # permission_classes = [IsAdminUser]
 
 
 class ListUserProfileView(generics.ListAPIView):
@@ -44,7 +44,7 @@ class DetailUserProfileView(generics.RetrieveUpdateDestroyAPIView):
     queryset = CustomUser.objects.all()
     serializer_class = UserProfileSerializer
     lookup_field = 'id'
-    permission_classes = [IsAdminUser, IsClientCanViewProfiles]
+    # permission_classes = [IsAdminUser, IsClientCanViewProfiles]
 
 
 class UserLoginView(generics.CreateAPIView):
@@ -99,7 +99,7 @@ class AdminContactDetailView(generics.RetrieveUpdateAPIView):
 class ManagerPermissionsGeneralView(generics.UpdateAPIView, generics.ListAPIView):
     queryset = CustomUser.objects.filter(role_type='manager')
     serializer_class = ManagerPermissionsSerializer
-    # permission_classes = [IsAdminUser]
+    permission_classes = [IsAdminUser]
 
     def update(self, request, *args, **kwargs):
         manager_can_delete_comments = request.data.get('manager_can_delete_comments')
@@ -132,7 +132,7 @@ class ManagerPermissionsGeneralView(generics.UpdateAPIView, generics.ListAPIView
 class ClientPermissionsGeneralView(generics.UpdateAPIView, generics.ListAPIView):
     queryset = CustomUser.objects.filter(role_type='client')
     serializer_class = ClientPermissionsSerializer
-    # permission_classes = [IsAdminUser]
+    permission_classes = [IsAdminUser]
 
 
     def update(self, request, *args, **kwargs):
@@ -193,7 +193,7 @@ class ClientPermissionsDetailAPIView(generics.ListAPIView):
 
 class AdminContactListView(generics.ListAPIView):
     serializer_class = AdminContactSerializer
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
         return AdminContact.objects.all()
@@ -203,7 +203,7 @@ class AdminContactListView(generics.ListAPIView):
 class ChangePasswordView(generics.UpdateAPIView):
     queryset = CustomUser.objects.all()
     serializer_class = ChangePasswordSerializer
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated]
 
     def update(self, request, *args, **kwargs):
         user = self.request.user
