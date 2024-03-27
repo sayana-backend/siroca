@@ -5,6 +5,13 @@ from .serializers import (ApplicationFormDetailSerializer,
                           ApplicationLogsSerializer,
                           NotificationSerializer)
 from rest_framework import generics
+from rest_framework.response import Response
+from django.db.models import Q
+from django.db.models import Count
+from rest_framework import status
+from datetime import timedelta
+from django.utils import timezone
+from rest_framework.pagination import PageNumberPagination
 
 
 class ApplicationFormCreateAPIView(generics.CreateAPIView):
@@ -12,27 +19,67 @@ class ApplicationFormCreateAPIView(generics.CreateAPIView):
     serializer_class = ApplicationFormDetailSerializer
 
 
-
 class ApplicationFormListAPIView(generics.ListAPIView):
     serializer_class = ApplicationFormDetailSerializer
+    pagination_class = PageNumberPagination
 
     def get_queryset(self):
         queryset = ApplicationForm.objects.all()
-        interval = self.request.query_params.get('interval', None)
-        status = self.request.query_params.get('status', None)
 
-        if interval == 'week':
-            start_date = timezone.now() - timedelta(days=7)
-            queryset = queryset.filter(application_date__gte=start_date)
-        elif interval == 'month':
-            start_date = timezone.now() - timedelta(days=30)
-            queryset = queryset.filter(application_date__gte=start_date)
+        all_count = queryset.count()  
+
+        interval = self.request.query_params.get('interval')
+        status = self.request.query_params.get('status')
+
+        if interval:
+            if interval == 'week':
+                start_date = timezone.now() - timedelta(days=7)
+                if status:
+                    queryset = queryset.filter(
+                        Q(application_date__gte=start_date) & Q(status=status)
+                    )
+                else:
+                    queryset = queryset.filter(application_date__gte=start_date)
+            elif interval == 'month':
+                start_date = timezone.now() - timedelta(days=30)
+                if status:
+                    queryset = queryset.filter(
+                        Q(application_date__gte=start_date) & Q(status=status)
+                    )
+                else:
+                    queryset = queryset.filter(application_date__gte=start_date)
+
+        in_progress_week_count = queryset.filter(status='В работе').count()
+        closed_week_count = queryset.exclude(status='В работе').count()
 
         if status:
             queryset = queryset.filter(status=status)
 
-        return queryset
+        in_progress_month_count = queryset.filter(status='В работе').count()
+        closed_month_count = queryset.exclude(status='В работе').count()
 
+        
+        response_data = {
+            'all_count': all_count ,
+            'in_progress_week_count': in_progress_week_count,
+            'closed_week_count': closed_week_count,
+            'in_progress_month_count': in_progress_month_count,
+            'closed_month_count': closed_month_count,
+        }
+
+        return queryset, response_data
+
+    def list(self, request, *args, **kwargs):
+        queryset, response_data = self.get_queryset()
+
+    
+        response_data['results'] = self.get_serializer(queryset, many=True).data
+        paginated_queryset = self.paginate_queryset(queryset)
+
+        if paginated_queryset is not None:
+            response_data['results'] = self.get_serializer(paginated_queryset, many=True).data
+
+        return self.get_paginated_response(response_data)
 
 
 class ApplicationFormRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):

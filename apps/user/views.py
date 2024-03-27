@@ -20,20 +20,8 @@ class CreateUserView(generics.CreateAPIView):
 class ListUserProfileView(generics.ListAPIView):
     queryset = CustomUser.objects.all()
     serializer_class = UserProfileSerializer
-    permission_classes = [IsAdminUser]
 
-    def get_queryset(self):
-        queryset = super().get_queryset()
-        if self.request.user.is_superuser:
-            for user in queryset:
-                user.password = self.decrypt_password(user.password)
-        return queryset
-
-    def decrypt_password(self, password):
-        if self.request.user.is_superuser:
-            return password
-        else:
-            return "*****"  
+   
 
 
 
