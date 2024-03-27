@@ -1,7 +1,21 @@
 from django.db import models
-from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
+from django.utils.translation import gettext_lazy as _
 from .usermanager import CustomUserManager
-# from apps.application.models import ApplicationForm
+from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
+
+
+class AdminContact(models.Model):
+    user = models.OneToOneField('CustomUser', on_delete=models.CASCADE, related_name='contact')
+    email = models.EmailField(verbose_name='Электронная почта')
+    phone_number = models.CharField(max_length=20, verbose_name='Телефонный номер')
+    whatsapp_number = models.CharField(max_length=20, verbose_name='Номер WhatsApp')
+
+    def __str__(self):
+        return f"Контакт для админа {self.user}"
+
+    class Meta:
+        verbose_name = 'Контакт для админа'
+        verbose_name_plural = "Контакты для админа"
 
 
 class CustomUser(AbstractBaseUser, PermissionsMixin):
@@ -9,7 +23,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
         'client': 'Клиент',
         'manager': 'Менеджер',
     }
-    role_type = models.CharField(max_length=20, choices=RoleType.items())
+    role_type = models.CharField(max_length=20, choices=RoleType.items(), verbose_name='Тип роли')
     username = models.CharField(max_length=30, verbose_name="Логин", unique=True)
     first_name = models.CharField(max_length=30, verbose_name="Имя")
     surname = models.CharField(max_length=30, verbose_name="фамилия")
@@ -19,9 +33,12 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     is_staff = models.BooleanField(default=False)
     is_superuser = models.BooleanField(default=False)
     is_manager = models.BooleanField(default=False, verbose_name="Менеджер")
+    is_client = models.BooleanField(default=False, verbose_name="Клиент")
 
-    main_company = models.ForeignKey('company.Company', verbose_name="Компания", related_name='company_users', on_delete=models.CASCADE, null=True)
-    managers_company = models.ManyToManyField('company.Company', verbose_name="Компании менеджеров", related_name='managers_company', blank=True)
+    main_company = models.ForeignKey('company.Company', verbose_name="Компания", related_name='company_users',
+                                     on_delete=models.CASCADE, default=1)
+    managers_company = models.ManyToManyField('company.Company', verbose_name="Компании менеджеров",
+                                              related_name='managers_company', blank=True)
     job_title = models.ForeignKey('company.JobTitle',
                                   verbose_name="Должность",
                                   related_name='user_job_titles',
@@ -29,26 +46,34 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
                                   blank=True,
                                   on_delete=models.SET_NULL)
 
-    objects = CustomUserManager()
-    USERNAME_FIELD = 'username'
+    manager_can_edit = models.BooleanField(default=False, verbose_name='Редактирование комментариев')
+    manager_can_get_reports = models.BooleanField(default=False, verbose_name='Отчет по заявкам(Менеджер)')
 
-    def __str__(self) -> str:
-        return f"{self.username}"
+    client_can_put_comments = models.BooleanField(default=False, verbose_name='Комментарий к заявке')
+    client_can_get_reports = models.BooleanField(default=False, verbose_name='Отчет по заявкам(Клиент)')
+    client_can_view_logs = models.BooleanField(default=False, verbose_name='Просмотр логов')
+    client_can_delete_comments = models.BooleanField(default=False, verbose_name='Удаление комментариев')
+    client_can_add_checklist = models.BooleanField(default=False, verbose_name='Добавление чеклиста')
+
+    objects = CustomUserManager()
 
     def save(self, *args, **kwargs):
-        if self.role_type == 'manager':
+        if self.main_company:
+            company_domain = self.main_company.domain
+            self.username += f"@{company_domain}.com"
+
+        if self.role_type == 'client':
+            self.is_client = True
+        elif self.role_type == 'manager':
             self.is_manager = True
+
         super().save(*args, **kwargs)
 
+    def __str__(self):
+        return self.username
+
     class Meta:
-        verbose_name = 'User'
-        verbose_name_plural = verbose_name
+        verbose_name = _('Пользователь')
+        verbose_name_plural = _('Пользователи')
 
-
-# class Notification(models.Model):
-#     task_number = models.CharField(max_length=50,null=True,blank=True)
-#     text = models.CharField(max_length=300, null=True, blank=True)
-#     created_at = models.DateField(auto_now_add=True, null=True, blank=True)
-#     expiration_time = models.DateTimeField(null=True)
-#     user_id = models.ForeignKey(CustomUser, on_delete=models.CASCADE, null=True)
-#     application_id = models.ForeignKey(ApplicationForm, on_delete=models.CASCADE, null=True)
+    USERNAME_FIELD = 'username'

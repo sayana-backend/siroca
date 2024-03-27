@@ -53,7 +53,9 @@ INSTALLED_APPS = [
     'apps.user',
     'apps.application',
     'drf_yasg',
-    'rest_framework.authtoken',
+    # 'rest_framework.authtoken',
+    'rest_framework_simplejwt'
+
 ]
 
 REST_FRAMEWORK = {
@@ -112,6 +114,17 @@ DATABASES = {
         'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
+
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql_psycopg2',
+#         'NAME': 'siroca_tecnology_db',
+#         'USER': 'postgres',
+#         'PASSWORD': 'ebu1da',
+#         'HOST': 'localhost',
+#         'PORT': '5432'
+#     }
+# }
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators

@@ -9,10 +9,24 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+# latest_notification = Notification.objects.latest('created_at')
+# latest_notification = Notification.objects.all()
+# notification_message = {
+#     "task_number": latest_notification.task_number,
+#     "title": latest_notification.title,
+#     "text": latest_notification.text,
+#     "created_at": str(latest_notification.created_at),
+#     "made_change": latest_notification.made_change if latest_notification.made_change else None,
+# }
+#
+#
 # class NotificationConsumer(AsyncWebsocketConsumer):
 #     async def connect(self):
 #         await self.accept()
 #         await self.channel_layer.group_add("notifications", self.channel_name)
+#         await self.send(text_data="Привет! Вы успешно подключились к WebSocket.")
+#
+#         await self.send(text_data=json.dumps(notification_message, ensure_ascii=False))
 #
 #     async def disconnect(self, close_code):
 #         await self.channel_layer.group_discard("notifications", self.channel_name)
@@ -147,36 +161,138 @@ logger = logging.getLogger(__name__)
 #                 'made_change': notification.made_change.first_name if notification.made_change else None
 #             }))
 
+
+# class NotificationConsumer(AsyncWebsocketConsumer):
+#     async def connect(self):
+#         self.user = self.scope["user"]
+#         self.user_id = self.user.id
+#
+#         logger.info(f"Connected user ID: {self.user_id}")
+#
+#         await self.accept()
+#         await self.channel_layer.group_add("notifications", self.channel_name)
+#
+#         notifications = await self.get_notifications()
+#         for notification in notifications:
+#             await self.send_notification(notification)
+#
+#     async def disconnect(self, close_code):
+#         logger.info(f"Disconnected user ID: {self.user_id}")
+#
+#         await self.channel_layer.group_discard("notifications", self.channel_name)
+#
+#     async def send_notification(self, notification):
+#         await self.send(
+#             text_data=json.dumps({
+#                 'task_number': notification.task_number,
+#                 'title': notification.title,
+#                 'text': notification.text,
+#                 'created_at': str(notification.created_at),
+#                 'made_change': notification.made_change.first_name if notification.made_change else None
+#             })
+#         )
+#
+#     @database_sync_to_async
+#     def get_notifications(self):
+#         return Notification.objects.all()
+
+
+# class NotificationConsumer(AsyncWebsocketConsumer):
+#     async def connect(self):
+#         await self.accept()
+#         await self.channel_layer.group_add("notifications", self.channel_name)
+#         await self.send(text_data="Привет! Вы успешно подключились к WebSocket.")
+#         notifications = Notification.objects.all()
+#         for notification in notifications:
+#             await self.send_notification(notification)
+#
+#     async def disconnect(self, close_code):
+#         await self.channel_layer.group_discard("notifications", self.channel_name)
+#
+#     async def send_notification(self, notification):
+#         message = {
+#             "task_number": notification.task_number,
+#             "title": notification.title,
+#             "text": notification.text,
+#             "created_at": str(notification.created_at),
+#             "made_change": notification.made_change.first_name if notification.made_change else None,
+#         }
+#         await self.send(text_data=json.dumps(message, cls=DjangoJSONEncoder))
+
+# class NotificationConsumer(AsyncWebsocketConsumer):
+#     async def connect(self):
+#         await self.accept()
+#         await self.channel_layer.group_add("notifications", self.channel_name)
+#         await self.send(text_data="Привет! Вы успешно подключились к WebSocket.")
+
+        # Отправка всех уведомлений при подключении
+        # all_notifications = await sync_to_async(list)(Notification.objects.all())
+        # for notification in all_notifications:
+        #     await self.send_notification(notification)
+    #     all_notifications = await sync_to_async(list)(Notification.objects.all())
+    #     for notification_data in all_notifications:
+    #         notification = Notification(**notification_data)
+    #         await self.send_notification(notification)
+    #
+    # async def disconnect(self, close_code):
+    #     await self.channel_layer.group_discard("notifications", self.channel_name)
+
+    # async def send_notification(self, notification):
+    #     await self.send(text_data=json.dumps({
+    #         "task_number": notification.task_number,
+    #         "title": notification.title,
+    #         "text": notification.text,
+    #         "created_at": str(notification.created_at),
+    #         "made_change": notification.made_change if notification.made_change else None,
+    #     }, ensure_ascii=False))
+
+    # async def send_notification(self, notification):
+    #     await self.send(text_data=json.dumps({
+    #         "task_number": notification.task_number,
+    #         "title": notification.title,
+    #         "text": notification.text,
+    #         "created_at": str(notification.created_at),
+    #         "made_change": notification.made_change if notification.made_change else None,
+    #     }, ensure_ascii=False))
+
 class NotificationConsumer(AsyncWebsocketConsumer):
     async def connect(self):
-        self.user = self.scope["user"]
-        self.user_id = self.user.id
-
-        logger.info(f"Connected user ID: {self.user_id}")
-
         await self.accept()
         await self.channel_layer.group_add("notifications", self.channel_name)
+        await self.send(text_data="Привет! Вы успешно подключились к WebSocket.")
 
-        notifications = await self.get_notifications()
-        for notification in notifications:
+        # Отправка всех уведомлений при подключении
+        all_notifications = await sync_to_async(list)(Notification.objects.all())
+        for notification in all_notifications:
             await self.send_notification(notification)
 
     async def disconnect(self, close_code):
-        logger.info(f"Disconnected user ID: {self.user_id}")
-
         await self.channel_layer.group_discard("notifications", self.channel_name)
 
-    async def send_notification(self, notification):
-        await self.send(
-            text_data=json.dumps({
-                'task_number': notification.task_number,
-                'title': notification.title,
-                'text': notification.text,
-                'created_at': str(notification.created_at),
-                'made_change': notification.made_change.first_name if notification.made_change else None
-            })
-        )
+    # async def send_notification(self, notification):
+    #     await self.send(text_data=json.dumps({
+    #         "task_number": notification.task_number,
+    #         "title": notification.title,
+    #         "text": notification.text,
+    #         "created_at": str(notification.created_at),
+    #         "made_change": notification.made_change if notification.made_change else None,
+    #     }, ensure_ascii=False))
 
-    @database_sync_to_async
-    def get_notifications(self):
-        return Notification.objects.all()
+    # async def send_notification(self, notification):
+    #     await self.send(text_data=json.dumps({
+    #         "task_number": notification["task_number"],
+    #         "title": notification["title"],
+    #         "text": notification["text"],
+    #         "created_at": str(notification["created_at"]),
+    #         "made_change": notification["made_change"] if "made_change" in notification else None,
+    #     }, ensure_ascii=False))
+
+    async def send_notification(self, notification):
+        notification = {
+            "task_number": notification.task_number,
+            "title": notification.title,
+            "text": notification.text,
+            "created_at": str(notification.created_at),
+            "made_change": notification.made_change if notification.made_change else None,
+        }
+        await self.send(text_data=json.dumps(notification, ensure_ascii=False))
