@@ -39,8 +39,9 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     managers_company = models.ManyToManyField('company.Company', verbose_name="Компании менеджеров", related_name='managers_company', blank=True)
     job_title = models.ForeignKey('company.JobTitle',
                                   verbose_name="Должность",
+                                  null=True,
                                   related_name='user_job_titles',
-                                  on_delete=models.CASCADE)
+                                  on_delete=models.SET_NULL)
 
     manager_can_delete_comments = models.BooleanField(default=False, verbose_name='Удаление комментариев')
     manager_can_get_reports = models.BooleanField(default=False, verbose_name='Отчет по заявкам(Менеджер)')
