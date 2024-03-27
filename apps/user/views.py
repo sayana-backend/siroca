@@ -17,13 +17,13 @@ from .permissions import IsAdminUser, IsClientUser, IsManagerUser, IsClientCanVi
 class CreateUserView(generics.CreateAPIView):
     queryset = CustomUser.objects.all()
     serializer_class = UserProfileRegisterSerializer
-    # permission_classes = [IsAdminUser]
+    permission_classes = [IsAdminUser]
 
 
 class ListUserProfileView(generics.ListAPIView):
     queryset = CustomUser.objects.all()
     serializer_class = UserProfileSerializer
-    # permission_classes = [IsAdminUser]
+    permission_classes = [IsAdminUser]
 
     def get_queryset(self):
         queryset = super().get_queryset()
@@ -44,7 +44,7 @@ class DetailUserProfileView(generics.RetrieveUpdateDestroyAPIView):
     queryset = CustomUser.objects.all()
     serializer_class = UserProfileSerializer
     lookup_field = 'id'
-    # permission_classes = [IsAdminUser, IsClientCanViewProfiles]
+    permission_classes = [IsAdminUser, IsClientCanViewProfiles]
 
 
 class UserLoginView(generics.CreateAPIView):
@@ -80,7 +80,7 @@ class UserLoginView(generics.CreateAPIView):
 
 class AdminContactDetailView(generics.RetrieveUpdateAPIView):
     serializer_class = AdminContactSerializer
-    # permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
         return AdminContact.objects.filter(admin=self.request.user)
@@ -193,7 +193,7 @@ class ClientPermissionsDetailAPIView(generics.ListAPIView):
 
 class AdminContactListView(generics.ListAPIView):
     serializer_class = AdminContactSerializer
-    # permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
         return AdminContact.objects.all()
@@ -203,7 +203,7 @@ class AdminContactListView(generics.ListAPIView):
 class ChangePasswordView(generics.UpdateAPIView):
     queryset = CustomUser.objects.all()
     serializer_class = ChangePasswordSerializer
-    # permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
 
     def update(self, request, *args, **kwargs):
         user = self.request.user
