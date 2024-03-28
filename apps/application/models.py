@@ -1,11 +1,7 @@
-from channels.layers import get_channel_layer
 from django.contrib.auth.models import Group
-from asgiref.sync import async_to_sync
 from ..user.models import CustomUser
-from django.utils import timezone
-from datetime import timedelta
 from django.db import models
-import json
+
 
 
 class Checklist(models.Model):
@@ -145,23 +141,23 @@ class Notification(models.Model):
     created_at = models.DateField(auto_now_add=True, null=True)
     made_change = models.CharField(max_length=70, null=True, blank=True)
 
-    def save(self, *args, **kwargs):
-        super().save(*args, **kwargs)
-        channel_layer = get_channel_layer()
-
-        notification = {
-            "task_number": self.task_number,
-            "title": self.title,
-            "text": self.text,
-            "created_at": str(self.created_at),
-            "made_change": self.made_change.first_name if self.made_change else None,
-        }
-
-        async_to_sync(channel_layer.group_send)(
-            "notifications",
-            {
-                "type": "send_notification",
-                "message": notification
-            }
-        )
+    # def save(self, *args, **kwargs):
+    #     super().save(*args, **kwargs)
+    #     channel_layer = get_channel_layer()
+    #
+    #     notification = {
+    #         "task_number": self.task_number,
+    #         "title": self.title,
+    #         "text": self.text,
+    #         "created_at": str(self.created_at),
+    #         "made_change": self.made_change.first_name if self.made_change else None,
+    #     }
+    #
+    #     async_to_sync(channel_layer.group_send)(
+    #         "notifications",
+    #         {
+    #             "type": "send_notification",
+    #             "message": notification
+    #         }
+    #     )
 

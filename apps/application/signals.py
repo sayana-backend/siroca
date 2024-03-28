@@ -1,13 +1,10 @@
 from .models import ApplicationForm, ApplicationLogs, TrackingStatus, TrackingPriority, Notification
-from django.core.serializers.json import DjangoJSONEncoder
 from django.db.models.signals import post_save, pre_save
-from channels.layers import get_channel_layer
 from apps.user.models import CustomUser
-from asgiref.sync import async_to_sync
 from django.dispatch import receiver
 from django.utils import timezone
 from datetime import timedelta
-import json
+
 
 
 @receiver(pre_save, sender=ApplicationForm)
