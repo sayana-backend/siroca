@@ -1,11 +1,12 @@
 
 from .serializers import *
 from .models import *
-
+from rest_framework.permissions import IsAuthenticated
 from rest_framework import generics
 from apps.user.permissions import *
 from rest_framework import permissions
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from rest_framework import status
 
 
 class ApplicationFormCreateAPIView(generics.CreateAPIView):
@@ -59,7 +60,6 @@ class CheckListDetailAPIView(generics.RetrieveUpdateDestroyAPIView):   ### по�
     permission_classes = [IsAdminUser, IsManagerUser]
 
 
-
 class CommentsAPIView(generics.ListCreateAPIView):
     queryset = Comments.objects.all()
     serializer_class = CommentsSerializer
@@ -73,4 +73,13 @@ class CommentsDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = [IsManagerCanEdit, IsClientCanPutComments, IsClientCanDeleteComments, IsAdminUser, IsManagerUser]
 
 
+class NotificationAPIView(generics.ListAPIView):
+    queryset = Notification.objects.all()
+    serializer_class = NotificationSerializer
+    permission_classes = [IsAuthenticated]
 
+    def get(self,request):
+        user_application = ApplicationForm.objects.get(main_client=request.user)
+        notification_user_application = Notification.objects.filter(form=user_application)
+        serializer = NotificationSerializer(notification_user_application,many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)

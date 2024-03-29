@@ -65,4 +65,4 @@ class ApplicationFormLogsDetailSerializer(serializers.ModelSerializer):
 class NotificationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Notification
-        fields = ('task_number', 'title', 'text', 'create_at', 'made_change', 'is_sent')
+        fields = ('task_number', 'title', 'text', 'created_at', 'made_change', 'form_id')

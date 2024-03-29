@@ -7,6 +7,7 @@ from rest_framework.filters import SearchFilter
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from openpyxl.workbook import Workbook
+from django.utils.http import unquote
 from openpyxl.styles import Alignment
 from django.http import HttpResponse
 from rest_framework import viewsets
@@ -44,17 +45,6 @@ class ApplicationFormFilterAPIView(viewsets.GenericViewSet):
 
 
 class ExportToExcelView(APIView):
-    def get_desktop_path(self):
-        system = platform.system()
-        if system == 'Windows':
-            desktop_path = os.path.join(os.path.join(os.environ['USERPROFILE']), 'Documents')
-        elif system == 'Darwin':  # macOS
-            desktop_path = os.path.join(os.path.expanduser('~'), 'Desktop')
-        elif system == 'Linux':
-            desktop_path = os.path.join(os.path.expanduser('~'), 'Desktop')
-        else:
-            desktop_path = os.path.join(os.path.expanduser('~'), 'Desktop')
-        return desktop_path
 
     def generate_random_string(self, length=6):
         letters = string.ascii_lowercase
@@ -71,9 +61,9 @@ class ExportToExcelView(APIView):
             df[column] = df[column].map(lambda x: None if x == [] else x)
 
         df['status_info'] = df['status_info'].apply(
-            lambda x: ', '.join([f"{item['status']} - {item['date_status']}" for item in x]))
+            lambda x: ',\n '.join([f"{item['status']} - {item['date_status']}" for item in x]))
         df['priority_info'] = df['priority_info'].apply(
-            lambda x: ', '.join([f"{item['priority']} - {item['date_priority']}" for item in x]))
+            lambda x: ',\n '.join([f"{item['priority']} - {item['date_priority']}" for item in x]))
 
         count_df = pd.DataFrame([{'Количество заявок': len(data)}])
 
@@ -82,7 +72,7 @@ class ExportToExcelView(APIView):
         date_str = datetime.now().strftime('%Y-%m-%d')
         random_suffix = self.generate_random_string()
         filename = f"siroco_{date_str}_report_{random_suffix}.xlsx"
-        desktop_path = self.get_desktop_path()
+        desktop_path = os.path.join(os.path.expanduser('~'), 'Desktop')
         excel_file_path = os.path.join(desktop_path, filename)
 
         wb = Workbook()
@@ -107,10 +97,10 @@ class ExportToExcelView(APIView):
 
         wb.save(excel_file_path)
 
-        file_size = os.path.getsize(excel_file_path)
-
         if os.path.exists(excel_file_path):
-            os.startfile(excel_file_path)
-            return HttpResponse(f"Файл успешно скачан и открыт. Размер файла в байтах: {file_size} байт")
+            with open(excel_file_path, 'rb') as excel_file:
+                response = HttpResponse(excel_file.read(), content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+                response['Content-Disposition'] = f'attachment; filename={unquote(filename)}'
+                return response
         else:
             return HttpResponse("Не удалось открыть файл")

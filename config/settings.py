@@ -36,8 +36,6 @@ CSRF_TRUSTED_ORIGINS = ['http://localhost',
 # Application definition
 
 INSTALLED_APPS = [
-    'channels',
-    'daphne',
     'jazzmin',
     'django.contrib.admin',
     'django.contrib.auth',
@@ -173,16 +171,4 @@ JAZZMIN_SETTINGS = jazzmin_settings.JAZZMIN_SETTINGS
 
 AUTH_USER_MODEL = 'user.CustomUser'
 
-# CHANNEL_LAYERS = {
-#     'default': {
-#         'BACKEND': 'channels.layers.InMemoryChannelLayer',
-#     },
-# }
-CHANNEL_LAYERS = {
-    "default": {
-        "BACKEND": "channels_redis.core.RedisChannelLayer",
-        "CONFIG": {
-            "hosts": [("localhost", 6379)],
-        },
-    },
-}
+
