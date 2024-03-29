@@ -1,21 +1,16 @@
-from apps.application.views import ChecklistAPIView, CommentsAPIView, CheckListDetailAPIView, CommentsDetailAPIView
-from ..application.views import (ApplicationFormListAPIView,
-                                 ApplicationFormCreateAPIView,
-                                 ApplicationLogsListCreateAPIView,
-                                 ApplicationLogsRetrieveUpdateDestroyAPIView,
-                                 ApplicationFormRetrieveUpdateDestroyAPIView,)
+from . import views
 from django.urls import path
 
 
 
 urlpatterns = [
-    path('logs/', ApplicationLogsListCreateAPIView.as_view()),
-    path('logs/<int:id>/', ApplicationLogsRetrieveUpdateDestroyAPIView.as_view()),
-    path('create/', ApplicationFormCreateAPIView.as_view()),
-    path('form/', ApplicationFormListAPIView.as_view()),
-    path('form/<int:id>/', ApplicationFormRetrieveUpdateDestroyAPIView.as_view()),
-    path('checklist/', ChecklistAPIView.as_view()),
-    path('checklist/<int:id>/', CheckListDetailAPIView.as_view()),
-    path('comments/', CommentsAPIView.as_view()),
-    path('comments/<int:id>/', CommentsDetailAPIView.as_view()),
+    path('logs/', views.ApplicationLogsListCreateAPIView.as_view()),
+    path('logs/<int:id>/', views.ApplicationLogsRetrieveUpdateDestroyAPIView.as_view()),
+    path('create/', views.ApplicationFormCreateAPIView.as_view()),
+    path('form/', views.ApplicationFormListAPIView.as_view()),
+    path('form/<int:id>/', views.ApplicationFormRetrieveUpdateDestroyAPIView.as_view()),
+    path('checklist/', views.ChecklistAPIView.as_view()),
+    path('checklist/<int:id>/', views.CheckListDetailAPIView.as_view()),
+    path('comments/', views.CommentsAPIView.as_view()),
+    path('comments/<int:id>/', views.CommentsDetailAPIView.as_view()),
 ]
