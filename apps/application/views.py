@@ -40,13 +40,13 @@ class ApplicationFormListAPIView(generics.ListAPIView):
                     start_date = datetime.strptime(start_str.strip(), "%Y-%m-%d")
                     end_date = datetime.strptime(end_str.strip(), "%Y-%m-%d")
                 queryset = queryset.filter(
-                    Q(task_number__icontains=search_query) |
-                    Q(title__icontains=search_query) |
-                    Q(description__icontains=search_query) |
-                    Q(main_client__first_name__icontains=search_query) |
-                    Q(main_manager__first_name__icontains=search_query) |
-                    Q(priority__icontains=search_query) |
-                    Q(payment_state__icontains=search_query)
+                    Q(task_number__iregex=search_query) |
+                    Q(title__iregex=search_query) |
+                    Q(description__iregex=search_query) |
+                    Q(main_client__first_name__iregex=search_query) |
+                    Q(main_manager__first_name__iregex=search_query) |
+                    Q(priority__iregex=search_query) |
+                    Q(payment_state__iregex=search_query)
                 )
                 if start_date and end_date:
                     queryset = queryset.filter(start_date__gte=start_date, finish_date__lte=end_date)
