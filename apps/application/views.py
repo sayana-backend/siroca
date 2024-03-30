@@ -41,10 +41,12 @@ class CaseInsensitiveSearchFilter(filters.SearchFilter):
 class ApplicationFormListAPIView(generics.ListAPIView):
     serializer_class = ApplicationFormDetailSerializer
     filter_backends = [CaseInsensitiveSearchFilter, DjangoFilterBackend]
-    # permission_classes = [IsAuthenticated]
+    queryset = ApplicationForm.objects.all()
+    permission_classes = [IsAuthenticated]
     queryset = ApplicationForm.objects.all()
     filterset_class = ApplicationFormFilter
-    # pagination_class = PageNumberPagination
+    pagination_class = PageNumberPagination
+    pagination_class.page_size = 50
     search_fields = ['task_number', 'title', 'description', 
                  'main_client__first_name', 'main_manager__first_name', 
                  'start_date', 'finish_date', 'priority', 'payment_state']
@@ -59,61 +61,21 @@ class ApplicationFormListAPIView(generics.ListAPIView):
                                                         Q(company=user.main_company))
         elif user.is_superuser:
             queryset = ApplicationForm.objects.all()
+        return queryset
+    
+    def get_serializer_context(self):
+        queryset = self.filter_queryset(self.get_queryset())
 
-        all_count = queryset.count()  
-
-        interval = self.request.query_params.get('interval')
-        status = self.request.query_params.get('status')
-
-        if interval:
-            if interval == 'week':
-                start_date = timezone.now() - timedelta(days=7)
-                if status:
-                    queryset = queryset.filter(
-                        Q(application_date__gte=start_date) & Q(status=status)
-                    )
-                else:
-                    queryset = queryset.filter(application_date__gte=start_date)
-            elif interval == 'month':
-                start_date = timezone.now() - timedelta(days=30)
-                if status:
-                    queryset = queryset.filter(
-                        Q(application_date__gte=start_date) & Q(status=status)
-                    )
-                else:
-                    queryset = queryset.filter(application_date__gte=start_date)
-
-        in_progress_week_count = queryset.filter(status='В работе').count()
-        closed_week_count = queryset.exclude(status='В работе').count()
-
-        if status:
-            queryset = queryset.filter(status=status)
-
-        in_progress_month_count = queryset.filter(status='В работе').count()
-        closed_month_count = queryset.exclude(status='В работе').count()
-
+        created_count = queryset.count()
+        in_progress_count = queryset.filter(status='В работе').count()
+        closed_count = queryset.filter(status='Закрыто').count()
         
-        response_data = {
-            'all_count': all_count ,
-            'in_progress_week_count': in_progress_week_count,
-            'closed_week_count': closed_week_count,
-            'in_progress_month_count': in_progress_month_count,
-            'closed_month_count': closed_month_count,
+        return {
+            'created_count': created_count,
+            'in_progress_count': in_progress_count,
+            'closed_count': closed_count,
         }
 
-        return queryset, response_data
-
-    def list(self, request, *args, **kwargs):
-        queryset, response_data = self.get_queryset()
-
-    
-        response_data['results'] = self.get_serializer(queryset, many=True).data
-        paginated_queryset = self.paginate_queryset(queryset)
-
-        if paginated_queryset is not None:
-            response_data['results'] = self.get_serializer(paginated_queryset, many=True).data
-
-        return self.get_paginated_response(response_data)
 
 
 
