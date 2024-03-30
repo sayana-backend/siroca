@@ -1,4 +1,3 @@
-
 from django.contrib.auth.models import Group
 from ..user.models import CustomUser
 from django.utils import timezone
@@ -139,4 +138,7 @@ class Notification(models.Model):
     text = models.CharField(max_length=300, null=True, blank=True)
     created_at = models.DateField(auto_now_add=True, null=True)
     made_change = models.CharField(max_length=70, null=True, blank=True)
+    is_admin = models.BooleanField(default=False, null=True, blank=True)
     form = models.ForeignKey(ApplicationForm, on_delete=models.CASCADE, null=True, blank=True)
+    expiration_time = models.DateTimeField(null=True)
+

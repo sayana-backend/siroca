@@ -66,3 +66,4 @@ class NotificationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Notification
         fields = ('task_number', 'title', 'text', 'created_at', 'made_change', 'form_id')
+

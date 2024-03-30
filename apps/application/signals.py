@@ -76,18 +76,10 @@ def record_priority(sender, instance, *args, **kwargs):
     expired_messages.delete()
 
 
-# @receiver(pre_save, sender=ApplicationForm)
-# def track_application_send_notification(sender, instance, **kwargs):
-#     if instance.pk is not None:
-#         obj = sender.objects.get(id=instance.id)
-#         for field in instance._meta.fields:
-#             old_value = getattr(obj, field.name)
-#             new_value = getattr(instance, field.name)
-#             if old_value != new_value:
-#                 message = f"{field.verbose_name} изменено с {old_value} на {new_value}"
-#                 manager_name = f"{instance.main_manager.first_name} {instance.main_manager.surname}"
-#                 Notification.objects.create(task_number=instance.task_number, title=instance.title,
-#                                             text=message, made_change=manager_name, form_id=instance.id)
+def delete_expired_notifications():
+    expired_messages = Notification.objects.filter(expiration_time__lt=timezone.now())
+    expired_messages.delete()
+
 
 @receiver(pre_save, sender=ApplicationForm)
 def track_application_send_notification(sender, instance, **kwargs):
@@ -101,31 +93,38 @@ def track_application_send_notification(sender, instance, **kwargs):
         if changes:
             message = ', '.join(changes)
             manager_name = f"{instance.main_manager.first_name} {instance.main_manager.surname}"
+            expiration_time = timezone.now() + timedelta(weeks=13)
             Notification.objects.create(
                 task_number=instance.task_number,
                 title=instance.title,
                 text=message,
                 made_change=manager_name,
-                form_id=instance.id
+                form_id=instance.id,
+                expiration_time=expiration_time
             )
+    delete_expired_notifications()
 
 
 @receiver(post_save, sender=ApplicationForm)
 def send_notification_on_create_close(sender, instance, created, **kwargs):
     if created:
+        expiration_time = timezone.now() + timedelta(weeks=13)
         Notification.objects.create(
             task_number=f'Номер заявки: {instance.task_number}',
             text=f'Создана новая заявка',
             title=instance.title,
             made_change=f"{instance.main_manager.first_name} {instance.main_manager.surname}",
-            form_id=instance.id,
-        )
-
+            is_admin=True,
+            expiration_time=expiration_time,
+            )
     elif instance.status == 'Закрыто':
+        expiration_time = timezone.now() + timedelta(weeks=13)
         Notification.objects.create(
             task_number=f'Номер заявки: {instance.task_number}',
             text=f"Заявка закрыто",
             title=instance.title,
             made_change=f"{instance.main_manager.first_name} {instance.main_manager.surname}",
-            form_id=instance.id,
-        )
+            is_admin=True,
+            expiration_time=expiration_time
+            )
+    delete_expired_notifications()
