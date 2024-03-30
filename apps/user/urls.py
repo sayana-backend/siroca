@@ -1,6 +1,6 @@
 from django.urls import path
 from .views import (CreateUserView, ListUserProfileView,
-                    DetailUserProfileView, UserLoginView,AdminContactDetailView,AdminContactListView,ChangePasswordView)
+                    DetailUserProfileView, UserLoginView,AdminContactDetailView,AdminContactListView,ChangePasswordView,AdminResetPasswordView)
 from apps.application.views import NotificationListAPIView
 
 urlpatterns = [
@@ -11,8 +11,9 @@ urlpatterns = [
     path('login/', UserLoginView.as_view()),
     path('admin_contacts/', AdminContactDetailView.as_view()),
     path('admin_contacts_list/', AdminContactListView.as_view()),
-
     path('change_password/', ChangePasswordView.as_view()),
+    path('admin_reset_password/<int:id>/', AdminResetPasswordView.as_view()),
 
+    
 ]
 

@@ -1,4 +1,4 @@
-from .serializers import UserProfileSerializer, UserAuthSerializer,AdminContactSerializer,ChangePasswordSerializer
+from .serializers import UserProfileSerializer, UserAuthSerializer,AdminContactSerializer,ChangePasswordSerializer,AdminResetPasswordSerializer
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.response import Response
 from django.contrib.auth import authenticate
@@ -54,7 +54,7 @@ class UserLoginView(generics.CreateAPIView):
         else:
             return Response({'detail': 'Ошибка аутентификации'}, status=status.HTTP_401_UNAUTHORIZED)
 
-#     template_name = ''
+# #     template_name = ''
 #     success_url = reverse_lazy('')
 #     permission_required = 'user.add_userprofile'
 
@@ -110,3 +110,28 @@ class ChangePasswordView(generics.UpdateAPIView):
         user.save()
 
         return Response({'detail': 'Пароль успешно изменен'}, status=status.HTTP_200_OK)
+
+
+
+
+
+class AdminResetPasswordView(generics.UpdateAPIView):
+    queryset = CustomUser.objects.all()
+    serializer_class = AdminResetPasswordSerializer
+    permission_classes = [IsAdminUser]
+    lookup_field = 'id'
+
+
+    def update(self, request, *args, **kwargs):
+        user = self.get_object()
+
+        new_password = request.data.get('new_password')
+        confirm_password = request.data.get('confirm_password')
+
+        if new_password != confirm_password:
+            return Response({'detail': 'Новый пароль и его подтверждение не совпадают.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        user.set_password(new_password)
+        user.save()
+
+        return Response({'detail': 'Пароль пользователя успешно сброшен.', 'new_password': new_password}, status=status.HTTP_200_OK)
