@@ -1,16 +1,21 @@
-from . import views
+from report.export import (ApplicationFormFilterAPIView, ExportToExcelView)
+from .views import *
 from django.urls import path
 
 
-
 urlpatterns = [
-    path('logs/', views.ApplicationLogsListCreateAPIView.as_view()),
-    path('logs/<int:id>/', views.ApplicationLogsRetrieveUpdateDestroyAPIView.as_view()),
-    path('create/', views.ApplicationFormCreateAPIView.as_view()),
-    path('form/', views.ApplicationFormListAPIView.as_view()),
-    path('form/<int:id>/', views.ApplicationFormRetrieveUpdateDestroyAPIView.as_view()),
-    path('checklist/', views.ChecklistAPIView.as_view()),
-    path('checklist/<int:id>/', views.CheckListDetailAPIView.as_view()),
-    path('comments/', views.CommentsAPIView.as_view()),
-    path('comments/<int:id>/', views.CommentsDetailAPIView.as_view()),
+
+    path('filter/export-to-excel/', ExportToExcelView.as_view(), name='export_to_excel_view'),
+    path('filter/', ApplicationFormFilterAPIView.as_view({'get': 'list'})),
+    path('logs/', ApplicationLogsListCreateAPIView.as_view()),
+    path('create/', ApplicationFormCreateAPIView.as_view()),
+    path('form/', ApplicationFormListAPIView.as_view()),
+    path('form_redact/<int:id>/', ApplicationFormRetrieveUpdateDestroyAPIView.as_view()),
+    path('form_view/<int:id>/', ApplicationFormRetrieveAPIView.as_view()),
+    path('checklist/', ChecklistAPIView.as_view()),
+    path('comments/', CommentsAPIView.as_view()),
+    # path('logs/<int:id>/', ApplicationLogsRetrieveUpdateDestroyAPIView.as_view()),
+    path('comments/<int:id>/', CommentsDetailAPIView.as_view()),
+    path('checklist/<int:id>/', CheckListDetailAPIView.as_view()),
 ]
+

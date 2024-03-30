@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import CreateUserView,ListUserProfileView,DetailUserProfileView,UserLoginView
+from .views import *
 
 
 urlpatterns = [
@@ -7,4 +7,13 @@ urlpatterns = [
     path('profiles/', ListUserProfileView.as_view()),
     path('<int:id>/', DetailUserProfileView.as_view()),
     path('login/', UserLoginView.as_view()),
+    path('admin_contacts/', AdminContactDetailView.as_view()),
+    path('admin_contacts_list/', AdminContactListView.as_view()),
+    path('change_password/', ChangePasswordView.as_view()),
+    path('managerpermissions/general/', ManagerPermissionsGeneralView.as_view()),
+    path('clientpermissions/general', ClientPermissionsGeneralView.as_view()),
+    path('clientpermissions/detail/', ClientPermissionsDetailAPIView.as_view()),
+    path('managerpermissions/detail/', ManagerPermissionsDetailAPIView.as_view()),
+
 ]
+
