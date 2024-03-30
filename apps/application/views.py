@@ -25,7 +25,7 @@ class ApplicationFormCreateAPIView(generics.CreateAPIView):
 
 
 
-class CaseInsensitiveSearchFilter(filters.SearchFilter):
+class CustomSearchFilter(filters.SearchFilter):
     def filter_queryset(self, request, queryset, view):
         search_fields = getattr(view, 'search_fields', [])
         search_term = request.query_params.get(self.search_param, '').strip()
@@ -38,15 +38,23 @@ class CaseInsensitiveSearchFilter(filters.SearchFilter):
         return queryset
 
 
+
+class CustomPagination(PageNumberPagination):
+    page_size = 50
+    page_size_query_param = 'page_size'
+    max_page_size = 60
+
+    def get_paginated_response(self, data):
+        return Response(data)
+
+
+
 class ApplicationFormListAPIView(generics.ListAPIView):
     serializer_class = ApplicationFormDetailSerializer
-    filter_backends = [CaseInsensitiveSearchFilter, DjangoFilterBackend]
-    queryset = ApplicationForm.objects.all()
+    filter_backends = [CustomSearchFilter, DjangoFilterBackend]
     permission_classes = [IsAuthenticated]
-    queryset = ApplicationForm.objects.all()
     filterset_class = ApplicationFormFilter
-    pagination_class = PageNumberPagination
-    pagination_class.page_size = 50
+    pagination_class = CustomPagination
     search_fields = ['task_number', 'title', 'description', 
                  'main_client__first_name', 'main_manager__first_name', 
                  'start_date', 'finish_date', 'priority', 'payment_state']
@@ -61,20 +69,28 @@ class ApplicationFormListAPIView(generics.ListAPIView):
                                                         Q(company=user.main_company))
         elif user.is_superuser:
             queryset = ApplicationForm.objects.all()
+        
+        queryset = queryset.order_by('-application_date')
         return queryset
     
-    def get_serializer_context(self):
+    def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
-
-        created_count = queryset.count()
-        in_progress_count = queryset.filter(status='В работе').count()
-        closed_count = queryset.filter(status='Закрыто').count()
+        page = self.paginate_queryset(queryset)
         
-        return {
-            'created_count': created_count,
-            'in_progress_count': in_progress_count,
-            'closed_count': closed_count,
-        }
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            created_count = queryset.count()
+            in_progress_count = queryset.filter(status='В работе').count()
+            closed_count = queryset.filter(status='Закрыто').count()
+            data = {
+                'created_count': created_count,
+                'in_progress_count': in_progress_count,
+                'closed_count': closed_count,
+                'results': serializer.data
+            }
+            return self.get_paginated_response(data)
+
+        return Response({'detail': 'Not found'}, status=404)
 
 
 
