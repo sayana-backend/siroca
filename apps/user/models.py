@@ -35,8 +35,10 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     is_manager = models.BooleanField(default=False, verbose_name="Менеджер")
     is_client = models.BooleanField(default=False, verbose_name="Клиент")
 
-    main_company = models.ForeignKey('company.Company', verbose_name="Компания", related_name='company_users', on_delete=models.CASCADE, default=1)
-    managers_company = models.ManyToManyField('company.Company', verbose_name="Компании менеджеров", related_name='managers_company', blank=True)
+    main_company = models.ForeignKey('company.Company', verbose_name="Компания", related_name='company_users',
+                                     on_delete=models.CASCADE, default=1)
+    managers_company = models.ManyToManyField('company.Company', verbose_name="Компании менеджеров",
+                                              related_name='managers_company', blank=True)
     job_title = models.ForeignKey('company.JobTitle',
                                   verbose_name="Должность",
                                   null=True,
@@ -55,7 +57,6 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     client_can_add_files = models.BooleanField(default=False, verbose_name='Добавление файла')
     client_can_view_profiles = models.BooleanField(default=False, verbose_name='Просмотр профиля пользователей(Клиент)')
 
-
     objects = CustomUserManager()
 
     def save(self, *args, **kwargs):
@@ -70,7 +71,6 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
 
         super().save(*args, **kwargs)
 
-
     def __str__(self):
         return self.username
 
@@ -79,6 +79,3 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
         verbose_name_plural = _('Пользователи')
 
     USERNAME_FIELD = 'username'
-
-
-

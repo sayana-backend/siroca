@@ -55,7 +55,6 @@ class AdminUser(admin.ModelAdmin):
 #
 
 
-
 # class ClientPermissionsAdmin(admin.ModelAdmin):
 #     def has_add_permission(self, request):
 #         if ClientPermissions.objects.exists():

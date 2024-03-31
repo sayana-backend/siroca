@@ -14,6 +14,7 @@ urlpatterns = [
     path('checklist/', ChecklistAPIView.as_view()),
     path('comments/', CommentsAPIView.as_view()),
     # path('logs/<int:id>/', ApplicationLogsRetrieveUpdateDestroyAPIView.as_view()),
+    path('notifications/', NotificationAPIView.as_view()),
     path('comments/<int:id>/', CommentsDetailAPIView.as_view()),
     path('checklist/<int:id>/', CheckListDetailAPIView.as_view()),
 ]
