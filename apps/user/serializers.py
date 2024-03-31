@@ -31,6 +31,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
         fields = ['id', 'username', 'role_type', 'password', 'surname', 'first_name', 'image', 'created_at', 'job_title', 'main_company']
 
 
+
 class AdminContactSerializer(serializers.ModelSerializer):
     class Meta:
         model = AdminContact
@@ -79,4 +80,14 @@ class ChangePasswordSerializer(serializers.Serializer):
             raise serializers.ValidationError("Новые пароли не совпадают")
 
         return data
+
+
+
+
+
+class AdminResetPasswordSerializer(serializers.Serializer):
+    new_password = serializers.CharField(required=True)
+    confirm_password = serializers.CharField(required=True)
+
+
 
