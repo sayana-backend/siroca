@@ -20,6 +20,7 @@ class CommentsSerializer(serializers.ModelSerializer):
         return super().create(validated_data)
 
 
+
 class ApplicationFormCreateSerializer(serializers.ModelSerializer):
     company = serializers.CharField(source='company.name', read_only=True)
     main_client = serializers.CharField(source='main_client.name', read_only=True)

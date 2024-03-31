@@ -14,7 +14,7 @@ class Checklist(models.Model):
     application = models.ForeignKey('ApplicationForm', verbose_name='Заявки', on_delete=models.CASCADE,
                                     related_name='checklists')
     deadline = models.DateField(verbose_name='Дедлайн', blank=True, null=True)
-    manager = models.OneToOneField(CustomUser,
+    manager = models.ForeignKey(CustomUser,
                                    on_delete=models.CASCADE,
                                    verbose_name='Отмеченный менеджер',
                                    blank=True,
@@ -73,7 +73,6 @@ class ApplicationForm(models.Model):
     short_description = models.CharField(null=True, max_length=100, verbose_name='Краткое описание')
     files = models.ImageField(upload_to='', null=True, verbose_name='Файлы')
     jira = models.URLField(null=True, verbose_name='ссылка JIRA')
-
     status = models.CharField(max_length=100, choices=STATUS, default='К выполнению', verbose_name='Статус заявки')
     payment_state = models.CharField(max_length=100, choices=PAYMENT_STATE, null=True, verbose_name='Статус оплаты')
     priority = models.CharField(max_length=100, choices=PRIORITY, verbose_name='Приоритет заявки')

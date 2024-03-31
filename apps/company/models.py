@@ -52,7 +52,7 @@ class Company(models.Model):
 
     def get_users(self):
         users = CustomUser.objects.filter(main_company=self)
-        user_names = [user.first_name for user in users]
+        user_names = [{'id': user.id, 'first_name': user.first_name, 'last_name': user.surname} for user in users]
         return user_names
 
     def __str__(self):

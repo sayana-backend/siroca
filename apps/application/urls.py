@@ -1,9 +1,10 @@
 from report.export import (ApplicationFormFilterAPIView, ExportToExcelView)
-from ..application.views import *
+from .views import *
 from django.urls import path
 
 
 urlpatterns = [
+
     path('filter/export-to-excel/', ExportToExcelView.as_view(), name='export_to_excel_view'),
     path('filter/', ApplicationFormFilterAPIView.as_view({'get': 'list'})),
     path('logs/', ApplicationLogsListCreateAPIView.as_view()),
