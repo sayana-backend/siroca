@@ -57,4 +57,9 @@ class ClientPermissionsSerializer(serializers.ModelSerializer):
                   'client_can_add_checklist',
                   'client_can_view_profiles']
 
+    def save(self, **kwargs):
+        instance = super().save(**kwargs)
+        instance.save()
+        return instance
+
 

@@ -10,7 +10,7 @@ urlpatterns = [
     path('<int:id>/notifications/', NotificationListAPIView.as_view()),
     path('login/', UserLoginView.as_view()),
     path('managerpermissions/general/', ManagerPermissionsGeneralView.as_view()),
-    path('clientpermissions/general', ClientPermissionsGeneralView.as_view()),
+    path('clientpermissions/general/', ClientPermissionsGeneralView.as_view()),
     path('clientpermissions/detail/', ClientPermissionsDetailAPIView.as_view()),
     path('managerpermissions/detail/', ManagerPermissionsDetailAPIView.as_view()),
 ]
