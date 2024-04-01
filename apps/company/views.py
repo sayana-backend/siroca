@@ -1,4 +1,5 @@
 from rest_framework import generics, status
+from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from ..company.models import Company, JobTitle
 from ..company.serializers import CompanySerializer, JobTitleSerializer
@@ -12,6 +13,7 @@ from apps.user.permissions import *
 class CompanyListAPIView(generics.ListAPIView):
     queryset = Company.objects.all()
     serializer_class = CompanySerializer
+    pagination_class = PageNumberPagination
     # permission_classes = [IsAdminUser]
 
 
@@ -34,6 +36,12 @@ class JobTitleListAPIView(generics.ListAPIView):
     queryset = JobTitle.objects.all()
     serializer_class = JobTitleSerializer
     # permission_classes = [IsAdminUser]
+
+
+class JobTitleDestroyAPIView(generics.DestroyAPIView):
+    queryset = JobTitle.objects.all()
+    serializer_class = JobTitleSerializer
+    lookup_field = 'id'
 
 
 class JobTitleCreateAPIView(generics.CreateAPIView):

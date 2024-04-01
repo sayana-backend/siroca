@@ -1,3 +1,4 @@
+from rest_framework.pagination import PageNumberPagination
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.response import Response
 from django.contrib.auth import authenticate
@@ -23,8 +24,9 @@ class CreateUserView(generics.CreateAPIView):
 class ListUserProfileView(generics.ListAPIView):
     queryset = CustomUser.objects.all()
     serializer_class = UserProfileSerializer
+    pagination_class = PageNumberPagination
 
-   
+
 
 
 
@@ -38,7 +40,6 @@ class DetailUserProfileView(generics.RetrieveUpdateDestroyAPIView):
 class UserLoginView(generics.CreateAPIView):
     queryset = CustomUser.objects.all()
     serializer_class = UserAuthSerializer
-    '''no permission. Everyone can login'''
 
     def post(self, request, *args, **kwargs):
         username = request.data.get('username')
