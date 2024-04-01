@@ -7,29 +7,23 @@ from .models import CustomUser
 
 
 
-def jls_extract_def():
-    
-    return 
 
 
 @receiver(post_save, sender=CustomUser)
-
 def update_username(sender, instance, created, **kwargs):
-
     if created:  
-
         username = instance.surname.lower() + instance.name.lower()
-
+        company_domain = instance.company_relation.domain
         
-
-        company_domain = instance.company_relation.domain = jls_extract_def()
-        
-
         full_username = f"{username}@{company_domain}.com"
         
-
-        instance.username = full_username
-
-        instance.save()  
-
-
+        # Проверяем существование домена
+        domain_instance = jls_extract_def()
+        if domain_instance.exists():
+            if full_username!= instance.username:
+                instance.username = full_username
+                instance.save(update_fields=['username'])
+        else:
+            if username!= instance.username:
+                instance.username = username
+                instance.save(update_fields=['username'])
