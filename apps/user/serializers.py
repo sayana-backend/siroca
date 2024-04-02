@@ -1,7 +1,9 @@
 from rest_framework import serializers
-from .models import CustomUser,AdminContact
-from apps.company.models import Company
+from .models import *
+from django.contrib.auth import get_user_model, authenticate
 
+
+User = get_user_model()
 
 
 class UserAuthSerializer(serializers.ModelSerializer):
@@ -10,19 +12,23 @@ class UserAuthSerializer(serializers.ModelSerializer):
         fields = ['username', 'password']
 
 
-class UserProfileSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = CustomUser
-        fields = ['surname', ]
-
-
 class UserProfileRegisterSerializer(serializers.ModelSerializer):
-    username = serializers.SerializerMethodField()
+    class Meta:
+        model = CustomUser
+        fields = "id role_type image first_name surname username password main_company job_title".split()
+
+    def create(self, validated_data):
+        user = CustomUser.objects.create_user(**validated_data)
+        return user
+
+
+class UserProfileSerializer(serializers.ModelSerializer):
+    main_company = serializers.StringRelatedField()
+    job_title = serializers.StringRelatedField()
 
     class Meta:
         model = CustomUser
-        fields = ['username', 'role_type', 'surname', 'first_name', 'image', 'created_at', 'job_title', 'company_relation']
-
+        fields = ['id', 'username', 'role_type', 'password', 'surname', 'first_name', 'image', 'created_at', 'job_title', 'main_company']
 
 
 
@@ -31,6 +37,34 @@ class AdminContactSerializer(serializers.ModelSerializer):
         model = AdminContact
         fields = ['email', 'phone_number', 'whatsapp_number']
 
+
+class ManagerPermissionsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CustomUser
+        fields = ['id',
+
+                  'role_type',
+                  'manager_can_delete_comments',
+                  'manager_can_get_reports',
+                  'manager_can_view_profiles',
+                  'manager_can_delete_application']
+
+
+class ClientPermissionsSerializer(serializers.ModelSerializer):
+    # role_type = serializers.CharField(source='role_type', read_only=True)
+
+    # company = serializers.CharField(source='company.name', read_only=True)
+    class Meta:
+        model = CustomUser
+        fields = ['id',
+                  'username',
+                  'role_type',
+                  'client_can_edit_comments',
+                  'client_can_get_reports',
+                  'client_can_view_logs',
+                  'client_can_add_files',
+                  'client_can_add_checklist',
+                  'client_can_view_profiles']
 
 
 class ChangePasswordSerializer(serializers.Serializer):
@@ -56,4 +90,4 @@ class AdminResetPasswordSerializer(serializers.Serializer):
     confirm_password = serializers.CharField(required=True)
 
 
-    
+

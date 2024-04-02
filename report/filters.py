@@ -6,7 +6,7 @@ import django_filters
 
 class ApplicationFormFilter(django_filters.FilterSet):
     company_name = django_filters.CharFilter(field_name='company__name', lookup_expr='icontains')
-    manager_first_name = django_filters.CharFilter(field_name='manager__first_name', lookup_expr='icontains')
+    manager_first_name = django_filters.CharFilter(field_name='main_manager__first_name', lookup_expr='icontains')
     week = django_filters.BooleanFilter(method='filter_by_week')
     month = django_filters.BooleanFilter(method='filter_by_month')
     all_time = django_filters.BooleanFilter(method='filter_by_all_time')

@@ -1,36 +1,50 @@
-
-from rest_framework import generics
+from rest_framework import generics, status
+from rest_framework.pagination import PageNumberPagination
+from rest_framework.response import Response
 from ..company.models import Company, JobTitle
 from ..company.serializers import CompanySerializer, JobTitleSerializer
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 from django.views.decorators.csrf import csrf_exempt
+from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
+from apps.user.permissions import *
 
 
-from rest_framework import generics
-from .models import Company, JobTitle
-from .serializers import CompanySerializer, JobTitleSerializer
-
-
+class CompanyListAPIView(generics.ListAPIView):
+    queryset = Company.objects.all()
+    serializer_class = CompanySerializer
+    pagination_class = PageNumberPagination
+    # permission_classes = [IsAdminUser]
 
 
 class CompanyCreateAPIView(generics.CreateAPIView):
     queryset = Company.objects.all()
     serializer_class = CompanySerializer
+    # permission_classes = [IsAdminUser]
 
 
 class CompanyRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Company.objects.all()
     serializer_class = CompanySerializer
     lookup_field = 'id'
+    # permission_classes = [IsAdminUser]
 
 
-class CompanyListAPIView(generics.ListAPIView):
-    queryset = Company.objects.all()
-    serializer_class = CompanySerializer
 
 
-class JobTitleListCreateAPIView(generics.ListCreateAPIView):
+class JobTitleListAPIView(generics.ListAPIView):
+    queryset = JobTitle.objects.all()
+    serializer_class = JobTitleSerializer
+    # permission_classes = [IsAdminUser]
+
+
+class JobTitleDestroyAPIView(generics.DestroyAPIView):
+    queryset = JobTitle.objects.all()
+    serializer_class = JobTitleSerializer
+    lookup_field = 'id'
+
+
+class JobTitleCreateAPIView(generics.CreateAPIView):
     queryset = JobTitle.objects.all()
     serializer_class = JobTitleSerializer
 
@@ -45,3 +59,17 @@ def generate_codes_view(request):
         return JsonResponse({'codes': codes}, safe=False)
     else:
         return JsonResponse({'error': 'Method not allowed'}, status=405)
+
+
+
+
+class LogoAPIView(APIView):
+    def get(self, request):
+        logo_path = 'back_static/logo.svg'
+
+        try:
+            with open(logo_path, 'rb') as file:
+                response = HttpResponse(file.read(), content_type='image/svg+xml')
+                return response
+        except FileNotFoundError:
+            return Response(status=status.HTTP_404_NOT_FOUND)

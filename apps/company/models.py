@@ -2,11 +2,10 @@ from django.db import models
 from transliterate import translit
 import random
 from ..user.models import CustomUser
-
-
+from ..application.models import ApplicationForm
 
 class Company(models.Model):
-    name = models.CharField(max_length=255, verbose_name='Название  компании')
+    name = models.CharField(max_length=255, verbose_name='Название  компании', unique=True)
     company_code = models.CharField(max_length=255, unique=True, verbose_name='Краткий код')
     country = models.CharField(max_length=255, verbose_name='Страна')
     domain = models.CharField(max_length=100, unique=True)
@@ -27,30 +26,34 @@ class Company(models.Model):
         limit_choices_to={'is_manager': True}
     )
 
-    created_at = models.DateTimeField(auto_now_add=True, verbose_name='Дата создания')
+    created_at = models.DateField(auto_now_add=True, verbose_name='Дата создания')
+    last_updated_at = models.DateField(auto_now=True, verbose_name='Дата последнего редактирования')
+
 
     def generate_codes(self, company_name):
         company_name = translit(company_name.replace(' ', ''), 'ru', reversed=True).upper()
         middle_chars = [char for char in company_name[1:-1]]
 
-        codes = set() 
+        codes = set()
         for _ in range(15):
             middle_char = random.choice(middle_chars)
             code = company_name[0] + middle_char + company_name[-1]
             if not Company.objects.filter(company_code=code).exists():
                 codes.add(code)
         return list(codes)
-    
+
     def get_count_users(self):
         count_users = CustomUser.objects.filter(main_company=self).count()
         return count_users
-    
+
+    def get_count_applications(self):
+        count_applications = ApplicationForm.objects.filter(company=self).count()
+        return count_applications
+
     def get_users(self):
         users = CustomUser.objects.filter(main_company=self)
-        user_names = [user.first_name for user in users]
+        user_names = [{'id': user.id, 'first_name': user.first_name, 'last_name': user.surname} for user in users]
         return user_names
-    
-
 
     def __str__(self):
         return self.name
@@ -60,15 +63,8 @@ class Company(models.Model):
         verbose_name_plural = 'Компании'
 
 
-
 class JobTitle(models.Model):
     title = models.CharField(max_length=255, verbose_name='Должность')
-    company = models.ForeignKey(
-        'Company',
-        on_delete=models.CASCADE,
-        related_name='jobtitles',
-        verbose_name='Компания'
-    )
 
     def __str__(self):
         return self.title

@@ -1,7 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
+<<<<<<< HEAD
+<<<<<<< HEAD
+  <component name="ProjectRootManager" version="2" project-jdk-name="Python 3.10 (siroca_technology)" project-jdk-type="Python SDK" />
+=======
+<<<<<<< HEAD
+  <component name="ProjectRootManager" version="2" project-jdk-name="Python 3.11 (siroca_technology)" project-jdk-type="Python SDK" />
+=======
   <component name="Black">
     <option name="sdkName" value="Python 3.12 (siroca_technology)" />
   </component>
   <component name="ProjectRootManager" version="2" project-jdk-name="Python 3.10 (siroca_technology)" project-jdk-type="Python SDK" />
+>>>>>>> 5e32a4dda3d694c2bc6527eb9363daf9260a222f
+>>>>>>> origin/application
+=======
+  <component name="Black">
+    <option name="sdkName" value="Python 3.12 (siroca_technology)" />
+  </component>
+  <component name="ProjectRootManager" version="2" project-jdk-name="Python 3.12 (siroca_technology)" project-jdk-type="Python SDK" />
+>>>>>>> origin/user_register
 </project>
