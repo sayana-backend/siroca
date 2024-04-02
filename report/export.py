@@ -11,6 +11,7 @@ from django.utils.http import unquote
 from openpyxl.styles import Alignment
 from django.http import HttpResponse
 from rest_framework import viewsets
+from django.conf import settings
 from datetime import datetime
 from io import BytesIO
 import pandas as pd
@@ -72,8 +73,8 @@ class ExportToExcelView(APIView):
         date_str = datetime.now().strftime('%Y-%m-%d')
         random_suffix = self.generate_random_string()
         filename = f"siroco_{date_str}_report_{random_suffix}.xlsx"
-        desktop_path = os.path.join(os.path.expanduser('~'), 'Desktop')
-        excel_file_path = os.path.join(desktop_path, filename)
+        # desktop_path = os.path.join(os.path.expanduser('~'), 'Desktop')
+        excel_file_path = os.path.join(settings.MEDIA_ROOT, filename)
 
         wb = Workbook()
         ws = wb.active
