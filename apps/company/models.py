@@ -2,7 +2,7 @@ from django.db import models
 from transliterate import translit
 import random
 from ..user.models import CustomUser
-
+from ..application.models import ApplicationForm
 
 class Company(models.Model):
     name = models.CharField(max_length=255, verbose_name='Название  компании', unique=True)
@@ -27,6 +27,8 @@ class Company(models.Model):
     )
 
     created_at = models.DateField(auto_now_add=True, verbose_name='Дата создания')
+    last_updated_at = models.DateField(auto_now=True, verbose_name='Дата последнего редактирования')
+
 
     def generate_codes(self, company_name):
         company_name = translit(company_name.replace(' ', ''), 'ru', reversed=True).upper()
@@ -44,9 +46,13 @@ class Company(models.Model):
         count_users = CustomUser.objects.filter(main_company=self).count()
         return count_users
 
+    def get_count_applications(self):
+        count_applications = ApplicationForm.objects.filter(company=self).count()
+        return count_applications
+
     def get_users(self):
         users = CustomUser.objects.filter(main_company=self)
-        user_names = [user.first_name for user in users]
+        user_names = [{'id': user.id, 'first_name': user.first_name, 'last_name': user.surname} for user in users]
         return user_names
 
     def __str__(self):

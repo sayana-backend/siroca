@@ -1,3 +1,4 @@
+from rest_framework.pagination import PageNumberPagination
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.response import Response
 from django.contrib.auth import authenticate
@@ -6,10 +7,10 @@ from .models import CustomUser,AdminContact
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from django.http import Http404
 from .serializers import *
-from .permissions import IsManagerCanEdit
+from .permissions import IsManagerCanDeleteComments
 from rest_framework import permissions
 from .models import CustomUser
-from .permissions import IsAdminUser, IsClientUser, IsManagerUser
+from .permissions import IsAdminUser, IsClientUser, IsManagerUser, IsClientCanViewProfiles
 
 
 
@@ -17,26 +18,15 @@ from .permissions import IsAdminUser, IsClientUser, IsManagerUser
 class CreateUserView(generics.CreateAPIView):
     queryset = CustomUser.objects.all()
     serializer_class = UserProfileRegisterSerializer
-    permission_classes = [IsAdminUser]
+    # permission_classes = [IsAdminUser]
 
 
 class ListUserProfileView(generics.ListAPIView):
     queryset = CustomUser.objects.all()
     serializer_class = UserProfileSerializer
-    permission_classes = [IsAdminUser]
+    pagination_class = PageNumberPagination
 
-    def get_queryset(self):
-        queryset = super().get_queryset()
-        if self.request.user.is_superuser:
-            for user in queryset:
-                user.password = self.decrypt_password(user.password)
-        return queryset
 
-    def decrypt_password(self, password):
-        if self.request.user.is_superuser:
-            return password
-        else:
-            return "*****"  
 
 
 
@@ -44,13 +34,12 @@ class DetailUserProfileView(generics.RetrieveUpdateDestroyAPIView):
     queryset = CustomUser.objects.all()
     serializer_class = UserProfileSerializer
     lookup_field = 'id'
-    permission_classes = [IsAdminUser]
+    # permission_classes = [IsAdminUser, IsClientCanViewProfiles]
 
 
 class UserLoginView(generics.CreateAPIView):
     queryset = CustomUser.objects.all()
     serializer_class = UserAuthSerializer
-    '''no permission. Everyone can login'''
 
     def post(self, request, *args, **kwargs):
         username = request.data.get('username')
@@ -77,6 +66,7 @@ class UserLoginView(generics.CreateAPIView):
 
 
 
+
 class AdminContactDetailView(generics.RetrieveUpdateAPIView):
     serializer_class = AdminContactSerializer
     # permission_classes = [IsAuthenticated]
@@ -94,18 +84,23 @@ class AdminContactDetailView(generics.RetrieveUpdateAPIView):
 
 
 
-class ManagerPermissionsView(generics.UpdateAPIView, generics.ListAPIView):
+
+class ManagerPermissionsGeneralView(generics.UpdateAPIView, generics.ListAPIView):
     queryset = CustomUser.objects.filter(role_type='manager')
     serializer_class = ManagerPermissionsSerializer
-    # permission_classes = [IsAdminUser]
+    permission_classes = [IsAdminUser]
 
     def update(self, request, *args, **kwargs):
-        manager_can_edit = request.data.get('manager_can_edit')
+        manager_can_delete_comments = request.data.get('manager_can_delete_comments')
         manager_can_get_reports = request.data.get('manager_can_get_reports')
+        manager_can_view_profiles = request.data.get('manager_can_view_profiles')
+        manager_can_delete_application = request.data.get('manager_can_delete_application')
 
         self.queryset.update(
-            manager_can_edit=bool(manager_can_edit),
-            manager_can_get_reports=bool(manager_can_get_reports)
+            manager_can_delete_comments=bool(manager_can_delete_comments),
+            manager_can_get_reports=bool(manager_can_get_reports),
+            manager_can_view_profiles=bool(manager_can_view_profiles),
+            manager_can_delete_application=bool(manager_can_delete_application)
         )
 
     def get(self, request, *args, **kwargs):
@@ -115,31 +110,35 @@ class ManagerPermissionsView(generics.UpdateAPIView, generics.ListAPIView):
             first_manager = managers.first()
             print(f'first_manager: {first_manager}')
             manager_permissions = {
-                "manager_can_edit": first_manager.manager_can_edit,
-                "manager_can_get_reports": first_manager.manager_can_get_reports
+                "manager_can_delete_comments": first_manager.manager_can_delete_comments,
+                "manager_can_get_reports": first_manager.manager_can_get_reports,
+                "manager_can_view_profiles": first_manager.manager_can_view_profiles,
+                "manager_can_delete_application": first_manager.manager_can_delete_application
             }
         return Response(manager_permissions)
 
 
-class ClientPermissionsView(generics.UpdateAPIView, generics.ListAPIView):
+class ClientPermissionsGeneralView(generics.UpdateAPIView, generics.ListAPIView):
     queryset = CustomUser.objects.filter(role_type='client')
     serializer_class = ClientPermissionsSerializer
-    # permission_classes = [IsAdminUser]
+    permission_classes = [IsAdminUser]
 
 
     def update(self, request, *args, **kwargs):
-        client_can_put_comments = request.data.get('client_can_put_comments')
+        client_can_edit_comments = request.data.get('client_can_edit_comments')
         client_can_get_reports = request.data.get('client_can_get_reports')
         client_can_view_logs = request.data.get('client_can_view_logs')
-        client_can_delete_comments = request.data.get('client_can_delete_comments')
+        client_can_add_files = request.data.get('client_can_add_files')
         client_can_add_checklist = request.data.get('client_can_add_checklist')
+        client_can_view_profiles = request.data.get('client_can_view_profiles')
 
         self.queryset.update(
-            client_can_put_comments=bool(client_can_put_comments),
+            client_can_edit_comments=bool(client_can_edit_comments),
             client_can_get_reports=bool(client_can_get_reports),
             client_can_view_logs=bool(client_can_view_logs),
-            client_can_delete_comments=bool(client_can_delete_comments),
-            client_can_add_checklist=bool(client_can_add_checklist)
+            client_can_add_files=bool(client_can_add_files),
+            client_can_add_checklist=bool(client_can_add_checklist),
+            client_can_view_profiles=bool(client_can_view_profiles)
         )
         return Response('Права клиента обновлены')
 
@@ -150,24 +149,43 @@ class ClientPermissionsView(generics.UpdateAPIView, generics.ListAPIView):
             first_client = clients.first()
             print(f'first_client: {first_client}')
             client_permissions = {
-                "client_can_put_comments": first_client.client_can_put_comments,
+                "client_can_edit_comments": first_client.client_can_edit_comments,
                 "client_can_get_reports": first_client.client_can_get_reports,
                 "client_can_view_logs": first_client.client_can_view_logs,
-                "client_can_delete_comments": first_client.client_can_delete_comments,
-                "client_can_add_checklist": first_client.client_can_add_checklist
+                "client_can_add_files": first_client.client_can_add_files,
+                "client_can_add_checklist": first_client.client_can_add_checklist,
+                "client_can_view_profiles": first_client.client_can_view_profiles,
             }
 
         return Response(client_permissions)
 
 
 
+class ClientPermissionsDetailAPIView(generics.ListAPIView):
+    queryset = CustomUser.objects.filter(role_type='client')
+    serializer_class = ClientPermissionsSerializer
+
+    def put(self, request, *args, **kwargs):
+        users_data = request.data
+        for user_data in users_data:
+            user_id = user_data.get('id')
+            try:
+                user_instance = CustomUser.objects.get(id=user_id)
+            except CustomUser.DoesNotExist:
+                return Response(f'Пользователь с id={user_id} не найден', status=404)
+
+            serializer = self.get_serializer(user_instance, data=user_data, partial=True)
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+
+        return Response('Права пользователей обновлены')
 
 
 
 
 class AdminContactListView(generics.ListAPIView):
     serializer_class = AdminContactSerializer
-    permission_classes = [IsAuthenticated]
+
 
     def get_queryset(self):
         return AdminContact.objects.all()
@@ -198,4 +216,49 @@ class ChangePasswordView(generics.UpdateAPIView):
         user.save()
 
         return Response({'detail': 'Пароль успешно изменен'}, status=status.HTTP_200_OK)
+
+
+class ManagerPermissionsDetailAPIView(generics.ListAPIView):
+    queryset = CustomUser.objects.filter(role_type='manager')
+    serializer_class = ManagerPermissionsSerializer
+
+    def put(self, request, *args, **kwargs):
+        users_data = request.data
+        for user_data in users_data:
+            user_id = user_data.get('id')
+            try:
+                user_instance = CustomUser.objects.get(id=user_id)
+            except CustomUser.DoesNotExist:
+                return Response(f'Пользователь с id={user_id} не найден', status=404)
+
+            serializer = self.get_serializer(user_instance, data=user_data, partial=True)
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+
+        return Response('Права пользователей обновлены')
+
+
+
+
+
+class AdminResetPasswordView(generics.UpdateAPIView):
+    queryset = CustomUser.objects.all()
+    serializer_class = AdminResetPasswordSerializer
+    permission_classes = [IsAdminUser]
+    lookup_field = 'id'
+
+
+    def update(self, request, *args, **kwargs):
+        user = self.get_object()
+
+        new_password = request.data.get('new_password')
+        confirm_password = request.data.get('confirm_password')
+
+        if new_password != confirm_password:
+            return Response({'detail': 'Новый пароль и его подтверждение не совпадают.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        user.set_password(new_password)
+        user.save()
+
+        return Response({'detail': 'Пароль пользователя успешно сброшен.', 'new_password': new_password}, status=status.HTTP_200_OK)
 

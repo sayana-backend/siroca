@@ -1,9 +1,6 @@
 from django.contrib.auth.models import Group
 from ..user.models import CustomUser
-from django.utils import timezone
-from datetime import timedelta
 from django.db import models
-import json
 
 
 class Checklist(models.Model):
@@ -16,7 +13,7 @@ class Checklist(models.Model):
     application = models.ForeignKey('ApplicationForm', verbose_name='Заявки', on_delete=models.CASCADE,
                                     related_name='checklists')
     deadline = models.DateField(verbose_name='Дедлайн', blank=True, null=True)
-    manager = models.OneToOneField(CustomUser,
+    manager = models.ForeignKey(CustomUser,
                                    on_delete=models.CASCADE,
                                    verbose_name='Отмеченный менеджер',
                                    blank=True,
@@ -69,15 +66,15 @@ class ApplicationForm(models.Model):
         ('Не оплачено', 'Не оплачено'),
     )
 
-    task_number = models.CharField(max_length=10, verbose_name='Номер заявки', blank=True)
-    title = models.CharField(max_length=100, verbose_name='Название заявки', blank=False)
-    description = models.CharField(max_length=200, verbose_name='Описание', blank=True)
-    files = models.ImageField(upload_to='', null=True, verbose_name='Файлы', blank=True)
-    jira = models.URLField(null=True, verbose_name='ссылка JIRA', blank=True)
-
-    status = models.CharField(max_length=100, choices=STATUS, default='К выполнению', verbose_name='Статус заявки', blank=True)
-    payment_state = models.CharField(max_length=100, choices=PAYMENT_STATE, verbose_name='Статус оплаты', blank=True)
-    priority = models.CharField(max_length=100, choices=PRIORITY, verbose_name='Приоритет заявки', blank=True)
+    task_number = models.CharField(max_length=10, verbose_name='Номер заявки', blank=True, null=True)
+    title = models.CharField(max_length=100, verbose_name='Название заявки')
+    description = models.CharField(null=True, max_length=200, verbose_name='Описание')
+    short_description = models.CharField(null=True, max_length=100, verbose_name='Краткое описание')
+    files = models.ImageField(upload_to='', null=True, verbose_name='Файлы')
+    jira = models.URLField(null=True, verbose_name='ссылка JIRA')
+    status = models.CharField(max_length=100, choices=STATUS, default='К выполнению', verbose_name='Статус заявки')
+    payment_state = models.CharField(max_length=100, choices=PAYMENT_STATE, null=True, verbose_name='Статус оплаты')
+    priority = models.CharField(max_length=100, choices=PRIORITY, verbose_name='Приоритет заявки')
 
     company = models.ForeignKey('company.Company', on_delete=models.CASCADE, verbose_name='Компания', blank=False)
     main_client = models.ForeignKey('user.CustomUser',
@@ -94,10 +91,11 @@ class ApplicationForm(models.Model):
                                      limit_choices_to={'is_manager': True})
 
     application_date = models.DateField(auto_now_add=True, verbose_name='Дата подачи заявки')
-    confirm_date = models.DateField(null=True, blank=True, verbose_name='Дата утверждения заявки')
-    offer_date = models.DateField(null=True, blank=True, verbose_name='Дата отправки КП')
-    start_date = models.DateField(null=True, blank=True, verbose_name='Дата начала')
-    finish_date = models.DateField(null=True, blank=True, verbose_name='Дата окончания')
+    confirm_date = models.DateField(null=True, verbose_name='Дата утверждения заявки')
+    offer_date = models.DateField(null=True, verbose_name='Дата отправки КП')
+    start_date = models.DateField(null=True, verbose_name='Дата начала')
+    finish_date = models.DateField(null=True, verbose_name='Дата окончания')
+    deadline_date = models.DateField(null=True, verbose_name='Срок выполнения')
 
     objects = models.Manager()
 
@@ -141,4 +139,5 @@ class Notification(models.Model):
     is_admin = models.BooleanField(default=False, null=True, blank=True)
     form = models.ForeignKey(ApplicationForm, on_delete=models.CASCADE, null=True, blank=True)
     expiration_time = models.DateTimeField(null=True)
+
 

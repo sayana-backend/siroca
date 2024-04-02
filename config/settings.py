@@ -29,7 +29,7 @@ DEBUG = True
 ALLOWED_HOSTS = ['*']
 CORS_ALLOW_ALL_ORIGINS = True
 CSRF_TRUSTED_ORIGINS = ['http://localhost',
-                        'http://127.0.0.1:8000/', 'http://16.171.68.251', 'http://16.171.68.251:80']
+                        'http://127.0.0.1:8000/', 'http://13.60.17.217', 'http://13.60.17.217:80']
 
 
 
@@ -51,24 +51,26 @@ INSTALLED_APPS = [
     'apps.user',
     'apps.application',
     'drf_yasg',
-    # 'rest_framework.authtoken',
     'rest_framework_simplejwt'
 
 ]
 
+
 REST_FRAMEWORK = {
-    "DEFAULT_AUTHENTICATION_CLASSES": (
-        "rest_framework_simplejwt.authentication.JWTAuthentication",
-        # 'rest_framework.permissions.IsAdminUser',
-    ),
-    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ],
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 50
 }
 
+
 SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(days=1),
-    "REFRESH_TOKEN_LIFETIME": timedelta(days=2),
+    "ACCESS_TOKEN_LIFETIME": timedelta(days=5),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=5),
     "AUTH_HEADER_TYPES": ("JWT",),
 }
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
