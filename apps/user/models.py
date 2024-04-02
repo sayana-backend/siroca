@@ -63,19 +63,18 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     objects = CustomUserManager()
 
     def save(self, *args, **kwargs):
-        if not self.username:
-            raise ValueError("Username cannot be empty")
-    
-        if self.role_type == 'Клиент':
-            self.is_client = True
-        elif self.role_type == 'Менеджер':
-         self.is_manager = True
-
         if self.main_company:
             company_domain = self.main_company.domain
-            self.username += f"@{domain}.com"
+            if not self.username.endswith(f"@{company_domain}.com"):
+                self.username += f"@{company_domain}.com"
+
+        if self.role_type == 'client':
+            self.is_client = True
+        elif self.role_type == 'manager':
+            self.is_manager = True
 
         super().save(*args, **kwargs)
+
 
     def __str__(self):
         return self.username
