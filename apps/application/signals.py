@@ -6,7 +6,6 @@ from django.utils import timezone
 from datetime import timedelta
 
 
-
 @receiver(pre_save, sender=ApplicationForm)
 def track_application_changes(sender, instance, **kwargs):
     if instance.pk is not None:
@@ -90,24 +89,24 @@ def track_application_send_notification(sender, instance, **kwargs):
         if obj.priority != instance.priority:
             changes.append(f"Приоритет изменен с '{obj.get_priority_display()}' на '{instance.get_priority_display()}'")
         if changes:
-            message = ', '.join(changes)
             manager_name = f"{instance.main_manager.first_name} {instance.main_manager.surname}"
-            expiration_time = timezone.now() + timedelta(weeks=13)
-            Notification.objects.create(
-                task_number=instance.task_number,
-                title=instance.title,
-                text=message,
-                made_change=manager_name,
-                form_id=instance.id,
-                expiration_time=expiration_time
-            )
+            expiration_time = timezone.now() + timedelta(weeks=5)
+            for change in changes:
+                Notification.objects.create(
+                    task_number=instance.task_number,
+                    title=instance.title,
+                    text=change,
+                    made_change=manager_name,
+                    form_id=instance.id,
+                    expiration_time=expiration_time
+                )
     delete_expired_notifications()
 
 
 @receiver(post_save, sender=ApplicationForm)
 def send_notification_on_create_close(sender, instance, created, **kwargs):
     if created:
-        expiration_time = timezone.now() + timedelta(weeks=13)
+        expiration_time = timezone.now() + timedelta(weeks=5)
         Notification.objects.create(
             task_number=f'Номер заявки: {instance.task_number}',
             text=f'Создана новая заявка',
@@ -117,7 +116,7 @@ def send_notification_on_create_close(sender, instance, created, **kwargs):
             expiration_time=expiration_time,
             )
     elif instance.status == 'Закрыто':
-        expiration_time = timezone.now() + timedelta(weeks=13)
+        expiration_time = timezone.now() + timedelta(weeks=5)
         Notification.objects.create(
             task_number=f'Номер заявки: {instance.task_number}',
             text=f"Заявка закрыто",

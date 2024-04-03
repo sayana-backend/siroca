@@ -17,11 +17,8 @@ from rest_framework import status
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Q
 
-class ApplicationFormCreateAPIView(generics.CreateAPIView):
-    queryset = ApplicationForm.objects.all()
-    serializer_class = ApplicationFormCreateSerializer
-    # permission_classes = [IsAdminUser, IsManagerUser]
 
+# permission_classes = [IsAdminUser, IsManagerUser]
 
 
 class CustomSearchFilter(filters.SearchFilter):
@@ -37,6 +34,16 @@ class CustomSearchFilter(filters.SearchFilter):
         return queryset
 
 
+class ApplicationFormCreateAPIView(generics.CreateAPIView):
+    queryset = ApplicationForm.objects.all()
+    serializer_class = ApplicationFormCreateSerializer
+
+    def perform_create(self, serializer):
+        serializer.save(main_manager=self.request.user)
+
+
+'''При создани заявки авто заполняется поле main_manager'''
+
 
 # class CustomPagination(PageNumberPagination):
 #     page_size = 50
@@ -46,36 +53,35 @@ class CustomSearchFilter(filters.SearchFilter):
 #     def get_paginated_response(self, data):
 #         return Response(data)
 
-
-
 class ApplicationFormListAPIView(generics.ListAPIView):
     serializer_class = ApplicationFormDetailSerializer
     filter_backends = [CustomSearchFilter, DjangoFilterBackend]
     permission_classes = [IsAuthenticated]
     filterset_class = ApplicationFormFilter
     pagination_class = PageNumberPagination
-    search_fields = ['task_number', 'title', 'description', 
-                 'main_client__first_name', 'main_manager__first_name', 
-                 'start_date', 'finish_date', 'priority', 'payment_state']
+    search_fields = ['task_number', 'title', 'description',
+                     'main_client__first_name', 'main_manager__first_name',
+                     'start_date', 'finish_date', 'priority', 'payment_state']
+
     def get_queryset(self):
         user = self.request.user
         if user.is_client:
-            queryset = ApplicationForm.objects.filter(Q(main_client=user) | 
-                                                        Q(company=user.main_company))
+            queryset = ApplicationForm.objects.filter(Q(main_client=user) |
+                                                      Q(company=user.main_company))
         elif user.is_manager:
-            queryset = ApplicationForm.objects.filter(Q(main_manager=user) | 
-                                                        Q(checklists__manager=user) | 
-                                                        Q(company=user.main_company))
+            queryset = ApplicationForm.objects.filter(Q(main_manager=user) |
+                                                      Q(checklists__manager=user) |
+                                                      Q(company=user.main_company))
         elif user.is_superuser:
             queryset = ApplicationForm.objects.all()
-        
+
         queryset = queryset.order_by('-application_date')
         return queryset
-    
+
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
         page = self.paginate_queryset(queryset)
-        
+
         if page is not None:
             serializer = self.get_serializer(page, many=True)
             created_count = queryset.count()
@@ -92,11 +98,6 @@ class ApplicationFormListAPIView(generics.ListAPIView):
         return Response({'detail': 'Not found'}, status=404)
 
 
-
-
-
-
-
 class ApplicationFormRetrieveAPIView(generics.RetrieveAPIView):
     queryset = ApplicationForm.objects.all()
     serializer_class = ApplicationFormDetailSerializer
@@ -107,16 +108,16 @@ class ApplicationFormRetrieveAPIView(generics.RetrieveAPIView):
 class ApplicationFormRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
     queryset = ApplicationForm.objects.all()
     serializer_class = ApplicationFormDetailSerializer
+    lookup_field = 'id'
     # permission_classes = [IsManagerCanDeleteComments,
     #                       IsManagerCanDeleteApplication,
     #                       IsAdminUser]
-    lookup_field = 'id'
-
 
 
 class ApplicationLogsListCreateAPIView(generics.ListCreateAPIView):  ### внимательно посмотреть нужен ли CREATE - запрос
     queryset = ApplicationLogs.objects.all()
     serializer_class = ApplicationLogsSerializer
+    lookup_field = 'id'
     # permission_classes = [IsClientCanViewLogs,
     #                       IsAdminUser,
     #                       IsManagerUser]
@@ -136,7 +137,7 @@ class ChecklistAPIView(generics.ListCreateAPIView):
     #                       IsManagerUser]
 
 
-class CheckListDetailAPIView(generics.RetrieveUpdateDestroyAPIView):   ### посмотреть внимательно
+class CheckListDetailAPIView(generics.RetrieveUpdateDestroyAPIView):  ### посмотреть внимательно
     queryset = Checklist.objects.all()
     serializer_class = ChecklistSerializer
     lookup_field = 'id'
@@ -161,9 +162,6 @@ class CommentsDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
     #                       IsAdminUser]
 
 
-
-
-
 class NotificationAPIView(generics.ListAPIView):
     queryset = Notification.objects.all()
     serializer_class = NotificationSerializer
@@ -173,9 +171,19 @@ class NotificationAPIView(generics.ListAPIView):
         if request.user.is_superuser:
             admin_notifications = Notification.objects.filter(is_admin=True)
             serializer = NotificationSerializer(admin_notifications, many=True)
+            admin_notifications.update(is_read=True)
             return Response(serializer.data, status=status.HTTP_200_OK)
         else:
-            user_application = ApplicationForm.objects.filter(Q(main_client=request.user) | Q(main_manager=request.user))
+            user_application = ApplicationForm.objects.filter(
+                Q(main_client=request.user) | Q(main_manager=request.user))
             notification_user_application = Notification.objects.filter(form__in=user_application)
             serializer = NotificationSerializer(notification_user_application, many=True)
+            notification_user_application.update(is_read=True)
             return Response(serializer.data, status=status.HTTP_200_OK)
+
+    # def patch(self, request, *args, **kwargs):
+    #     notification_id = kwargs.get('pk')
+    #     notification = Notification.objects.get(pk=notification_id)
+    #     notification.is_read = True
+    #     notification.save()
+    #     return Response(status=status.HTTP_200_OK)
