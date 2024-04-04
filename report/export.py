@@ -15,9 +15,11 @@ from django.conf import settings
 from datetime import datetime
 from io import BytesIO
 import pandas as pd
+import threading
 import platform
 import string
 import random
+import time
 import os
 
 
@@ -62,9 +64,10 @@ class ExportToExcelView(APIView):
             df[column] = df[column].map(lambda x: None if x == [] else x)
 
         df['status_info'] = df['status_info'].apply(
-            lambda x: ',\n '.join([f"{item['status']} - {item['date_status']}" for item in x]))
+            lambda x: ',\n '.join([f"{item['status']} - {item['date_status']}" for item in x]) if x else '')
+
         df['priority_info'] = df['priority_info'].apply(
-            lambda x: ',\n '.join([f"{item['priority']} - {item['date_priority']}" for item in x]))
+            lambda x: ',\n '.join([f"{item['priority']} - {item['date_priority']}" for item in x]) if x else '')
 
         count_df = pd.DataFrame([{'Количество заявок': len(data)}])
 
@@ -73,8 +76,6 @@ class ExportToExcelView(APIView):
         date_str = datetime.now().strftime('%Y-%m-%d')
         random_suffix = self.generate_random_string()
         filename = f"siroco_{date_str}_report_{random_suffix}.xlsx"
-        # desktop_path = os.path.join(os.path.expanduser('~'), 'Desktop')
-        excel_file_path = os.path.join(settings.MEDIA_ROOT, filename)
 
         wb = Workbook()
         ws = wb.active
@@ -96,12 +97,14 @@ class ExportToExcelView(APIView):
             for cell in col:
                 cell.alignment = Alignment(horizontal='left', vertical='top', wrap_text=True)
 
-        wb.save(excel_file_path)
+        excel_file = BytesIO()
+        wb.save(excel_file)
 
-        if os.path.exists(excel_file_path):
-            with open(excel_file_path, 'rb') as excel_file:
-                response = HttpResponse(excel_file.read(), content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
-                response['Content-Disposition'] = f'attachment; filename={unquote(filename)}'
-                return response
-        else:
-            return HttpResponse("Не удалось открыть файл")
+        response = HttpResponse(excel_file.getvalue(), content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+        response['Content-Disposition'] = f'attachment; filename={unquote(filename)}'
+        response['Content-Transfer-Encoding'] = 'binary'
+        response['Expires'] = '0'
+        response['Cache-Control'] = 'must-revalidate'
+        response['Pragma'] = 'public'
+
+        return response
