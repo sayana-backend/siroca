@@ -19,4 +19,3 @@ urlpatterns = [
     path('comments/<int:id>/', CommentsDetailAPIView.as_view()),
     path('checklist/<int:id>/', CheckListDetailAPIView.as_view()),
 ]
-

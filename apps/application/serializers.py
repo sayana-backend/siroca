@@ -20,18 +20,17 @@ class CommentsSerializer(serializers.ModelSerializer):
         return super().create(validated_data)
 
 
-
-class ApplicationFormCreateSerializer(serializers.ModelSerializer):
-    company = serializers.CharField(source='company.name', read_only=True)
-    main_client = serializers.CharField(source='main_client.name', read_only=True)
-    main_manager = serializers.CharField(source='main_manager.name', read_only=True)
-    # checklist = ChecklistSerializer(many=True)
-    # comments = CommentsSerializer(many=True)
-    class Meta:
-        model = ApplicationForm
-        fields = ['id', 'title', 'company', 'priority', 'status', 'jira',  'main_manager', 'main_client',
-                  'start_date', 'deadline_date', 'offer_date', 'finish_date', 'application_date', 'confirm_date',
-                  'payment_state', 'description', 'files', 'short_description']
+# class ApplicationFormCreateSerializer(serializers.ModelSerializer):
+#     company = serializers.CharField(source='company.name', read_only=True)
+#     main_client = serializers.CharField(source='main_client.name', read_only=True)
+#     main_manager = serializers.CharField(source='main_manager.name', read_only=True)
+#     # checklist = ChecklistSerializer(many=True)
+#     # comments = CommentsSerializer(many=True)
+#     class Meta:
+#         model = ApplicationForm
+#         fields = ['id', 'title', 'company', 'priority', 'status', 'jira',  'main_manager', 'main_client',
+#                   'start_date', 'deadline_date', 'offer_date', 'finish_date', 'application_date', 'confirm_date',
+#                   'payment_state', 'description', 'files', 'short_description']
 
 
 class ApplicationLogsSerializer(serializers.ModelSerializer):
@@ -40,10 +39,23 @@ class ApplicationLogsSerializer(serializers.ModelSerializer):
         fields = ('id', 'task_number', 'text')
 
 
+'''Для создания заявки '''
+class ApplicationFormCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ApplicationForm
+        fields = ('title', 'company')
+
+
 class ApplicationFormDetailSerializer(serializers.ModelSerializer):
+    # check_list = serializers.SerializerMethodField()
+    # check_list = serializers.CharField(source='check_list.text')
+    check_list = ChecklistSerializer()
     class Meta:
         model = ApplicationForm
         fields = '__all__'
+
+    # def get_check_list(self, obj):
+    #     return obj.check_list.text if obj.check_list else None
 
 
 class ApplicationFormLogsDetailSerializer(serializers.ModelSerializer):
@@ -64,5 +76,4 @@ class ApplicationFormLogsDetailSerializer(serializers.ModelSerializer):
 class NotificationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Notification
-        fields = ('task_number', 'title', 'text', 'created_at', 'made_change', 'form_id')
-
+        fields = ('task_number', 'title', 'text', 'created_at', 'made_change', 'form_id', 'is_read')
