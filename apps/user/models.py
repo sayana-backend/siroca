@@ -45,7 +45,8 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
                                   related_name='user_job_titles',
                                   on_delete=models.SET_NULL)
 
-    manager_can_delete_comments = models.BooleanField(default=False, verbose_name='Удаление комментариев')
+    manager_can_delete_comments_general = models.BooleanField(default=False, verbose_name='Удаление комментариев')
+    manager_can_delete_comments_special = models.BooleanField(null=True, verbose_name='Удаление комментариев')
     manager_can_get_reports = models.BooleanField(default=False, verbose_name='Отчет по заявкам(Менеджер)')
     manager_can_view_profiles = models.BooleanField(default=False, verbose_name='Просмотр профиля пользователей(Менеджер)')
     manager_can_delete_application = models.BooleanField(default=False, verbose_name='Удаление заявки')
@@ -53,7 +54,8 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     client_can_edit_comments = models.BooleanField(default=False, verbose_name='Добавление/удаление комментария')
     client_can_get_reports = models.BooleanField(default=False, verbose_name='Отчет по заявкам(Клиент)')
     client_can_view_logs = models.BooleanField(default=False, verbose_name='Просмотр логов')
-    client_can_add_checklist = models.BooleanField(default=False, verbose_name='Добавление чеклиста')
+    client_can_add_checklist_general = models.BooleanField(default=False, verbose_name='Добавление чеклиста')
+    client_can_add_checklist_special = models.BooleanField(null=True, verbose_name='Добавление чеклиста')
     client_can_add_files = models.BooleanField(default=False, verbose_name='Добавление файла')
     client_can_view_profiles = models.BooleanField(default=False, verbose_name='Просмотр профиля пользователей(Клиент)')
 
