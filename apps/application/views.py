@@ -38,11 +38,11 @@ class CustomSearchFilter(filters.SearchFilter):
 
 
 
-class CustomPagination(PageNumberPagination):
-    page_size = 50
-
-    def get_paginated_response(self, data):
-        return Response(data)
+# class CustomPagination(PageNumberPagination):
+#     page_size = 50
+#
+#     def get_paginated_response(self, data):
+#         return Response(data)
 
 
 
@@ -52,7 +52,7 @@ class ApplicationFormListAPIView(generics.ListAPIView):
     filter_backends = [CustomSearchFilter, DjangoFilterBackend]
     permission_classes = [IsAuthenticated]
     filterset_class = ApplicationFormFilter
-    pagination_class = CustomPagination
+    pagination_class = PageNumberPagination
     search_fields = ['task_number', 'title', 'short_description', 
                  'main_client__first_name', 'main_manager__first_name', 
                  'start_date', 'finish_date', 'priority', 'payment_state', 'comments__text']

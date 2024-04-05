@@ -1,7 +1,10 @@
 from django.db import models
 from django.utils.translation import gettext_lazy as _
-from .usermanager import CustomUserManager
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
+from .usermanager import CustomUserManager
+
+
+
 
 
 class AdminContact(models.Model):
@@ -26,7 +29,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     role_type = models.CharField(max_length=20, choices=RoleType.items(), verbose_name='Тип роли')
     username = models.CharField(max_length=30, verbose_name="Логин", unique=True)
     first_name = models.CharField(max_length=30, verbose_name="Имя")
-    surname = models.CharField(max_length=30, verbose_name="фамилия")
+    surname = models.CharField(max_length=30, verbose_name="Фамилия")
     image = models.FileField(verbose_name="Изображение", upload_to='', null=True, blank=True)
     created_at = models.DateField(auto_now_add=True, verbose_name="Дата создания")
 
@@ -64,7 +67,8 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     def save(self, *args, **kwargs):
         if self.main_company:
             company_domain = self.main_company.domain
-            self.username += f"@{company_domain}.com"
+            if not self.username.endswith(f"@{company_domain}.com"):
+                self.username += f"@{company_domain}.com"
 
         if self.role_type == 'client':
             self.is_client = True
@@ -72,6 +76,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
             self.is_manager = True
 
         super().save(*args, **kwargs)
+
 
     def __str__(self):
         return self.username
@@ -81,3 +86,5 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
         verbose_name_plural = _('Пользователи')
 
     USERNAME_FIELD = 'username'
+
+
