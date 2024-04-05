@@ -16,6 +16,19 @@ from rest_framework.response import Response
 from rest_framework import status
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Q
+from rest_framework import generics
+from .models import Comments
+from .serializers import CommentsSerializer
+from django.http import HttpRequest
+from django.shortcuts import render
+
+
+
+
+
+
+
+
 
 class ApplicationFormCreateAPIView(generics.CreateAPIView):
     queryset = ApplicationForm.objects.all()
@@ -147,9 +160,10 @@ class CheckListDetailAPIView(generics.RetrieveUpdateDestroyAPIView):   ### по�
 class CommentsAPIView(generics.ListCreateAPIView):
     queryset = Comments.objects.all()
     serializer_class = CommentsSerializer
-    # permission_classes = [IsClientCanEditComments,
-    #                       IsAdminUser,
-    #                       IsManagerUser]
+    permission_classes = [IsAuthenticated]
+
+    def perform_create(self, serializer):
+        serializer.save(user = self.request.user)
 
 
 class CommentsDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
@@ -160,14 +174,14 @@ class CommentsDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
     #                       IsClientCanEditComments,
     #                       IsAdminUser]
 
-
+    
 
 
 
 class NotificationAPIView(generics.ListAPIView):
     queryset = Notification.objects.all()
     serializer_class = NotificationSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]                                                                                              
 
     def get(self, request):
         if request.user.is_superuser:
