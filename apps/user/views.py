@@ -72,7 +72,7 @@ class AdminContactDetailView(generics.RetrieveUpdateAPIView):
     # permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        return AdminContact.objects.filter(admin=self.request.user)
+        return AdminContact.objects.filter(user=self.request.user)
 
     def get_object(self):
         queryset = self.get_queryset()
