@@ -10,18 +10,20 @@ class Checklist(models.Model):
 
     text = models.CharField(max_length=255, verbose_name='Текст подзадачи')
     completed = models.BooleanField(default=False)
-    application = models.ForeignKey('ApplicationForm', verbose_name='Заявки', on_delete=models.CASCADE,
-                                    related_name='checklists')
+    # application = models.ForeignKey('ApplicationForm', verbose_name='Заявки', on_delete=models.CASCADE,
+    # related_name = 'checklists')
     deadline = models.DateField(verbose_name='Дедлайн', blank=True, null=True)
     manager = models.ForeignKey(CustomUser,
-                                on_delete=models.CASCADE,
-                                verbose_name='Отмеченный менеджер',
-                                blank=True,
-                                null=True,
-                                limit_choices_to={'is_manager': True})
 
-    def __str__(self):
-        return self.text
+
+on_delete = models.CASCADE,
+verbose_name = 'Отмеченный менеджер',
+blank = True,
+null = True,
+limit_choices_to = {'is_manager': True})
+
+def __str__(self):
+    return self.text
 
 
 class Comments(models.Model):
@@ -76,7 +78,8 @@ class ApplicationForm(models.Model):
                               verbose_name='Статус заявки', blank=True, null=True)
     payment_state = models.CharField(max_length=100, choices=PAYMENT_STATE,
                                      verbose_name='Статус оплаты', blank=True, null=True)
-    priority = models.CharField(max_length=100, choices=PRIORITY, verbose_name='Приоритет заявки', blank=True, null=True)
+    priority = models.CharField(max_length=100, choices=PRIORITY, verbose_name='Приоритет заявки', blank=True,
+                                null=True)
 
     company = models.ForeignKey('company.Company', on_delete=models.CASCADE, verbose_name='Компания', blank=False,
                                 null=True)
@@ -102,8 +105,12 @@ class ApplicationForm(models.Model):
     finish_date = models.DateField(null=True, verbose_name='Дата окончания', blank=True)
     deadline_date = models.DateField(null=True, verbose_name='Срок выполнения', blank=True)
 
-    # check_list = models.ForeignKey('Checklist', blank=True, null=True, verbose_name="Чек-лист",
-    #                                on_delete=models.CASCADE)
+    check_list = models.ManyToManyField(
+        'Checklist',
+        blank=True,
+        verbose_name="Чек-лист",
+        related_name='checklist'
+    )
 
     objects = models.Manager()
 
