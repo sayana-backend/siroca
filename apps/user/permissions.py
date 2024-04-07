@@ -16,15 +16,11 @@ class IsClientUser(permissions.BasePermission):
 
 class IsClientCanGetReports(permissions.BasePermission):
     def has_permission(self, request, view):
-        print("User:", request.user)
-        print("Client can get reports:", request.user.client_can_get_reports)
         return request.user.is_authenticated and request.user.client_can_get_reports
 
 
 class IsClientCanEditComments(permissions.BasePermission):
     def has_permission(self, request, view):
-        print("User:", request.user)
-        print("Client can edit comments:", request.user.client_can_edit_comments)
         return request.user.is_authenticated and request.user.client_can_edit_comments
 
 class IsClientCanViewProfiles(permissions.BasePermission):

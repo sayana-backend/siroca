@@ -62,15 +62,16 @@ class ApplicationFormListAPIView(generics.ListAPIView):
 
     def get_queryset(self):
         user = self.request.user
-        if user.is_client:
+        if user.is_superuser:
+            queryset = ApplicationForm.objects.all()
+
+        elif user.is_client:
             queryset = ApplicationForm.objects.filter(Q(main_client=user) |
                                                       Q(company=user.main_company))
         elif user.is_manager:
             queryset = ApplicationForm.objects.filter(Q(main_manager=user) |
                                                       Q(checklists__manager=user) |
                                                       Q(company=user.main_company))
-        elif user.is_superuser:
-            queryset = ApplicationForm.objects.all()
 
         queryset = queryset.order_by('-application_date')
         return queryset
