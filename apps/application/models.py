@@ -103,15 +103,8 @@ class ApplicationForm(models.Model):
     finish_date = models.DateField(null=True, verbose_name='Дата окончания', blank=True)
     deadline_date = models.DateField(null=True, verbose_name='Срок выполнения', blank=True)
 
-    check_list = models.ForeignKey('Checklist', blank=True, null=True, verbose_name="Чек-лист",
-                                   on_delete=models.CASCADE)
-
-    objects = models.Manager()
-
     def __str__(self):
         return f'{self.title}'
-
-    # def save(self, request, **kwargs):
 
 
 class TrackingStatus(models.Model):

@@ -53,7 +53,6 @@ INSTALLED_APPS = [
     'apps.application',
     'drf_yasg',
     'rest_framework_simplejwt',
-
 ]
 
 
@@ -181,3 +180,8 @@ INTERNAL_IPS = [
     # ...
 ]
 
+INTERNAL_IPS = [
+    # ...
+    "127.0.0.1",
+    # ...
+]

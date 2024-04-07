@@ -17,9 +17,6 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Q
 
 
-# permission_classes = [IsAdminUser, IsManagerUser]
-
-
 class CustomSearchFilter(filters.SearchFilter):
     def filter_queryset(self, request, queryset, view):
         search_fields = getattr(view, 'search_fields', [])
@@ -41,24 +38,15 @@ class ApplicationFormCreateAPIView(generics.CreateAPIView):
         serializer.save(main_manager=self.request.user)
 
 
-'''При создани заявки авто заполняется поле main_manager'''
-
-
-# class CustomPagination(PageNumberPagination):
-#     page_size = 50
-#
-#     def get_paginated_response(self, data):
-#         return Response(data)
-
 class ApplicationFormListAPIView(generics.ListAPIView):
     serializer_class = ApplicationFormDetailSerializer
     filter_backends = [CustomSearchFilter, DjangoFilterBackend]
     permission_classes = [IsAuthenticated]
     filterset_class = ApplicationFormFilter
     pagination_class = PageNumberPagination
-    search_fields = ['task_number', 'title', 'short_description', 
-                 'main_client__first_name', 'main_manager__first_name', 
-                 'start_date', 'finish_date', 'priority', 'payment_state', 'comments__text']
+    search_fields = ['task_number', 'title', 'short_description',
+                     'main_client__first_name', 'main_manager__first_name',
+                     'start_date', 'finish_date', 'priority', 'payment_state', 'comments__text']
 
     def get_queryset(self):
         user = self.request.user
@@ -97,8 +85,9 @@ class ApplicationFormListAPIView(generics.ListAPIView):
 
 
 class ApplicationFormRetrieveAPIView(generics.RetrieveAPIView):
+    ''' Second create API '''
     queryset = ApplicationForm.objects.all()
-    serializer_class = ApplicationFormDetailSerializer
+    serializer_class = ApplicationFormListSerializer
     # permission_classes = [IsAuthenticated]
     lookup_field = 'id'
 
@@ -112,7 +101,7 @@ class ApplicationFormRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroy
     #                       IsAdminUser]
 
 
-class ApplicationLogsListCreateAPIView(generics.ListCreateAPIView):  ### внимательно посмотреть нужен ли CREATE - запрос
+class ApplicationLogsListCreateAPIView(generics.ListCreateAPIView):
     queryset = ApplicationLogs.objects.all()
     serializer_class = ApplicationLogsSerializer
     lookup_field = 'id'
@@ -127,7 +116,7 @@ class ApplicationLogsListCreateAPIView(generics.ListCreateAPIView):  ### вни�
 #     lookup_field = 'id'
 
 
-class ChecklistAPIView(generics.ListCreateAPIView):
+class ChecklistAPIView(generics.CreateAPIView):
     queryset = Checklist.objects.all()
     serializer_class = ChecklistSerializer
     # permission_classes = [IsClientCanAddChecklist,
@@ -143,7 +132,7 @@ class CheckListDetailAPIView(generics.RetrieveUpdateDestroyAPIView):  ### пос
     #                       IsManagerUser]
 
 
-class CommentsAPIView(generics.ListCreateAPIView):
+class CommentsAPIView(generics.CreateAPIView):
     queryset = Comments.objects.all()
     serializer_class = CommentsSerializer
     # permission_classes = [IsClientCanEditComments,
