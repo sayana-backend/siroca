@@ -51,8 +51,8 @@ INSTALLED_APPS = [
     'apps.user',
     'apps.application',
     'drf_yasg',
-    'rest_framework_simplejwt'
-
+    'rest_framework_simplejwt',
+    'debug_toolbar'
 ]
 
 
@@ -67,7 +67,7 @@ REST_FRAMEWORK = {
 
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(days=5),
-    "REFRESH_TOKEN_LIFETIME": timedelta(days=5),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=10),
     "AUTH_HEADER_TYPES": ("JWT",),
 }
 
@@ -81,6 +81,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'debug_toolbar.middleware.DebugToolbarMiddleware'
 ]
 
 ROOT_URLCONF = 'config.urls'
@@ -174,3 +175,8 @@ JAZZMIN_SETTINGS = jazzmin_settings.JAZZMIN_SETTINGS
 AUTH_USER_MODEL = 'user.CustomUser'
 
 
+INTERNAL_IPS = [
+    # ...
+    "127.0.0.1",
+    # ...
+]

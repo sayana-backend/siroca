@@ -46,11 +46,25 @@ class IsClientCanViewLogs(permissions.BasePermission):
         print("Client can view logs:", request.user.client_can_view_logs)
         return request.user.is_authenticated and request.user.client_can_view_logs
 
+# class IsClientCanAddChecklist(permissions.BasePermission):
+#     def has_permission(self, request, view):
+#         print("User:", request.user)
+#         print("Client can add checklist:", request.user.client_can_add_checklist)
+#         return request.user.is_authenticated and request.user.client_can_add_checklist
+
+
 class IsClientCanAddChecklist(permissions.BasePermission):
     def has_permission(self, request, view):
         print("User:", request.user)
         print("Client can add checklist:", request.user.client_can_add_checklist)
+        # if request.user.client_can_add_checklist_special:
+        #     return True
+        # if request.user.client_can_add_checklist_special  == False:
+        #     return False
+        # elif request.user.client_can_add_checklist_special == None:
+        #     return request.user.client_can_add_checklist
         return request.user.is_authenticated and request.user.client_can_add_checklist
+
 
 
 

@@ -10,20 +10,18 @@ class Checklist(models.Model):
 
     text = models.CharField(max_length=255, verbose_name='Текст подзадачи')
     completed = models.BooleanField(default=False)
-    # application = models.ForeignKey('ApplicationForm', verbose_name='Заявки', on_delete=models.CASCADE,
-    # related_name = 'checklists')
     deadline = models.DateField(verbose_name='Дедлайн', blank=True, null=True)
     manager = models.ForeignKey(CustomUser,
+                                on_delete=models.CASCADE,
+                                verbose_name='Отмеченный менеджер',
+                                blank=True,
+                                null=True,
+                                limit_choices_to={'is_manager': True})
+    application = models.ForeignKey('ApplicationForm', verbose_name='Заявки',
+                                    on_delete=models.CASCADE, related_name='checklist', blank=True)
 
-
-on_delete = models.CASCADE,
-verbose_name = 'Отмеченный менеджер',
-blank = True,
-null = True,
-limit_choices_to = {'is_manager': True})
-
-def __str__(self):
-    return self.text
+    def __str__(self):
+        return self.text
 
 
 class Comments(models.Model):
@@ -105,19 +103,8 @@ class ApplicationForm(models.Model):
     finish_date = models.DateField(null=True, verbose_name='Дата окончания', blank=True)
     deadline_date = models.DateField(null=True, verbose_name='Срок выполнения', blank=True)
 
-    check_list = models.ManyToManyField(
-        'Checklist',
-        blank=True,
-        verbose_name="Чек-лист",
-        related_name='checklist'
-    )
-
-    objects = models.Manager()
-
     def __str__(self):
         return f'{self.title}'
-
-    # def save(self, request, **kwargs):
 
 
 class TrackingStatus(models.Model):

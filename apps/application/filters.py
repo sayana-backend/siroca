@@ -8,7 +8,7 @@ class ApplicationFormFilter(django_filters.FilterSet):
     interval = django_filters.CharFilter(method='filter_by_interval')
     task_number = django_filters.CharFilter(field_name='task_number', lookup_expr='iregex')
     title = django_filters.CharFilter(field_name='title', lookup_expr='iregex')
-    description = django_filters.CharFilter(field_name='description', lookup_expr='iregex')
+    description = django_filters.CharFilter(field_name='short_description', lookup_expr='iregex')
     main_client = django_filters.CharFilter(field_name='main_client__first_name', lookup_expr='iregex')
     main_manager = django_filters.CharFilter(field_name='main_manager__first_name', lookup_expr='iregex')
     start_date = django_filters.DateFilter(field_name='start_date', lookup_expr='gte')

@@ -9,6 +9,7 @@ urlpatterns = [
     path('api/v1/company/', include('apps.company.urls')),
     path('api/v1/applications/', include('apps.application.urls')),
     path('api/v1/users/', include('apps.user.urls')),
+    path("__debug__/", include("debug_toolbar.urls")),
 
 ]
 
