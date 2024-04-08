@@ -3,6 +3,8 @@ from .models import ApplicationForm, Checklist, Comments, ApplicationLogs, Notif
 from django.core.serializers.json import DjangoJSONEncoder
 import json
 
+from ..company.models import Company
+
 
 class ChecklistSerializer(serializers.ModelSerializer):
     class Meta:
@@ -42,9 +44,10 @@ class ApplicationLogsSerializer(serializers.ModelSerializer):
 
 
 class ApplicationFormCreateSerializer(serializers.ModelSerializer):
+    company = serializers.StringRelatedField()
     class Meta:
         model = ApplicationForm
-        fields = ('title', 'company')
+        fields = ('id', 'title', 'company')
 
     '''Для создания заявки '''
 
