@@ -1,5 +1,7 @@
 from rest_framework import serializers
 from .models import ApplicationForm, Checklist, Comments, ApplicationLogs, Notification
+from django.core.serializers.json import DjangoJSONEncoder
+import json
 
 
 class ChecklistSerializer(serializers.ModelSerializer):
@@ -18,10 +20,24 @@ class CommentsSerializer(serializers.ModelSerializer):
         return super().create(validated_data)
 
 
+class ApplicationFormCreateSerializer(serializers.ModelSerializer):
+    company = serializers.CharField(source='company.name', read_only=True)
+    main_client = serializers.CharField(source='main_client.name', read_only=True)
+    main_manager = serializers.CharField(source='main_manager.name', read_only=True)
+
+    # checklist = ChecklistSerializer(many=True)
+    # comments = CommentsSerializer(many=True)
+    class Meta:
+        model = ApplicationForm
+        fields = ['id', 'title', 'company', 'priority', 'status', 'jira', 'main_manager', 'main_client',
+                  'start_date', 'deadline_date', 'offer_date', 'finish_date', 'application_date', 'confirm_date',
+                  'payment_state', 'description', 'files', 'short_description']
+
+
 class LogsSerializer(serializers.ModelSerializer):
     class Meta:
         model = ApplicationLogs
-        fields = ('id', 'task_number', 'text')
+        fields = ('id', 'username', 'task_number', 'text')
 
 
 class ApplicationSerializer(serializers.ModelSerializer):
@@ -29,9 +45,44 @@ class ApplicationSerializer(serializers.ModelSerializer):
     main_client = serializers.CharField(source='main_client.name', read_only=True)
     main_manager = serializers.CharField(source='main_manager.name', read_only=True)
     checklists = ChecklistSerializer(many=True, required=False)
-    comments = CommentsSerializer(many=True)
-    logs = LogsSerializer(many=True)
+    comments = CommentsSerializer(many=True, read_only=True)
+    logs = LogsSerializer(many=True, read_only=True)
 
+    class Meta:
+        model = ApplicationForm
+        fields = '__all__'
+
+    def update(self, instance, validated_data):
+        # Ваш текущий код
+        instance.save()
+
+        # Обновление вложенных полей checklists
+        checklists_data = validated_data.pop('checklists', [])  # Убираем checklists из validated_data
+        for checklist_data in checklists_data:
+            checklist_id = checklist_data.get('id', None)
+            if checklist_id:
+                checklist = Checklist.objects.get(id=checklist_id)
+                ChecklistSerializer().update(checklist, checklist_data)
+            else:
+                checklist_data['application'] = instance  # Указываем application для нового объекта
+                Checklist.objects.create(**checklist_data)
+
+        # Обновление вложенных полей comments
+        comments_data = validated_data.pop('comments', [])  # Убираем comments из validated_data
+        for comment_data in comments_data:
+            comment_id = comment_data.get('id', None)
+            if comment_id:
+                comment = Comments.objects.get(id=comment_id)
+                CommentsSerializer().update(comment, comment_data)
+            else:
+                comment_data['application'] = instance  # Указываем application для нового объекта
+                comment_data['user'] = self.context['request'].user
+                Comments.objects.create(**comment_data)
+
+        return instance
+
+
+class ApplicationFormDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = ApplicationForm
         fields = '__all__'
@@ -44,25 +95,30 @@ class ApplicationSerializer(serializers.ModelSerializer):
         return application_form
 
 
-
 class NotificationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Notification
-        fields = ('id', 'task_number', 'text', 'created_at')
-
+        fields = ('task_number', 'title', 'text', 'created_at', 'made_change', 'form_id')
 
 
 # class ApplicationFormLogsDetailSerializer(serializers.ModelSerializer):
-    #     logs = ApplicationLogsSerializer(many=True, read_only=True)
-    #     company = serializers.CharField(source='company.name', read_only=True)
-    #     main_client = serializers.CharField(source='main_client.name', read_only=True)
-    #     main_manager = serializers.CharField(source='main_manager.name', read_only=True)
-    #     checklist = ChecklistSerializer(many=True)
-    #     comments = CommentsSerializer(many=True)
+#     logs = ApplicationLogsSerializer(many=True, read_only=True)
+#     company = serializers.CharField(source='company.name', read_only=True)
+#     main_client = serializers.CharField(source='main_client.name', read_only=True)
+#     main_manager = serializers.CharField(source='main_manager.name', read_only=True)
+#     checklist = ChecklistSerializer(many=True)
+#     comments = CommentsSerializer(many=True)
 
-    # class Meta:
-    #     model = ApplicationForm
-    #     fields = ('id', 'task_number', 'title', 'company', 'main_client', 'main_manager',
-    #               'status', 'priority', 'comments', 'checklist', 'payment_state',
-    #               'application_date', 'logs')
+# class Meta:
+#     model = ApplicationForm
+#     fields = ('id', 'task_number', 'title', 'company', 'main_client', 'main_manager',
+#               'status', 'priority', 'comments', 'checklist', 'payment_state',
+#               'application_date', 'logs')
 
+
+class TestApplicationLogs(serializers.ModelSerializer):
+    logs = LogsSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = ApplicationForm
+        fields = '__all__'

@@ -19,11 +19,12 @@ class ApplicationFormFilterSerializer(serializers.ModelSerializer):
     priority_info = TrackingPrioritySerializer(source='trackingpriority_set', many=True, read_only=True)
     main_client = serializers.SerializerMethodField()
     main_manager = serializers.SerializerMethodField()
+    company = serializers.SerializerMethodField()
 
     class Meta:
         model = ApplicationForm
         fields = (
-            'task_number', 'title', 'main_client', 'main_manager',
+            'task_number', 'title', 'main_client', 'main_manager', 'company',
             'application_date', 'start_date', 'finish_date', 'status_info', 'priority_info',
         )
 
@@ -32,3 +33,6 @@ class ApplicationFormFilterSerializer(serializers.ModelSerializer):
 
     def get_main_manager(self, obj):
         return obj.main_manager.first_name if obj.main_manager else None
+
+    def get_company(self, obj):
+        return obj.company.name if obj.company else None

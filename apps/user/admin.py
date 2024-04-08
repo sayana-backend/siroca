@@ -1,6 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-from .models import CustomUser
+from .models import CustomUser,AdminContact
+
 
 
 # @@admin.register(CustomUser)
@@ -33,6 +34,10 @@ from .models import CustomUser
 #     )
 
 
+
+# admin.site.register(CustomUser)
+
+
 @admin.register(CustomUser)
 class AdminUser(admin.ModelAdmin):
     list_display = ['username', 'role_type', 'is_manager', 'is_client',
@@ -47,8 +52,7 @@ class AdminUser(admin.ModelAdmin):
                     'client_can_add_checklist',
                     'client_can_add_files']
     list_filter = ['role_type']
-
-
+#
 
 
 # class ClientPermissionsAdmin(admin.ModelAdmin):
@@ -69,3 +73,4 @@ class AdminUser(admin.ModelAdmin):
 #     list_display = ('manage_comments', 'get_all_reports')
 #
 # admin.site.register(ManagerPermissions, ManagerPermissionsAdmin)
+
