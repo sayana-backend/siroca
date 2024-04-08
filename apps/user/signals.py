@@ -20,20 +20,4 @@ from .permissions import *
 #         instance.save()
 
 
-@receiver(post_save, sender=CustomUser)
-def set_manager_permissions(sender, instance, created, **kwargs):
-    if created and instance.role_type == 'manager':
-        instance.refresh_from_db()
-        manager_permissions = {
-            "manager_can_delete_comments": instance.manager_can_delete_comments,
-            "manager_can_get_reports": instance.manager_can_get_reports,
-            "manager_can_view_profiles": instance.manager_can_view_profiles,
-            "manager_can_delete_application": instance.manager_can_delete_application
-        }
-        instance.manager_can_delete_comments = manager_permissions['manager_can_delete_comments']
-        instance.manager_can_get_reports = manager_permissions['manager_can_get_reports']
-        instance.manager_can_view_profiles = manager_permissions['manager_can_view_profiles']
-        instance.manager_can_delete_application = manager_permissions['manager_can_delete_application']
-        instance.save()
-        print(manager_permissions)
 
