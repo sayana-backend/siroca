@@ -105,8 +105,6 @@ class IsManagerUser(permissions.BasePermission):
 
 class IsAdminUserOrIsManagerCanDeleteComments(permissions.BasePermission):
     def has_permission(self, request, view):
-        print("User:", request.user)
-        print("Manager can edit:", request.user.manager_can_delete_comments)
         if request.user.is_superuser:
             return True
         if request.user.manager_can_delete_comments_extra:
@@ -116,8 +114,6 @@ class IsAdminUserOrIsManagerCanDeleteComments(permissions.BasePermission):
 
 class IsManagerCanGetReports(permissions.BasePermission):
     def has_permission(self, request, view):
-        print("User:", request.user)
-        print("Manager can get reports:", request.user.manager_can_get_reports)
         if request.user.manager_can_get_reports_extra:
             return True
         if not request.user.manager_can_get_reports_extra:
@@ -129,8 +125,6 @@ class IsManagerCanGetReports(permissions.BasePermission):
 
 class IsManagerCanDeleteApplication(permissions.BasePermission):
     def has_permission(self, request, view):
-        print("User:", request.user)
-        print("Manager can delete application:", request.user.manager_can_delete_application)
         if request.user.manager_can_delete_application_extra:
             return True
         if not request.user.manager_can_delete_application_extra:
@@ -142,8 +136,6 @@ class IsManagerCanDeleteApplication(permissions.BasePermission):
 
 class IsManagerCanViewProfiles(permissions.BasePermission):
     def has_permission(self, request, view):
-        print("User:", request.user)
-        print("Manager can view profiles:", request.user.manager_can_view_profiles)
         if request.user.manager_can_view_profiles_extra:
             return True
         if not request.user.manager_can_view_profiles_extra:
@@ -155,18 +147,12 @@ class IsManagerCanViewProfiles(permissions.BasePermission):
 
 class IsManagerCanCreateAndEditCompany(permissions.BasePermission):
     def has_permission(self, request, view):
-        print("User:", request.user)
-        print("Manager can create company:", request.user.manager_can_create_and_edit_company_extra)
         return request.user.is_authenticated and request.user.manager_can_create_and_edit_company_extra
 
 class IsManagerCanCreateAndEditUser(permissions.BasePermission):
     def has_permission(self, request, view):
-        print("User:", request.user)
-        print("Manager can create user:", request.user.manager_can_create_and_edit_user_extra)
         return request.user.is_authenticated and request.user.manager_can_create_and_edit_user_extra
 
 class IsManagerCanCreateAndDeleteJobTitle(permissions.BasePermission):
     def has_permission(self, request, view):
-        print("User:", request.user)
-        print("Manager can create user:", request.user.manager_can_create_and_delete_job_title_extra)
         return request.user.is_authenticated and request.user.manager_can_create_and_delete_job_title_extra

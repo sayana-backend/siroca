@@ -23,6 +23,7 @@ class CreateUserView(generics.CreateAPIView):
 
         user = CustomUser.objects.create_user(**serializer.validated_data)
         first_client = CustomUser.objects.filter(role_type='client').first()
+        first_manager = CustomUser.objects.filter(role_type='manager').first()
 
         if first_client:
             user.client_can_edit_comments = first_client.client_can_edit_comments
@@ -32,11 +33,16 @@ class CreateUserView(generics.CreateAPIView):
             user.client_can_add_checklist = first_client.client_can_add_checklist
             user.client_can_view_profiles = first_client.client_can_view_profiles
             user.save()
-
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        elif first_manager:
+            user.manager_can_delete_comments = first_manager.manager_can_delete_comments
+            user.manager_can_get_reports = first_manager.manager_can_get_reports
+            user.manager_can_view_profiles = first_manager.manager_can_view_profiles
+            user.manager_can_delete_application = first_manager.manager_can_delete_application
+            user.save()
         else:
-            return Response({'error': 'No clients found to set default permissions'},
-                            status=status.HTTP_400_BAD_REQUEST)
+            pass
+
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
 
@@ -93,7 +99,7 @@ class AdminContactDetailView(generics.RetrieveUpdateAPIView):
     # permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        return AdminContact.objects.filter(admin=self.request.user)
+        return AdminContact.objects.filter(user=self.request.user)
 
     def get_object(self):
         queryset = self.get_queryset()
@@ -104,39 +110,6 @@ class AdminContactDetailView(generics.RetrieveUpdateAPIView):
         return obj
 
 
-
-
-# class ManagerPermissionsGeneralView(generics.UpdateAPIView, generics.ListAPIView):
-#     queryset = CustomUser.objects.filter(role_type='manager')
-#     serializer_class = ManagerPermissionsSerializer
-#     permission_classes = [IsAdminUser]
-#
-#     def update(self, request, *args, **kwargs):
-#         manager_can_delete_comments = request.data.get('manager_can_delete_comments')
-#         manager_can_get_reports = request.data.get('manager_can_get_reports')
-#         manager_can_view_profiles = request.data.get('manager_can_view_profiles')
-#         manager_can_delete_application = request.data.get('manager_can_delete_application')
-#
-#         self.queryset.update(
-#             manager_can_delete_comments=bool(manager_can_delete_comments),
-#             manager_can_get_reports=bool(manager_can_get_reports),
-#             manager_can_view_profiles=bool(manager_can_view_profiles),
-#             manager_can_delete_application=bool(manager_can_delete_application)
-#         )
-#
-#     def get(self, request, *args, **kwargs):
-#         managers = CustomUser.objects.filter(role_type='manager')
-#         manager_permissions = {}
-#         if managers.exists():
-#             first_manager = managers.first()
-#             print(f'first_manager: {first_manager}')
-#             manager_permissions = {
-#                 "manager_can_delete_comments": first_manager.manager_can_delete_comments,
-#                 "manager_can_get_reports": first_manager.manager_can_get_reports,
-#                 "manager_can_view_profiles": first_manager.manager_can_view_profiles,
-#                 "manager_can_delete_application": first_manager.manager_can_delete_application
-#             }
-#         return Response(manager_permissions)
 
 class ManagerPermissionsGeneralView(generics.UpdateAPIView, generics.ListAPIView):
     queryset = CustomUser.objects.filter(role_type='manager')
@@ -170,10 +143,6 @@ class ManagerPermissionsGeneralView(generics.UpdateAPIView, generics.ListAPIView
         )
         return Response("Права менеджера обновлены", status=status.HTTP_200_OK)
 
-    # def get(self, request, *args, **kwargs):
-    #     # Получение текущих прав менеджеров
-    #     manager_permissions = self.get_current_manager_permissions()
-    #     return Response(manager_permissions)
 
 class ManagerPermissionsDetailAPIView(generics.ListAPIView):
     queryset = CustomUser.objects.filter(role_type='manager')

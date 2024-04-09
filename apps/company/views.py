@@ -2,7 +2,7 @@ from rest_framework import generics, status
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from ..company.models import Company, JobTitle
-from ..company.serializers import CompanySerializer, JobTitleSerializer
+from ..company.serializers import CompanyListSerializer, CompanyCreateSerializer, CompanyListDetailSerializer, CompanyRetrieveSerializer, JobTitleSerializer
 from django.http import JsonResponse, HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.views import APIView
@@ -12,19 +12,29 @@ from apps.user.permissions import *
 
 class CompanyListAPIView(generics.ListAPIView):
     queryset = Company.objects.all()
-    serializer_class = CompanySerializer
+    serializer_class = CompanyListSerializer
     pagination_class = PageNumberPagination
     # permission_classes = [IsAdminUser]
 
+
+
+class CompanyListDetailAPIView(generics.RetrieveAPIView):
+    queryset = Company.objects.all()
+    serializer_class = CompanyListDetailSerializer
+    pagination_class = PageNumberPagination
+    lookup_field = 'id'
+    # permission_classes = [IsAdminUser]
+
+
 class CompanyCreateAPIView(generics.CreateAPIView):
     queryset = Company.objects.all()
-    serializer_class = CompanySerializer
+    serializer_class = CompanyCreateSerializer
     # permission_classes = [IsAdminUser]
 
 
 class CompanyRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Company.objects.all()
-    serializer_class = CompanySerializer
+    serializer_class = CompanyRetrieveSerializer
     lookup_field = 'id'
     # permission_classes = [IsAdminUser]
 

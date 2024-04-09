@@ -59,7 +59,6 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     manager_can_view_profiles_extra = models.BooleanField(default=False, verbose_name='Просмотр профиля пользователей(Менеджер)')
     manager_can_delete_application = models.BooleanField(default=False, verbose_name='Удаление заявки')
     manager_can_delete_application_extra = models.BooleanField(default=False, verbose_name='Удаление заявки')
-
     manager_can_create_and_edit_company_extra = models.BooleanField(default=False, verbose_name='Создание/Редактирование заявки')
     manager_can_create_and_edit_user_extra = models.BooleanField(default=False, verbose_name='Создание/Редактирование пользователя')
     manager_can_create_and_delete_job_title_extra = models.BooleanField(default=False,
@@ -76,7 +75,6 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     client_can_add_files_extra = models.BooleanField(default=False, verbose_name='Добавление файла')
     client_can_view_profiles = models.BooleanField(default=False, verbose_name='Просмотр профиля пользователей(Клиент)')
     client_can_view_profiles_extra = models.BooleanField(default=False, verbose_name='Просмотр профиля пользователей(Клиент)')
-
     client_can_create_application_extra = models.BooleanField(default=False, verbose_name='Создание заявки')
     client_can_edit_application_extra = models.BooleanField(default=False, verbose_name='Редактирование заявки')
 
