@@ -16,7 +16,6 @@ class CompanyListAPIView(generics.ListAPIView):
     pagination_class = PageNumberPagination
     # permission_classes = [IsAdminUser]
 
-
 class CompanyCreateAPIView(generics.CreateAPIView):
     queryset = Company.objects.all()
     serializer_class = CompanySerializer

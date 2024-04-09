@@ -1,33 +1,16 @@
-from functools import reduce
 from .serializers import *
 from .models import *
 from rest_framework import generics, filters
-from django.db.models import Q
 from django_filters.rest_framework import DjangoFilterBackend
 from .filters import ApplicationFormFilter
-from datetime import timedelta
-from django.utils import timezone
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated
 from apps.user.permissions import *
-from rest_framework import permissions
 from rest_framework.response import Response
 from rest_framework import status
-from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Q
-from rest_framework import generics
 from .models import Comments
 from .serializers import CommentsSerializer
-from django.http import HttpRequest
-from django.shortcuts import render
-
-
-
-
-
-
-
-
 
 
 class CustomSearchFilter(filters.SearchFilter):
@@ -46,13 +29,12 @@ class CustomSearchFilter(filters.SearchFilter):
 class ApplicationFormCreateAPIView(generics.CreateAPIView):
     queryset = ApplicationForm.objects.all()
     serializer_class = ApplicationFormCreateSerializer
-
     def perform_create(self, serializer):
         serializer.save(main_manager=self.request.user)
 
 
 class ApplicationFormListAPIView(generics.ListAPIView):
-    serializer_class = ApplicationFormDetailSerializer
+    serializer_class = ApplicationFormListSerializer
     filter_backends = [CustomSearchFilter, DjangoFilterBackend]
     permission_classes = [IsAuthenticated]
     filterset_class = ApplicationFormFilter
@@ -97,15 +79,15 @@ class ApplicationFormListAPIView(generics.ListAPIView):
         return Response({'detail': 'Not found'}, status=404)
 
 
-class ApplicationFormRetrieveAPIView(generics.RetrieveAPIView):
-    ''' Second create API '''
+class ApplicationFormRetrieveUpdateAPIView(generics.RetrieveUpdateAPIView):
+    ''' Second create and update API '''
     queryset = ApplicationForm.objects.all()
-    serializer_class = ApplicationFormListSerializer
-    # permission_classes = [IsAuthenticated]
     lookup_field = 'id'
+    serializer_class = ApplicationFormDetailSerializer
+    permission_classes = [IsManagerCanCreateAndEditCompany]
 
 
-class ApplicationFormRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
+class ApplicationFormRetrieveUpdateDestroyAPIView(generics.RetrieveDestroyAPIView):
     queryset = ApplicationForm.objects.all()
     serializer_class = ApplicationFormDetailSerializer
     lookup_field = 'id'
@@ -116,17 +98,16 @@ class ApplicationFormRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroy
 
 class ApplicationLogsListCreateAPIView(generics.ListCreateAPIView):
     queryset = ApplicationLogs.objects.all()
-    serializer_class = ApplicationLogsSerializer
     lookup_field = 'id'
-    # permission_classes = [IsClientCanViewLogs,
-    #                       IsAdminUser,
-    #                       IsManagerUser]
+    serializer_class = LogsSerializer
+    permission_classes = [IsAdminUserOrIsManagerCanDeleteComments]
 
 
-# class ApplicationLogsRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):   #### убрать DELETE - запрос
-#     queryset = ApplicationLogs.objects.all()
-#     serializer_class = ApplicationLogsSerializer
-#     lookup_field = 'id'
+class ApplicationLogsRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):   #### убрать DELETE - запрос
+    queryset = ApplicationLogs.objects.all()
+    serializer_class = LogsSerializer
+    lookup_field = 'id'
+
 
 
 class ChecklistAPIView(generics.CreateAPIView):
@@ -158,9 +139,7 @@ class CommentsDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Comments.objects.all()
     serializer_class = CommentsSerializer
     lookup_field = 'id'
-    # permission_classes = [IsManagerCanDeleteComments,
-    #                       IsClientCanEditComments,
-    #                       IsAdminUser]
+    # permission_classes = [IsManagerCanDeleteComments,]
 
 
 
@@ -183,9 +162,7 @@ class NotificationAPIView(generics.ListAPIView):
             notification_user_application.update(is_read=True)
             return Response(serializer.data, status=status.HTTP_200_OK)
 
-    # def patch(self, request, *args, **kwargs):
-    #     notification_id = kwargs.get('pk')
-    #     notification = Notification.objects.get(pk=notification_id)
-    #     notification.is_read = True
-    #     notification.save()
-    #     return Response(status=status.HTTP_200_OK)
+
+
+
+

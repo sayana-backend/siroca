@@ -7,7 +7,7 @@ from .models import CustomUser,AdminContact
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from django.http import Http404
 from .serializers import *
-from .permissions import IsManagerCanDeleteComments
+from .permissions import IsAdminUserOrIsManagerCanDeleteComments
 from rest_framework import permissions
 from .models import CustomUser
 from .permissions import IsAdminUser, IsClientUser, IsManagerUser, IsClientCanViewProfiles
@@ -37,6 +37,7 @@ class CreateUserView(generics.CreateAPIView):
         else:
             return Response({'error': 'No clients found to set default permissions'},
                             status=status.HTTP_400_BAD_REQUEST)
+
 
 
 
@@ -105,10 +106,55 @@ class AdminContactDetailView(generics.RetrieveUpdateAPIView):
 
 
 
+# class ManagerPermissionsGeneralView(generics.UpdateAPIView, generics.ListAPIView):
+#     queryset = CustomUser.objects.filter(role_type='manager')
+#     serializer_class = ManagerPermissionsSerializer
+#     permission_classes = [IsAdminUser]
+#
+#     def update(self, request, *args, **kwargs):
+#         manager_can_delete_comments = request.data.get('manager_can_delete_comments')
+#         manager_can_get_reports = request.data.get('manager_can_get_reports')
+#         manager_can_view_profiles = request.data.get('manager_can_view_profiles')
+#         manager_can_delete_application = request.data.get('manager_can_delete_application')
+#
+#         self.queryset.update(
+#             manager_can_delete_comments=bool(manager_can_delete_comments),
+#             manager_can_get_reports=bool(manager_can_get_reports),
+#             manager_can_view_profiles=bool(manager_can_view_profiles),
+#             manager_can_delete_application=bool(manager_can_delete_application)
+#         )
+#
+#     def get(self, request, *args, **kwargs):
+#         managers = CustomUser.objects.filter(role_type='manager')
+#         manager_permissions = {}
+#         if managers.exists():
+#             first_manager = managers.first()
+#             print(f'first_manager: {first_manager}')
+#             manager_permissions = {
+#                 "manager_can_delete_comments": first_manager.manager_can_delete_comments,
+#                 "manager_can_get_reports": first_manager.manager_can_get_reports,
+#                 "manager_can_view_profiles": first_manager.manager_can_view_profiles,
+#                 "manager_can_delete_application": first_manager.manager_can_delete_application
+#             }
+#         return Response(manager_permissions)
+
 class ManagerPermissionsGeneralView(generics.UpdateAPIView, generics.ListAPIView):
     queryset = CustomUser.objects.filter(role_type='manager')
-    serializer_class = ManagerPermissionsSerializer
-    permission_classes = [IsAdminUser]
+    serializer_class = ManagerPermissionsGeneralSerializer
+    # permission_classes = [IsAdminUser]
+
+    def get(self, request, *args, **kwargs):
+        managers = CustomUser.objects.filter(role_type='manager')
+        manager_permissions = {}
+        if managers.exists():
+            first_manager = managers.first()
+            manager_permissions = {
+                "manager_can_delete_comments": first_manager.manager_can_delete_comments,
+                "manager_can_get_reports": first_manager.manager_can_get_reports,
+                "manager_can_view_profiles": first_manager.manager_can_view_profiles,
+                "manager_can_delete_application": first_manager.manager_can_delete_application
+            }
+        return Response(manager_permissions)
 
     def update(self, request, *args, **kwargs):
         manager_can_delete_comments = request.data.get('manager_can_delete_comments')
@@ -122,26 +168,57 @@ class ManagerPermissionsGeneralView(generics.UpdateAPIView, generics.ListAPIView
             manager_can_view_profiles=bool(manager_can_view_profiles),
             manager_can_delete_application=bool(manager_can_delete_application)
         )
+        return Response("Права менеджера обновлены", status=status.HTTP_200_OK)
 
-    def get(self, request, *args, **kwargs):
-        managers = CustomUser.objects.filter(role_type='manager')
-        manager_permissions = {}
-        if managers.exists():
-            first_manager = managers.first()
-            print(f'first_manager: {first_manager}')
-            manager_permissions = {
-                "manager_can_delete_comments": first_manager.manager_can_delete_comments,
-                "manager_can_get_reports": first_manager.manager_can_get_reports,
-                "manager_can_view_profiles": first_manager.manager_can_view_profiles,
-                "manager_can_delete_application": first_manager.manager_can_delete_application
+    # def get(self, request, *args, **kwargs):
+    #     # Получение текущих прав менеджеров
+    #     manager_permissions = self.get_current_manager_permissions()
+    #     return Response(manager_permissions)
+
+class ManagerPermissionsDetailAPIView(generics.ListAPIView):
+    queryset = CustomUser.objects.filter(role_type='manager')
+    serializer_class = ManagerPermissionsDetailSerializer
+
+    def put(self, request, *args, **kwargs):
+        users_data = request.data.get('users_data', [])
+        # print(f'Users data: {users_data}')
+        for user_data in users_data:
+            user_id = user_data.get('id')
+            # print(f'User id: {user_id}')
+            try:
+                user_instance = CustomUser.objects.get(id=user_id)
+            except CustomUser.DoesNotExist:
+                return Response(f'Менеджер с id={user_id} не найден', status=404)
+
+            update_data = {
+                'manager_can_delete_comments_extra': user_data.get('manager_can_delete_comments_extra',
+                                                                   user_instance.manager_can_delete_comments_extra),
+                'manager_can_get_reports_extra': user_data.get('manager_can_get_reports_extra',
+                                                               user_instance.manager_can_get_reports_extra),
+                'manager_can_view_profiles_extra': user_data.get('manager_can_view_profiles_extra',
+                                                                 user_instance.manager_can_view_profiles_extra),
+                'manager_can_delete_application_extra': user_data.get('manager_can_delete_application_extra',
+                                                                      user_instance.manager_can_delete_application_extra),
+                'manager_can_create_and_edit_company_extra': user_data.get('manager_can_create_and_edit_company_extra',
+                                                                      user_instance.manager_can_create_and_edit_company_extra),
+                'manager_can_create_and_edit_user_extra': user_data.get('manager_can_create_and_edit_user_extra',
+                                                                      user_instance.manager_can_create_and_edit_user_extra),
+                'manager_can_create_and_delete_job_title_extra': user_data.get('manager_can_create_and_delete_job_title_extra',
+                                                                      user_instance.manager_can_create_and_delete_job_title_extra),
             }
-        return Response(manager_permissions)
+            # print(f'Update data: {update_data}')
+
+            serializer = self.get_serializer(user_instance, data=user_data, partial=True)
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+        return Response('Права менеджера успешно обновлены')
+
 
 
 class ClientPermissionsGeneralView(generics.UpdateAPIView, generics.ListAPIView):
     queryset = CustomUser.objects.filter(role_type='client')
-    serializer_class = ClientPermissionsSerializer
-    permission_classes = [IsAdminUser]
+    serializer_class = ClientPermissionsGeneralSerializer
+    # permission_classes = [IsAdminUser]
 
 
     def update(self, request, *args, **kwargs):
@@ -162,6 +239,7 @@ class ClientPermissionsGeneralView(generics.UpdateAPIView, generics.ListAPIView)
         )
         return Response('Права клиента обновлены')
 
+    # @staticmethod
     def get(self, request, *args, **kwargs):
         clients = CustomUser.objects.filter(role_type='client')
         client_permissions = {}
@@ -176,29 +254,63 @@ class ClientPermissionsGeneralView(generics.UpdateAPIView, generics.ListAPIView)
                 "client_can_add_checklist": first_client.client_can_add_checklist,
                 "client_can_view_profiles": first_client.client_can_view_profiles,
             }
-
         return Response(client_permissions)
 
 
 
 class ClientPermissionsDetailAPIView(generics.ListAPIView):
     queryset = CustomUser.objects.filter(role_type='client')
-    serializer_class = ClientPermissionsSerializer
+    serializer_class = ClientPermissionsDetailSerializer
 
     def put(self, request, *args, **kwargs):
-        users_data = request.data
+        users_data = request.data.get('users_data', [])
+        # print(f'Users data: {users_data}')
         for user_data in users_data:
             user_id = user_data.get('id')
+            # print(f'User id: {user_id}')
             try:
                 user_instance = CustomUser.objects.get(id=user_id)
             except CustomUser.DoesNotExist:
-                return Response(f'Пользователь с id={user_id} не найден', status=404)
+                return Response(f'Клиент с id={user_id} не найден', status=404)
 
-            serializer = self.get_serializer(user_instance, data=user_data, partial=True)
+            update_data = {
+                'client_can_add_checklist_extra': user_data.get('client_can_add_checklist_extra',
+                                                                user_instance.client_can_add_checklist_extra),
+                'client_can_view_logs_extra': user_data.get('client_can_view_logs_extra',
+                                                            user_instance.client_can_view_logs_extra),
+                'client_can_get_reports_extra': user_data.get('client_can_get_reports_extra',
+                                                              user_instance.client_can_get_reports_extra),
+                'client_can_add_files_extra': user_data.get('client_can_add_files_extra',
+                                                            user_instance.client_can_add_files_extra),
+                'client_can_view_profiles_extra': user_data.get('client_can_view_profiles_extra',
+                                                                user_instance.client_can_view_profiles_extra),
+                'client_can_edit_comments_extra': user_data.get('client_can_edit_comments_extra',
+                                                                user_instance.client_can_edit_comments_extra),
+                'client_can_create_application_extra': user_data.get('client_can_create_application_extra',
+                                                                user_instance.client_can_create_application_extra),
+                'client_can_edit_application_extra': user_data.get('client_can_edit_application_extra',
+                                                                user_instance.client_can_edit_application_extra)
+            }
+            print(f'Update data: {update_data}')
+
+            serializer = self.get_serializer(user_instance, data=update_data, partial=True)
             serializer.is_valid(raise_exception=True)
             serializer.save()
 
-        return Response('Права пользователей обновлены')
+        return Response('Права клиента успешно обновлены')
+
+class UserPermissionsDetailAPIView(generics.RetrieveUpdateAPIView):
+    queryset = CustomUser.objects.all()
+    lookup_field = 'id'
+
+    def get_serializer_class(self):
+        user = self.get_object()
+        if user.role_type == 'client':
+            return ClientPermissionsDetailSerializer
+        elif user.role_type == 'manager':
+            return ManagerPermissionsDetailSerializer
+
+
 
 
 
@@ -236,27 +348,6 @@ class ChangePasswordView(generics.UpdateAPIView):
         user.save()
 
         return Response({'detail': 'Пароль успешно изменен'}, status=status.HTTP_200_OK)
-
-
-class ManagerPermissionsDetailAPIView(generics.ListAPIView):
-    queryset = CustomUser.objects.filter(role_type='manager')
-    serializer_class = ManagerPermissionsSerializer
-
-    def put(self, request, *args, **kwargs):
-        users_data = request.data
-        for user_data in users_data:
-            user_id = user_data.get('id')
-            try:
-                user_instance = CustomUser.objects.get(id=user_id)
-            except CustomUser.DoesNotExist:
-                return Response(f'Пользователь с id={user_id} не найден', status=404)
-
-            serializer = self.get_serializer(user_instance, data=user_data, partial=True)
-            serializer.is_valid(raise_exception=True)
-            serializer.save()
-
-        return Response('Права пользователей обновлены')
-
 
 
 
