@@ -10,6 +10,8 @@ class Checklist(models.Model):
 
     text = models.CharField(max_length=255, verbose_name='Текст подзадачи')
     completed = models.BooleanField(default=False)
+    application = models.ForeignKey('ApplicationForm', verbose_name='Заявки', on_delete=models.CASCADE,
+                                    related_name='checklists')
     deadline = models.DateField(verbose_name='Дедлайн', blank=True, null=True)
     manager = models.ForeignKey(CustomUser,
                                 on_delete=models.CASCADE,
@@ -17,8 +19,6 @@ class Checklist(models.Model):
                                 blank=True,
                                 null=True,
                                 limit_choices_to={'is_manager': True})
-    application = models.ForeignKey('ApplicationForm', verbose_name='Заявки',
-                                    on_delete=models.CASCADE, related_name='checklist', blank=True)
 
     def __str__(self):
         return self.text
@@ -30,14 +30,17 @@ class Comments(models.Model):
         verbose_name_plural = 'Комментарии'
 
     text = models.TextField(verbose_name='Текст комментария')
-    user = models.ForeignKey(CustomUser, related_name='user_comments', on_delete=models.CASCADE,
-                             verbose_name='Пользователь')
     date_added = models.DateTimeField(auto_now_add=True, verbose_name='Дата добавления')
     application = models.ForeignKey('ApplicationForm', on_delete=models.CASCADE, related_name='comments',
                                     verbose_name='Заявка')
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, verbose_name='Пользователь',
+                             related_name='user_comments',null=True, blank=True)
 
+
+    
     def __str__(self):
-        return f"Комментарий от {self.user} по заявке {self.application.title}"
+        return f"Комментарий от {self.application.main_client.username} по заявке {self.application.title}"
+
 
 
 class ApplicationForm(models.Model):

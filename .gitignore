@@ -30,7 +30,6 @@ media
 .idea/siroca_technology.iml
 .idea/vcs.xml
 
->>>>>>> 25fa27324c10568ed359b928b5bbbd8b2cf83676
 
 # AWS User-specific
 .idea/**/aws.xml

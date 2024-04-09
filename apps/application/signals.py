@@ -4,6 +4,10 @@ from apps.user.models import CustomUser
 from django.dispatch import receiver
 from django.utils import timezone
 from datetime import timedelta
+from .models import Comments
+from django.http import HttpRequest
+
+
 
 
 @receiver(pre_save, sender=ApplicationForm)

@@ -15,6 +15,11 @@ from rest_framework.response import Response
 from rest_framework import status
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Q
+from rest_framework import generics
+from .models import Comments
+from .serializers import CommentsSerializer
+from django.http import HttpRequest
+from django.shortcuts import render
 
 
 class CustomSearchFilter(filters.SearchFilter):
@@ -50,15 +55,16 @@ class ApplicationFormListAPIView(generics.ListAPIView):
 
     def get_queryset(self):
         user = self.request.user
-        if user.is_client:
+        if user.is_superuser:
+            queryset = ApplicationForm.objects.all()
+
+        elif user.is_client:
             queryset = ApplicationForm.objects.filter(Q(main_client=user) |
                                                       Q(company=user.main_company))
         elif user.is_manager:
             queryset = ApplicationForm.objects.filter(Q(main_manager=user) |
                                                       Q(checklists__manager=user) |
                                                       Q(company=user.main_company))
-        elif user.is_superuser:
-            queryset = ApplicationForm.objects.all()
 
         queryset = queryset.order_by('-application_date')
         return queryset
@@ -84,6 +90,7 @@ class ApplicationFormListAPIView(generics.ListAPIView):
 
 
 class ApplicationFormRetrieveAPIView(generics.RetrieveAPIView):
+    ''' Second create API '''
     queryset = ApplicationForm.objects.all()
     serializer_class = ApplicationFormListSerializer
     # permission_classes = [IsAuthenticated]
@@ -133,9 +140,10 @@ class CheckListDetailAPIView(generics.RetrieveUpdateDestroyAPIView):  ### пос
 class CommentsAPIView(generics.CreateAPIView):
     queryset = Comments.objects.all()
     serializer_class = CommentsSerializer
-    # permission_classes = [IsClientCanEditComments,
-    #                       IsAdminUser,
-    #                       IsManagerUser]
+    permission_classes = [IsAuthenticated]
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
 
 
 class CommentsDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
@@ -147,7 +155,9 @@ class CommentsDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
     #                       IsAdminUser]
 
 
-class NotificationAPIView(generics.ListCreateAPIView):
+# class NotificationAPIView(generics.ListCreateAPIView):
+
+class NotificationAPIView(generics.ListAPIView):
     queryset = Notification.objects.all()
     serializer_class = NotificationSerializer
     permission_classes = [IsAuthenticated]
@@ -175,3 +185,27 @@ class NotificationAPIView(generics.ListCreateAPIView):
                 notification_user_application = Notification.objects.filter(form__in=user_application)
                 notification_user_application.update(is_read=True)
         return super().finalize_response(request, response, *args, **kwargs)
+
+
+# class FinalizeNotifiactionAPIView(generics.ListAPIView):
+#     # queryset = Notification.objects.all()
+#     serializer_class = NotificationSerializer
+#     permission_classes = [IsAuthenticated]
+#
+#     def get_serializer_class(self):
+#         if self.request.user.is_superuser:
+#             return NotificationSerializer
+#         else:
+#             return NotificationSerializer
+#
+#     def get_queryset(self):
+#         if self.request.user.is_superuser:
+#             admin_notifications = Notification.objects.filter(is_admin=True)
+#             admin_notifications.update(is_read=True)
+#             return admin_notifications
+#         else:
+#             user_application = ApplicationForm.objects.filter(
+#                 Q(main_client=self.request.user) | Q(main_manager=self.request.user))
+#             notification_user_application = Notification.objects.filter(form__in=user_application)
+#             notification_user_application.update(is_read=True)
+#             return notification_user_application

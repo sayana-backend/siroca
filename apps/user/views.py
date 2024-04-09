@@ -13,12 +13,32 @@ from .models import CustomUser
 from .permissions import IsAdminUser, IsClientUser, IsManagerUser, IsClientCanViewProfiles
 
 
-
-
 class CreateUserView(generics.CreateAPIView):
     queryset = CustomUser.objects.all()
     serializer_class = UserProfileRegisterSerializer
-    # permission_classes = [IsAdminUser]
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        user = CustomUser.objects.create_user(**serializer.validated_data)
+        first_client = CustomUser.objects.filter(role_type='client').first()
+
+        if first_client:
+            user.client_can_edit_comments = first_client.client_can_edit_comments
+            user.client_can_get_reports = first_client.client_can_get_reports
+            user.client_can_view_logs = first_client.client_can_view_logs
+            user.client_can_add_files = first_client.client_can_add_files
+            user.client_can_add_checklist = first_client.client_can_add_checklist
+            user.client_can_view_profiles = first_client.client_can_view_profiles
+            user.save()
+
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        else:
+            return Response({'error': 'No clients found to set default permissions'},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+
 
 
 class ListUserProfileView(generics.ListAPIView):

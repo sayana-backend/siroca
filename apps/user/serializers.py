@@ -17,10 +17,6 @@ class UserProfileRegisterSerializer(serializers.ModelSerializer):
         model = CustomUser
         fields = "id role_type image first_name surname username password main_company job_title".split()
 
-    def create(self, validated_data):
-        user = CustomUser.objects.create_user(**validated_data)
-        return user
-
 
 class UserProfileSerializer(serializers.ModelSerializer):
     main_company = serializers.StringRelatedField()
@@ -80,7 +76,6 @@ class ChangePasswordSerializer(serializers.Serializer):
             raise serializers.ValidationError("Новые пароли не совпадают")
 
         return data
-
 
 
 
