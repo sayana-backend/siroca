@@ -30,14 +30,14 @@ class ApplicationFormCreateSerializer(serializers.ModelSerializer):
 
 
 class ApplicationFormListSerializer(serializers.ModelSerializer):
-    company = serializers.SerializerMethodField()
+    company = serializers.CharField(source='company.name', read_only=True)
+    main_client = serializers.CharField(source='main_client.name', read_only=True)
+    main_manager = serializers.CharField(source='main_manager.name', read_only=True)
     class Meta:
         model = ApplicationForm
         fields = ('id', 'task_number', 'title', 'short_description', 'status',
                   'priority', 'company', 'main_client', 'main_manager', 'application_date',
                   'start_date', 'finish_date')
-    def get_company(self, obj):
-        return obj.company.name if obj.company else None
 
 
 class ApplicationSerializer(serializers.ModelSerializer):
