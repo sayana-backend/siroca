@@ -258,9 +258,6 @@ class ManagerPermissionsDetailAPIView(generics.ListAPIView):
         return Response('Права пользователей обновлены')
 
 
-
-
-
 class AdminResetPasswordView(generics.UpdateAPIView):
     queryset = CustomUser.objects.all()
     serializer_class = AdminResetPasswordSerializer
