@@ -280,7 +280,24 @@ class UserPermissionsDetailAPIView(generics.RetrieveUpdateAPIView):
             return ManagerPermissionsDetailSerializer
 
 
-
+# class ManagerPermissionsDetailAPIView(generics.ListAPIView):
+#     queryset = CustomUser.objects.filter(role_type='manager')
+#     serializer_class = ManagerPermissionsSerializer
+#
+#     def put(self, request, *args, **kwargs):
+#         users_data = request.data
+#         for user_data in users_data:
+#             user_id = user_data.get('id')
+#             try:
+#                 user_instance = CustomUser.objects.get(id=user_id)
+#             except CustomUser.DoesNotExist:
+#                 return Response(f'Пользователь с id={user_id} не найден', status=404)
+#
+#             serializer = self.get_serializer(user_instance, data=user_data, partial=True)
+#             serializer.is_valid(raise_exception=True)
+#             serializer.save()
+#
+#         return Response('Права пользователей обновлены')
 
 
 
@@ -317,6 +334,8 @@ class ChangePasswordView(generics.UpdateAPIView):
         user.save()
 
         return Response({'detail': 'Пароль успешно изменен'}, status=status.HTTP_200_OK)
+
+
 
 
 
