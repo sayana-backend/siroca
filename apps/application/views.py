@@ -84,7 +84,7 @@ class ApplicationFormRetrieveUpdateAPIView(generics.RetrieveUpdateAPIView):
     queryset = ApplicationForm.objects.all()
     lookup_field = 'id'
     serializer_class = ApplicationFormDetailSerializer
-    permission_classes = [IsManagerCanCreateAndEditCompany]
+    # permission_classes = [IsManagerCanCreateAndEditCompany]
 
 
 class ApplicationFormRetrieveUpdateDestroyAPIView(generics.RetrieveDestroyAPIView):

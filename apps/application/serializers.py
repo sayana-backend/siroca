@@ -40,46 +40,46 @@ class ApplicationFormListSerializer(serializers.ModelSerializer):
                   'start_date', 'finish_date')
 
 
-class ApplicationSerializer(serializers.ModelSerializer):
-    company = serializers.CharField(source='company.name', read_only=True)
-    main_client = serializers.CharField(source='main_client.name', read_only=True)
-    main_manager = serializers.CharField(source='main_manager.name', read_only=True)
-    checklists = ChecklistSerializer(many=True, required=False)
-    comments = CommentsSerializer(many=True, read_only=True)
-    logs = LogsSerializer(many=True, read_only=True)
-
-    class Meta:
-        model = ApplicationForm
-        fields = '__all__'
-
-    def update(self, instance, validated_data):
-        # Ваш текущий код
-        instance.save()
-
-        # Обновление вложенных полей checklists
-        checklists_data = validated_data.pop('checklists', [])  # Убираем checklists из validated_data
-        for checklist_data in checklists_data:
-            checklist_id = checklist_data.get('id', None)
-            if checklist_id:
-                checklist = Checklist.objects.get(id=checklist_id)
-                ChecklistSerializer().update(checklist, checklist_data)
-            else:
-                checklist_data['application'] = instance  # Указываем application для нового объекта
-                Checklist.objects.create(**checklist_data)
-
-        # Обновление вложенных полей comments
-        comments_data = validated_data.pop('comments', [])  # Убираем comments из validated_data
-        for comment_data in comments_data:
-            comment_id = comment_data.get('id', None)
-            if comment_id:
-                comment = Comments.objects.get(id=comment_id)
-                CommentsSerializer().update(comment, comment_data)
-            else:
-                comment_data['application'] = instance  # Указываем application для нового объекта
-                comment_data['user'] = self.context['request'].user
-                Comments.objects.create(**comment_data)
-
-        return instance
+# class ApplicationSerializer(serializers.ModelSerializer):
+#     company = serializers.CharField(source='company.name', read_only=True)
+#     main_client = serializers.CharField(source='main_client.name', read_only=True)
+#     main_manager = serializers.CharField(source='main_manager.name', read_only=True)
+#     checklists = ChecklistSerializer(many=True, required=False)
+#     comments = CommentsSerializer(many=True, read_only=True)
+#     logs = LogsSerializer(many=True, read_only=True)
+#
+#     class Meta:
+#         model = ApplicationForm
+#         fields = '__all__'
+#
+#     def update(self, instance, validated_data):
+#         # Ваш текущий код
+#         instance.save()
+#
+#         # Обновление вложенных полей checklists
+#         checklists_data = validated_data.pop('checklists', [])  # Убираем checklists из validated_data
+#         for checklist_data in checklists_data:
+#             checklist_id = checklist_data.get('id', None)
+#             if checklist_id:
+#                 checklist = Checklist.objects.get(id=checklist_id)
+#                 ChecklistSerializer().update(checklist, checklist_data)
+#             else:
+#                 checklist_data['application'] = instance  # Указываем application для нового объекта
+#                 Checklist.objects.create(**checklist_data)
+#
+#         # Обновление вложенных полей comments
+#         comments_data = validated_data.pop('comments', [])  # Убираем comments из validated_data
+#         for comment_data in comments_data:
+#             comment_id = comment_data.get('id', None)
+#             if comment_id:
+#                 comment = Comments.objects.get(id=comment_id)
+#                 CommentsSerializer().update(comment, comment_data)
+#             else:
+#                 comment_data['application'] = instance  # Указываем application для нового объекта
+#                 comment_data['user'] = self.context['request'].user
+#                 Comments.objects.create(**comment_data)
+#
+#         return instance
 
 
 # class ApplicationFormDetailSerializer(serializers.ModelSerializer):
