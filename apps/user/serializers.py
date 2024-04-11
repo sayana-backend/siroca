@@ -2,6 +2,7 @@ from rest_framework import serializers
 from .models import *
 from django.contrib.auth import get_user_model
 
+from ..company.models import Company
 
 User = get_user_model()
 
@@ -13,6 +14,7 @@ class UserAuthSerializer(serializers.ModelSerializer):
 
 
 class UserProfileRegisterSerializer(serializers.ModelSerializer):
+    main_company = serializers.SlugRelatedField(slug_field='name', queryset=Company.objects.all())
     class Meta:
         model = CustomUser
         fields = "id role_type image first_name surname username password main_company job_title".split()
