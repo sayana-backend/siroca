@@ -11,14 +11,11 @@ class ChecklistSerializer(serializers.ModelSerializer):
 
 
 class CommentsSerializer(serializers.ModelSerializer):
-
     user = serializers.CharField(source='user.username', read_only=True)
+
     class Meta:
         model = Comments
         fields = '__all__'
-
-    
-
 
 
 class ApplicationFormCreateSerializer(serializers.ModelSerializer):
@@ -27,12 +24,12 @@ class ApplicationFormCreateSerializer(serializers.ModelSerializer):
     main_manager = serializers.CharField(source='main_manager.name', read_only=True)
     checklist = ChecklistSerializer(many=True)
     comments = CommentsSerializer(many=True)
+
     class Meta:
         model = ApplicationForm
-        fields = ['id', 'title', 'company', 'priority', 'status', 'jira',  'main_manager', 'main_client',
+        fields = ['id', 'title', 'company', 'priority', 'status', 'jira', 'main_manager', 'main_client',
                   'start_date', 'deadline_date', 'offer_date', 'finish_date', 'application_date', 'confirm_date',
                   'payment_state', 'description', 'files', 'short_description']
-
 
 
 class ApplicationLogsSerializer(serializers.ModelSerializer):
@@ -44,7 +41,7 @@ class ApplicationLogsSerializer(serializers.ModelSerializer):
 class ApplicationFormCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = ApplicationForm
-        fields = ('title', 'company')
+        fields = ('id', 'title', 'company')
 
     '''Для создания заявки '''
 
