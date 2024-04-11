@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from .models import ApplicationForm, Checklist, Comments, ApplicationLogs, Notification
+from ..company.models import Company
 
 
 class ChecklistSerializer(serializers.ModelSerializer):
@@ -23,7 +24,7 @@ class LogsSerializer(serializers.ModelSerializer):
 
 class ApplicationFormCreateSerializer(serializers.ModelSerializer):
     '''Для первой страницы создания заявки'''
-    company = serializers.StringRelatedField()
+    company = serializers.SlugRelatedField(slug_field='name', queryset=Company.objects.all())
     class Meta:
         model = ApplicationForm
         fields = ('id', 'title', 'company')
