@@ -39,7 +39,7 @@ class Comments(models.Model):
 
     
     def __str__(self):
-        return f"Комментарий от {self.application.main_client.username} по заявке {self.application.title}"
+        return self.text
 
 
 
