@@ -336,10 +336,6 @@ class ChangePasswordView(generics.UpdateAPIView):
         return Response({'detail': 'Пароль успешно изменен'}, status=status.HTTP_200_OK)
 
 
-
-
-
-
 class AdminResetPasswordView(generics.UpdateAPIView):
     queryset = CustomUser.objects.all()
     serializer_class = AdminResetPasswordSerializer
