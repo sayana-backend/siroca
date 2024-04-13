@@ -17,11 +17,12 @@ from io import BytesIO
 import pandas as pd
 import threading
 import platform
+from rest_framework import status
 import string
 import random
 import time
 import os
-
+from apps.company.models import Company
 
 class ApplicationFormFilterAPIView(viewsets.GenericViewSet):
     # class ApplicationFormFilterAPIView(generics.ListAPIView):
@@ -34,8 +35,8 @@ class ApplicationFormFilterAPIView(viewsets.GenericViewSet):
     def get_filtered_data_size(self, queryset):
         df = pd.DataFrame.from_records(queryset.values('start_date', 'finish_date'))
         excel_file = BytesIO()
-        df['start_date'] = pd.to_datetime(df['start_date']).dt.tz_localize(None)
-        df['finish_date'] = pd.to_datetime(df['finish_date']).dt.tz_localize(None)
+        # df['start_date'] = pd.to_datetime(df['start_date']).dt.tz_localize(None)
+        # df['finish_date'] = pd.to_datetime(df['finish_date']).dt.tz_localize(None)
         df.to_excel(excel_file, index=False, na_rep="нет значения")
         return excel_file.tell()
 
@@ -44,7 +45,9 @@ class ApplicationFormFilterAPIView(viewsets.GenericViewSet):
         filtered_data_size = self.get_filtered_data_size(queryset)
         count = queryset.count()
         serializer = self.get_serializer(queryset, many=True)
-        return Response({'count': count, 'results': serializer.data, 'filtered_data_size': filtered_data_size})
+        return Response({'count': count,
+                         'results': serializer.data,
+                         'filtered_data_size': filtered_data_size})
 
 
 class ExportToExcelView(APIView):

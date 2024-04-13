@@ -52,16 +52,33 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
                                   on_delete=models.SET_NULL)
 
     manager_can_delete_comments = models.BooleanField(default=False, verbose_name='Удаление комментариев')
+    manager_can_delete_comments_extra = models.BooleanField(null=True, verbose_name='Удаление комментариев')
     manager_can_get_reports = models.BooleanField(default=False, verbose_name='Отчет по заявкам(Менеджер)')
+    manager_can_get_reports_extra = models.BooleanField(null=True, verbose_name='Отчет по заявкам(Менеджер)')
     manager_can_view_profiles = models.BooleanField(default=False, verbose_name='Просмотр профиля пользователей(Менеджер)')
+    manager_can_view_profiles_extra = models.BooleanField(null=True, verbose_name='Просмотр профиля пользователей(Менеджер)')
     manager_can_delete_application = models.BooleanField(default=False, verbose_name='Удаление заявки')
-
+    manager_can_delete_application_extra = models.BooleanField(null=True, verbose_name='Удаление заявки')
+    manager_can_create_and_edit_company_extra = models.BooleanField(null=True, verbose_name='Создание/Редактирование заявки')
+    manager_can_create_and_edit_user_extra = models.BooleanField(null=True, verbose_name='Создание/Редактирование пользователя')
+    manager_can_create_and_delete_job_title_extra = models.BooleanField(null=True,
+                                                                  verbose_name='Просмотр списка по компаниям/пользователям/должностям')
     client_can_edit_comments = models.BooleanField(default=False, verbose_name='Добавление/удаление комментария')
+    client_can_edit_comments_extra = models.BooleanField(null=True, verbose_name='Добавление/удаление комментария')
     client_can_get_reports = models.BooleanField(default=False, verbose_name='Отчет по заявкам(Клиент)')
+    client_can_get_reports_extra = models.BooleanField(null=True, verbose_name='Отчет по заявкам(Клиент)')
     client_can_view_logs = models.BooleanField(default=False, verbose_name='Просмотр логов')
+    client_can_view_logs_extra = models.BooleanField(null=True, verbose_name='Просмотр логов')
     client_can_add_checklist = models.BooleanField(default=False, verbose_name='Добавление чеклиста')
+    client_can_add_checklist_extra = models.BooleanField(null=True, verbose_name='Добавление чеклиста')
     client_can_add_files = models.BooleanField(default=False, verbose_name='Добавление файла')
+    client_can_add_files_extra = models.BooleanField(default=False, verbose_name='Добавление файла')
     client_can_view_profiles = models.BooleanField(default=False, verbose_name='Просмотр профиля пользователей(Клиент)')
+    client_can_view_profiles_extra = models.BooleanField(default=False, verbose_name='Просмотр профиля пользователей(Клиент)')
+    client_can_create_application_extra = models.BooleanField(default=False, verbose_name='Создание заявки')
+    client_can_edit_application_extra = models.BooleanField(default=False, verbose_name='Редактирование заявки')
+
+
 
     objects = CustomUserManager()
 

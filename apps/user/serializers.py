@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from .models import *
-from django.contrib.auth import get_user_model, authenticate
+from django.contrib.auth import get_user_model
 
 
 User = get_user_model()
@@ -34,19 +34,33 @@ class AdminContactSerializer(serializers.ModelSerializer):
         fields = ['email', 'phone_number', 'whatsapp_number']
 
 
-class ManagerPermissionsSerializer(serializers.ModelSerializer):
+class ManagerPermissionsGeneralSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
         fields = ['id',
-
+                  'username',
                   'role_type',
                   'manager_can_delete_comments',
                   'manager_can_get_reports',
                   'manager_can_view_profiles',
                   'manager_can_delete_application']
 
+class ManagerPermissionsDetailSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CustomUser
+        fields = ['id',
+                  'username',
+                  'role_type',
+                  'manager_can_delete_comments_extra',
+                  'manager_can_get_reports_extra',
+                  'manager_can_view_profiles_extra',
+                  'manager_can_delete_application_extra',
+                  'manager_can_create_and_edit_company_extra',
+                  'manager_can_create_and_edit_user_extra',
+                  'manager_can_create_and_delete_job_title_extra']
 
-class ClientPermissionsSerializer(serializers.ModelSerializer):
+
+class ClientPermissionsGeneralSerializer(serializers.ModelSerializer):
     # role_type = serializers.CharField(source='role_type', read_only=True)
 
     # company = serializers.CharField(source='company.name', read_only=True)
@@ -62,6 +76,31 @@ class ClientPermissionsSerializer(serializers.ModelSerializer):
                   'client_can_add_checklist',
                   'client_can_view_profiles']
 
+    def save(self, **kwargs):
+        instance = super().save(**kwargs)
+        return instance
+
+class ClientPermissionsDetailSerializer(serializers.ModelSerializer):
+    # role_type = serializers.CharField(source='role_type', read_only=True)
+
+    # company = serializers.CharField(source='company.name', read_only=True)
+    class Meta:
+        model = CustomUser
+        fields = ['id',
+                  'username',
+                  'role_type',
+                  'client_can_edit_comments_extra',
+                  'client_can_get_reports_extra',
+                  'client_can_view_logs_extra',
+                  'client_can_add_files_extra',
+                  'client_can_add_checklist_extra',
+                  'client_can_view_profiles_extra',
+                  'client_can_create_application_extra',
+                  'client_can_edit_application_extra']
+
+    def save(self, **kwargs):
+        instance = super().save(**kwargs)
+        return instance
 
 class ChangePasswordSerializer(serializers.Serializer):
     old_password = serializers.CharField(required=True)
