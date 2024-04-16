@@ -1,4 +1,4 @@
-from rest_framework import generics, status
+from rest_framework import generics, status, filters
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from ..company.models import Company, JobTitle
@@ -16,6 +16,8 @@ class CompanyListAPIView(generics.ListAPIView):
     serializer_class = CompanyListSerializer
     pagination_class = PageNumberPagination
     # permission_classes = [IsAdminUser]
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['name']
 
 
 
@@ -48,6 +50,8 @@ class JobTitleListAPIView(generics.ListAPIView):
     queryset = JobTitle.objects.all()
     serializer_class = JobTitleSerializer
     # permission_classes = [IsAdminUser]
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['title']
 
 
 class JobTitleDestroyAPIView(generics.DestroyAPIView):

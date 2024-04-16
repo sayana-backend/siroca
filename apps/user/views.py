@@ -8,7 +8,7 @@ from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from django.http import Http404
 from .serializers import *
 from .permissions import IsAdminUserOrIsManagerCanDeleteComments
-from rest_framework import permissions
+from rest_framework import permissions, filters
 from .models import CustomUser
 from .permissions import IsAdminUser, IsClientUser, IsManagerUser, IsClientCanViewProfiles
 
@@ -52,6 +52,8 @@ class ListUserProfileView(generics.ListAPIView):
     queryset = CustomUser.objects.all()
     serializer_class = UserProfileSerializer
     pagination_class = PageNumberPagination
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['first_name', 'surname']
 
 
 
