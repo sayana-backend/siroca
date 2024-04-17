@@ -7,9 +7,6 @@ from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 from .usermanager import CustomUserManager
 
 
-
-
-
 class AdminContact(models.Model):
     user = models.OneToOneField('CustomUser', on_delete=models.CASCADE, related_name='contact')
     email = models.EmailField(verbose_name='Электронная почта')

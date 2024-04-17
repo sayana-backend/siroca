@@ -11,6 +11,7 @@ class ChecklistSerializer(serializers.ModelSerializer):
 
 class CommentsSerializer(serializers.ModelSerializer):
     user = serializers.CharField(source='user.username', read_only=True)
+
     class Meta:
         model = Comments
         fields = '__all__'
@@ -25,6 +26,7 @@ class LogsSerializer(serializers.ModelSerializer):
 class ApplicationFormCreateSerializer(serializers.ModelSerializer):
     '''Для первой страницы создания заявки'''
     company = serializers.SlugRelatedField(slug_field='name', queryset=Company.objects.all())
+
     class Meta:
         model = ApplicationForm
         fields = ('id', 'title', 'company')
@@ -34,6 +36,7 @@ class ApplicationFormListSerializer(serializers.ModelSerializer):
     company = serializers.CharField(source='company.name', read_only=True)
     main_client = serializers.CharField(source='main_client.name', read_only=True)
     main_manager = serializers.CharField(source='main_manager.name', read_only=True)
+
     class Meta:
         model = ApplicationForm
         fields = ('id', 'task_number', 'title', 'short_description', 'status',
@@ -109,10 +112,6 @@ class ApplicationFormDetailSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-
-
-
-
 class ApplicationFormLogsDetailSerializer(serializers.ModelSerializer):
     logs = LogsSerializer(many=True, read_only=True)
     company = serializers.CharField(source='company.name', read_only=True)
@@ -128,10 +127,7 @@ class ApplicationFormLogsDetailSerializer(serializers.ModelSerializer):
                   'application_date', 'logs')
 
 
-
 class NotificationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Notification
-        fields = ('task_number', 'title', 'text', 'created_at', 'made_change', 'form_id', 'is_read')
-
-
+        fields = ('id', 'title', 'text', 'created_at', 'made_change', 'form_id', 'is_read')
