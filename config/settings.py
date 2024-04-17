@@ -35,8 +35,8 @@ CSRF_TRUSTED_ORIGINS = ['http://localhost',
                         'http://127.0.0.1:8000/',
                         'http://13.60.17.217',
                         'http://13.60.17.217:80',
-                        'https://clients.siroca.com/',
-                        'http://clients.siroca.com/']
+                        'https://clients.siroca.com',
+                        'http://clients.siroca.com']
 
 
 
