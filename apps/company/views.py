@@ -21,7 +21,7 @@ class CompanyListAPIView(generics.ListAPIView):
 
 
 
-class CompanyListDetailAPIView(generics.RetrieveAPIView):
+class CompanyDetailAPIView(generics.RetrieveAPIView):
     '''company detail only view'''
     queryset = Company.objects.all()
     serializer_class = CompanyDetailSerializer

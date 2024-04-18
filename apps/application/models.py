@@ -50,10 +50,9 @@ class ApplicationForm(models.Model):
     STATUS = (
         ('К выполнению', 'К выполнению'),
         ('В работе', 'В работе'),
-        ('Тестируется', 'Тестируется'),
-        ('Перекрыто', 'Перекрыто'),
-        ('На обновлении', 'На обновлении'),
-        ('Закрыто', 'Закрыто'),
+        ('В тестировании', 'В тестировании'),
+        ('Выполнено', 'Выполнено'),
+        ('Проверено', 'Проверено'),
     )
 
     PRIORITY = (
@@ -70,8 +69,8 @@ class ApplicationForm(models.Model):
 
     task_number = models.CharField(max_length=10, verbose_name='Номер заявки', blank=True, null=True)
     title = models.CharField(max_length=100, verbose_name='Название заявки', blank=False, null=True)
-    description = models.CharField(max_length=200, verbose_name='Описание', blank=True, null=True)
-    short_description = models.CharField(max_length=100, verbose_name='Краткое описание', blank=True, null=True)
+    description = models.TextField( verbose_name='Описание', blank=True, null=True)
+    short_description = models.CharField(max_length=60, verbose_name='Краткое описание', blank=True, null=True)
     files = models.ImageField(upload_to='', null=True, verbose_name='Файлы', blank=True)
     jira = models.URLField(null=True, verbose_name='ссылка JIRA', blank=True)
     status = models.CharField(max_length=100, choices=STATUS, default='К выполнению',
@@ -142,7 +141,7 @@ class Notification(models.Model):
     title = models.CharField(max_length=50, blank=True, null=True)
     text = models.CharField(max_length=300, null=True, blank=True)
     created_at = models.DateField(auto_now_add=True, null=True)
-    main_manager = models.CharField(max_length=70, null=True, blank=True)
+    made_change = models.CharField(max_length=70, null=True, blank=True)
     is_read = models.BooleanField(default=False)
     is_admin = models.BooleanField(default=False, null=True, blank=True)
     form = models.ForeignKey(ApplicationForm, on_delete=models.CASCADE, null=True, blank=True)
