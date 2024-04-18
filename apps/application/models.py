@@ -142,8 +142,9 @@ class Notification(models.Model):
     title = models.CharField(max_length=50, blank=True, null=True)
     text = models.CharField(max_length=300, null=True, blank=True)
     created_at = models.DateField(auto_now_add=True, null=True)
-    main_manager = models.CharField(max_length=70, null=True, blank=True)
-    is_read = models.BooleanField(default=False)
-    is_admin = models.BooleanField(default=False, null=True, blank=True)
+    made_change = models.CharField(max_length=70, null=True, blank=True)
     form = models.ForeignKey(ApplicationForm, on_delete=models.CASCADE, null=True, blank=True)
     expiration_time = models.DateTimeField(null=True)
+    is_read = models.BooleanField(default=False)
+    is_admin = models.BooleanField(default=False, null=True, blank=True)
+

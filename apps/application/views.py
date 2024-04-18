@@ -11,6 +11,7 @@ from rest_framework import status
 from django.db.models import Q
 from .models import Comments
 from .serializers import CommentsSerializer
+from .signals import *
 
 
 class CustomSearchFilter(filters.SearchFilter):
@@ -85,6 +86,7 @@ class ApplicationFormRetrieveUpdateAPIView(generics.RetrieveUpdateAPIView):
     queryset = ApplicationForm.objects.all()
     lookup_field = 'id'
     serializer_class = ApplicationFormDetailSerializer
+
     # permission_classes = [IsManagerCanCreateAndEditCompany]
 
 
@@ -92,9 +94,6 @@ class ApplicationFormRetrieveUpdateDestroyAPIView(generics.RetrieveDestroyAPIVie
     queryset = ApplicationForm.objects.all()
     serializer_class = ApplicationFormDetailSerializer
     lookup_field = 'id'
-    # permission_classes = [IsManagerCanDeleteComments,
-    #                       IsManagerCanDeleteApplication,
-    #                       IsAdminUser]
 
 
 class ApplicationLogsListCreateAPIView(generics.ListCreateAPIView):
@@ -142,7 +141,7 @@ class CommentsDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
     # permission_classes = [IsManagerCanDeleteComments,]
 
 
-class NotificationAPIView(generics.ListAPIView, generics.DestroyAPIView):
+class NotificationAPIView(generics.ListAPIView, generics.DestroyAPIView, generics.CreateAPIView, generics.UpdateAPIView):
     queryset = Notification.objects.all()
     serializer_class = NotificationSerializer
     permission_classes = [IsAuthenticated]
@@ -160,6 +159,8 @@ class NotificationAPIView(generics.ListAPIView, generics.DestroyAPIView):
             serializer = NotificationSerializer(notification_user_application, many=True)
             return Response(serializer.data, status=status.HTTP_200_OK)
 
+    # def perform_create(self, serializer):
+    #     serializer.save(made_change=self.request.user)
     # def delete(self, request, *args, **kwargs):
     #     if 'id' in kwargs:  # Если указан конкретный идентификатор уведомления
     #         return self.destroy(request, *args, **kwargs)
