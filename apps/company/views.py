@@ -1,8 +1,8 @@
-from rest_framework import generics, status
+from rest_framework import generics, status, filters
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from ..company.models import Company, JobTitle
-from ..company.serializers import CompanyListSerializer, CompanyCreateSerializer, CompanyListDetailSerializer, CompanyRetrieveSerializer, JobTitleSerializer
+from ..company.serializers import *
 from django.http import JsonResponse, HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.views import APIView
@@ -11,30 +11,35 @@ from apps.user.permissions import *
 
 
 class CompanyListAPIView(generics.ListAPIView):
+    '''company list'''
     queryset = Company.objects.all()
     serializer_class = CompanyListSerializer
     pagination_class = PageNumberPagination
     # permission_classes = [IsAdminUser]
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['name']
 
 
 
-class CompanyListDetailAPIView(generics.RetrieveAPIView):
+class CompanyDetailAPIView(generics.RetrieveAPIView):
+    '''company detail only view'''
     queryset = Company.objects.all()
-    serializer_class = CompanyListDetailSerializer
-    pagination_class = PageNumberPagination
+    serializer_class = CompanyDetailSerializer
     lookup_field = 'id'
     # permission_classes = [IsAdminUser]
 
 
 class CompanyCreateAPIView(generics.CreateAPIView):
+    '''company create'''
     queryset = Company.objects.all()
     serializer_class = CompanyCreateSerializer
     # permission_classes = [IsAdminUser]
 
 
 class CompanyRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
+    '''company redact'''
     queryset = Company.objects.all()
-    serializer_class = CompanyRetrieveSerializer
+    serializer_class = CompanyRetrieveUpdateSerializer
     lookup_field = 'id'
     # permission_classes = [IsAdminUser]
 
@@ -45,6 +50,8 @@ class JobTitleListAPIView(generics.ListAPIView):
     queryset = JobTitle.objects.all()
     serializer_class = JobTitleSerializer
     # permission_classes = [IsAdminUser]
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['title']
 
 
 class JobTitleDestroyAPIView(generics.DestroyAPIView):

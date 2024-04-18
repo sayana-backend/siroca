@@ -15,17 +15,30 @@ services:
   nginx:
     image: nginx
     ports:
-      - 80:80
+      - 8080:80
+      - 443:443
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf
       - static_volume:/usr/src/app/back_static
       - media_volumes:/usr/src/app/back_media
+      - etc-letsencrypt:/etc/letsencrypt
     depends_on:
       - django
 
-#  migration:
-#    build: .
-#    command: sh -c "python3 manage.py makemigrations && python3 manage.py migrate"
+
+  certbot:
+    image: certbot/certbot
+    depends_on:
+      - nginx
+    container_name: certbot
+    volumes:
+      - ./nginx:/var/www/html
+      - etc-letsencrypt:/etc/letsencrypt
+    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot certonly --webroot -w /var/www/html --email cultanakunova@gmail.com --agree-tos --no-eff-email --staging -d clients.siroca.com && sleep 12h & wait $${!}; done;'"
+
+
+
 volumes:
   static_volume:
   media_volumes:
+  etc-letsencrypt:

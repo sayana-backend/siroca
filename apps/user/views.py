@@ -8,7 +8,7 @@ from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from django.http import Http404
 from .serializers import *
 from .permissions import IsAdminUserOrIsManagerCanDeleteComments
-from rest_framework import permissions
+from rest_framework import permissions, filters
 from .models import CustomUser
 from .permissions import IsAdminUser, IsClientUser, IsManagerUser, IsClientCanViewProfiles
 
@@ -52,6 +52,8 @@ class ListUserProfileView(generics.ListAPIView):
     queryset = CustomUser.objects.all()
     serializer_class = UserProfileSerializer
     pagination_class = PageNumberPagination
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['first_name', 'surname']
 
 
 
@@ -226,7 +228,6 @@ class ClientPermissionsGeneralView(generics.UpdateAPIView, generics.ListAPIView)
         return Response(client_permissions)
 
 
-
 class ClientPermissionsDetailAPIView(generics.ListAPIView):
     queryset = CustomUser.objects.filter(role_type='client')
     serializer_class = ClientPermissionsDetailSerializer
@@ -280,31 +281,11 @@ class UserPermissionsDetailAPIView(generics.RetrieveUpdateAPIView):
             return ManagerPermissionsDetailSerializer
 
 
-# class ManagerPermissionsDetailAPIView(generics.ListAPIView):
-#     queryset = CustomUser.objects.filter(role_type='manager')
-#     serializer_class = ManagerPermissionsSerializer
-#
-#     def put(self, request, *args, **kwargs):
-#         users_data = request.data
-#         for user_data in users_data:
-#             user_id = user_data.get('id')
-#             try:
-#                 user_instance = CustomUser.objects.get(id=user_id)
-#             except CustomUser.DoesNotExist:
-#                 return Response(f'Пользователь с id={user_id} не найден', status=404)
-#
-#             serializer = self.get_serializer(user_instance, data=user_data, partial=True)
-#             serializer.is_valid(raise_exception=True)
-#             serializer.save()
-#
-#         return Response('Права пользователей обновлены')
 
 
 
 class AdminContactListView(generics.ListAPIView):
     serializer_class = AdminContactSerializer
-
-
     def get_queryset(self):
         return AdminContact.objects.all()
 

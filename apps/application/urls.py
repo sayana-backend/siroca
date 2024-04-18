@@ -11,8 +11,8 @@ urlpatterns = [
     path('notifications/', NotificationAPIView.as_view()),
 
     path('create/', ApplicationFormCreateAPIView.as_view()),   # POST
-    path('form_view/<int:id>/', ApplicationFormRetrieveUpdateAPIView.as_view()), # GET PUT (id)
-    path('form_redact/<int:id>/', ApplicationFormRetrieveUpdateDestroyAPIView.as_view()), # GET DELETE (id)
+    path('form_redact/<int:id>/', ApplicationFormRetrieveUpdateAPIView.as_view()), # GET PUT (id)
+    path('form_view/<int:id>/', ApplicationFormRetrieveUpdateDestroyAPIView.as_view()), # GET DELETE (id)
     path('form/', ApplicationFormListAPIView.as_view()), # GET
 
     path('checklist/', ChecklistAPIView.as_view()),

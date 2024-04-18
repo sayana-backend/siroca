@@ -183,7 +183,7 @@ class NotificationTrueAPIView(generics.ListAPIView):
             return Response(serializer.data, status=status.HTTP_200_OK)
         else:
             user_application = ApplicationForm.objects.filter(
-                Q(main_client=request.user) | Q(main_manager=request.user))
+                Q(main_client=request.user) | Q(made_change=request.user))
             notification_user_application = Notification.objects.filter(form__in=user_application)
             serializer = NotificationSerializer(notification_user_application, many=True)
             notification_user_application.update(is_read=True)

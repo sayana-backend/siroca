@@ -69,11 +69,11 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     client_can_add_checklist = models.BooleanField(default=False, verbose_name='Добавление чеклиста')
     client_can_add_checklist_extra = models.BooleanField(null=True, verbose_name='Добавление чеклиста')
     client_can_add_files = models.BooleanField(default=False, verbose_name='Добавление файла')
-    client_can_add_files_extra = models.BooleanField(default=False, verbose_name='Добавление файла')
+    client_can_add_files_extra = models.BooleanField(null=True, verbose_name='Добавление файла')
     client_can_view_profiles = models.BooleanField(default=False, verbose_name='Просмотр профиля пользователей(Клиент)')
-    client_can_view_profiles_extra = models.BooleanField(default=False, verbose_name='Просмотр профиля пользователей(Клиент)')
+    client_can_view_profiles_extra = models.BooleanField(null=True, verbose_name='Просмотр профиля пользователей(Клиент)')
     client_can_create_application_extra = models.BooleanField(default=False, verbose_name='Создание заявки')
-    client_can_edit_application_extra = models.BooleanField(default=False, verbose_name='Редактирование заявки')
+    client_can_edit_application_extra = models.BooleanField(null=True, verbose_name='Редактирование заявки')
 
 
 
