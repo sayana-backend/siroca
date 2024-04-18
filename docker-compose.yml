@@ -22,6 +22,7 @@ services:
       - static_volume:/usr/src/app/back_static
       - media_volumes:/usr/src/app/back_media
       - etc-letsencrypt:/etc/letsencrypt
+      - /etc/letsencrypt/live:/etc/letsencrypt/live
     depends_on:
       - django
 
@@ -34,6 +35,7 @@ services:
     volumes:
       - ./nginx:/var/www/html
       - etc-letsencrypt:/etc/letsencrypt
+      - /etc/letsencrypt/live:/etc/letsencrypt/live
     entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot certonly --webroot -w /var/www/html --email cultanakunova@gmail.com --agree-tos --no-eff-email --staging -d clients.siroca.com; exit 0'"
 
 
