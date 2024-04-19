@@ -135,6 +135,20 @@ class ApplicationLogsListCreateAPIView(generics.ListCreateAPIView):  ### вни�
     #                       IsManagerUser]
 
 
+
+def create_application_form(request):
+    if request.method == 'POST':
+        form = ApplicationForm(request.POST)
+        if form.is_valid():
+            application_form = form.save(commit=False)
+            # Получаем текущего пользователя и передаем его в save() метод
+            application_form.save(user=request.user)
+            return HttpResponse('Форма успешно создана!')
+    else:
+        form = ApplicationForm()
+    return render(request, 'create_application_form.html', {'form': form})
+
+
 # class ApplicationLogsRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):   #### убрать DELETE - запрос
 #     queryset = ApplicationLogs.objects.all()
 #     serializer_class = ApplicationLogsSerializer

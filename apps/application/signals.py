@@ -13,6 +13,7 @@ from django.http import HttpRequest
 
 @receiver(pre_save, sender=ApplicationForm)
 def track_application_changes(sender, instance, **kwargs):
+    user = kwargs.pop('user', None)  # Получаем пользователя из аргументов функции
     if instance.pk is not None:
         obj = sender.objects.get(id=instance.id)
         changes = {}
@@ -26,10 +27,20 @@ def track_application_changes(sender, instance, **kwargs):
             for field, (old_value, new_value) in changes.items():
                 message += f"{field.verbose_name} изменено с {old_value} на {new_value}\n "
             expiration_time = timezone.now() + timedelta(days=1)
-            ApplicationLogs.objects.create(text=message, expiration_time=expiration_time,
-                                           task_number=instance.task_number, form_id=instance.id)
+            user_id = user.id if user else None
+            username = user.username if user else None  # Получаем имя пользователя, если он есть
+            ApplicationLogs.objects.create(
+                text=message, 
+                expiration_time=expiration_time,
+                task_number=instance.task_number, 
+                form_id=instance.id,
+                user_id=user_id,
+                username=username  # Сохраняем информацию о пользователе
+            )
     expired_messages = ApplicationLogs.objects.filter(expiration_time__lt=timezone.now())
     expired_messages.delete()
+
+        
 
 
 @receiver(post_save, sender=ApplicationForm)

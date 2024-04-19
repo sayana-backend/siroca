@@ -37,7 +37,7 @@ class ApplicationFormCreateSerializer(serializers.ModelSerializer):
 class ApplicationLogsSerializer(serializers.ModelSerializer):
     class Meta:
         model = ApplicationLogs
-        fields = ('id', 'task_number', 'text')
+        fields = ('id', 'task_number', 'text', 'username')
 
 
 class ApplicationFormDetailSerializer(serializers.ModelSerializer):
