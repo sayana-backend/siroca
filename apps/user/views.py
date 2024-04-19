@@ -160,38 +160,16 @@ class ManagerPermissionsDetailAPIView(generics.ListAPIView):
 
     def put(self, request, *args, **kwargs):
         users_data = request.data.get('users_data', [])
-        # print(f'Users data: {users_data}')
         for user_data in users_data:
             user_id = user_data.get('id')
-            # print(f'User id: {user_id}')
             try:
                 user_instance = CustomUser.objects.get(id=user_id)
             except CustomUser.DoesNotExist:
                 return Response(f'Менеджер с id={user_id} не найден', status=404)
-
-            update_data = {
-                'manager_can_delete_comments_extra': user_data.get('manager_can_delete_comments_extra',
-                                                                   user_instance.manager_can_delete_comments_extra),
-                'manager_can_get_reports_extra': user_data.get('manager_can_get_reports_extra',
-                                                               user_instance.manager_can_get_reports_extra),
-                'manager_can_view_profiles_extra': user_data.get('manager_can_view_profiles_extra',
-                                                                 user_instance.manager_can_view_profiles_extra),
-                'manager_can_delete_application_extra': user_data.get('manager_can_delete_application_extra',
-                                                                      user_instance.manager_can_delete_application_extra),
-                'manager_can_create_and_edit_company_extra': user_data.get('manager_can_create_and_edit_company_extra',
-                                                                      user_instance.manager_can_create_and_edit_company_extra),
-                'manager_can_create_and_edit_user_extra': user_data.get('manager_can_create_and_edit_user_extra',
-                                                                      user_instance.manager_can_create_and_edit_user_extra),
-                'manager_can_create_and_delete_job_title_extra': user_data.get('manager_can_create_and_delete_job_title_extra',
-                                                                      user_instance.manager_can_create_and_delete_job_title_extra),
-            }
-            # print(f'Update data: {update_data}')
-
-            serializer = self.get_serializer(user_instance, data=user_data, partial=True)
-            serializer.is_valid(raise_exception=True)
-            serializer.save()
+            for key, value in user_data.items():
+                setattr(user_instance, key, value)
+            user_instance.save()
         return Response('Права менеджера успешно обновлены')
-
 
 
 class ClientPermissionsGeneralView(generics.UpdateAPIView, generics.ListAPIView):
@@ -243,39 +221,15 @@ class ClientPermissionsDetailAPIView(generics.ListAPIView):
 
     def put(self, request, *args, **kwargs):
         users_data = request.data.get('users_data', [])
-        # print(f'Users data: {users_data}')
         for user_data in users_data:
             user_id = user_data.get('id')
-            # print(f'User id: {user_id}')
             try:
                 user_instance = CustomUser.objects.get(id=user_id)
             except CustomUser.DoesNotExist:
                 return Response(f'Клиент с id={user_id} не найден', status=404)
-
-            update_data = {
-                'client_can_add_checklist_extra': user_data.get('client_can_add_checklist_extra',
-                                                                user_instance.client_can_add_checklist_extra),
-                'client_can_view_logs_extra': user_data.get('client_can_view_logs_extra',
-                                                            user_instance.client_can_view_logs_extra),
-                'client_can_get_reports_extra': user_data.get('client_can_get_reports_extra',
-                                                              user_instance.client_can_get_reports_extra),
-                'client_can_add_files_extra': user_data.get('client_can_add_files_extra',
-                                                            user_instance.client_can_add_files_extra),
-                'client_can_view_profiles_extra': user_data.get('client_can_view_profiles_extra',
-                                                                user_instance.client_can_view_profiles_extra),
-                'client_can_edit_comments_extra': user_data.get('client_can_edit_comments_extra',
-                                                                user_instance.client_can_edit_comments_extra),
-                'client_can_create_application_extra': user_data.get('client_can_create_application_extra',
-                                                                user_instance.client_can_create_application_extra),
-                'client_can_edit_application_extra': user_data.get('client_can_edit_application_extra',
-                                                                user_instance.client_can_edit_application_extra)
-            }
-            print(f'Update data: {update_data}')
-
-            serializer = self.get_serializer(user_instance, data=update_data, partial=True)
-            serializer.is_valid(raise_exception=True)
-            serializer.save()
-
+            for key, value in user_data.items():
+                setattr(user_instance, key, value)
+            user_instance.save()
         return Response('Права клиента успешно обновлены')
 
 class UserPermissionsDetailAPIView(generics.RetrieveUpdateAPIView):
@@ -289,9 +243,13 @@ class UserPermissionsDetailAPIView(generics.RetrieveUpdateAPIView):
         elif user.role_type == 'manager':
             return ManagerPermissionsDetailSerializer
 
-
-
-
+    def update(self, request, *args, **kwargs):
+        partial = kwargs.pop('partial', False)
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data)
 
 
 class AdminContactListView(generics.ListAPIView):

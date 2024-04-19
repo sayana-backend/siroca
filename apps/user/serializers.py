@@ -66,6 +66,10 @@ class ManagerPermissionsDetailSerializer(serializers.ModelSerializer):
                   'manager_can_create_and_edit_user_extra',
                   'manager_can_create_and_delete_job_title_extra']
 
+    def save(self, **kwargs):
+        instance = super().save(**kwargs)
+        return instance
+
 
 class ClientPermissionsGeneralSerializer(serializers.ModelSerializer):
     # role_type = serializers.CharField(source='role_type', read_only=True)

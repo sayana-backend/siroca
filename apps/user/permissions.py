@@ -81,7 +81,7 @@ class IsClientCanViewLogs(permissions.BasePermission):
         return request.user.is_authenticated and request.user.client_can_view_logs
 
 
-class IsClientCanAddChecklist(permissions.BasePermission):
+class IsClientCanAddChecklist(permissions.BasePermission):   ########### WARNING!!!!!!!!!!!!! ##########
     def has_permission(self, request, view):
         print("User:", request.user)
         print("Client can add checklist:", request.user.client_can_add_checklist)
@@ -90,8 +90,7 @@ class IsClientCanAddChecklist(permissions.BasePermission):
         if not request.user.client_can_add_checklist_extra:
             return False
         elif request.user.client_can_add_checklist_extra is None:
-            return request.user.client_can_add_checklist
-        return request.user.is_authenticated and request.user.client_can_add_checklist
+            return request.user.is_authenticated and request.user.client_can_add_checklist
 
 class IsClientCanCreateApplication(permissions.BasePermission):
     def has_permission(self, request, view):
@@ -121,8 +120,9 @@ class IsAdminUserOrIsManagerCanDeleteComments(permissions.BasePermission):
         if request.user.is_superuser:
             return True
         if request.user.manager_can_delete_comments_extra:
-            return True
-        return request.user.is_authenticated and request.user.manager_can_delete_comments
+            return request.user.manager_can_delete_comments_extra
+        else:
+            return request.user.manager_can_delete_comments
 
 
 class IsManagerCanGetReports(permissions.BasePermission):
