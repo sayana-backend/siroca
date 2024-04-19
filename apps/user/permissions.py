@@ -3,9 +3,16 @@ from rest_framework import permissions
 
 '''Admin's permissions'''
 
+class IsAdminUserAndManagerUser(permissions.BasePermission):
+    def has_permission(self, request, view):
+        print(request.user)
+        return request.user.is_superuser or request.user.is_manager
+        
 class IsAdminUser(permissions.BasePermission):
     def has_permission(self, request, view):
-        return request.user.is_authenticated and request.user.is_superuser
+        return request.user.is_superuser
+    
+        
 
 
 '''Client's permissions'''
@@ -16,49 +23,29 @@ class IsClientUser(permissions.BasePermission):
         return request.user.is_authenticated and request.user.is_client
 
 
-class IsClientCanGetReports(permissions.BasePermission):
+class IsClientCanGetReportsAndIsAdminUser(permissions.BasePermission):
     def has_permission(self, request, view):
-        print("User:", request.user)
-        print("Client can get reports:", request.user.client_can_get_reports)
+        if request.user.is_superuser:
+            return True
         if request.user.client_can_get_reports_extra:
-            return True
-        if not request.user.client_can_get_reports_extra:
-            return False
-        elif request.user.client_can_get_reports_extra is None:
+            return request.user.client_can_get_reports_extra
+        else:
             return request.user.client_can_get_reports
-        return request.user.is_authenticated and request.user.client_can_get_reports
 
 
-class IsClientCanEditComments(permissions.BasePermission):
+class IsClientCanEditCommentsAndIsAdminUser(permissions.BasePermission):
     def has_permission(self, request, view):
-        print("User:", request.user)
-        print("Client can edit comments:", request.user.client_can_edit_comments)
+        if request.user.is_superuser:
+            return True
         if request.user.client_can_edit_comments_extra:
-            return True
-        if not request.user.client_can_edit_comments_extra:
-            return False
-        elif request.user.client_can_edit_comments_extra is None:
+            return request.user.client_can_edit_comments_extra
+        else:
             return request.user.client_can_edit_comments
-        return request.user.is_authenticated and request.user.client_can_edit_comments
 
-
-class IsClientCanViewProfiles(permissions.BasePermission):
-    def has_permission(self, request, view):
-        print("User:", request.user)
-        print("Client can view profiles:", request.user.client_can_view_profiles)
-        if request.user.client_can_view_profiles_extra:
-            return True
-        if not request.user.client_can_view_profiles_extra:
-            return False
-        if request.user.client_can_view_profiles_extra is None:
-            return request.user.client_can_view_profiles
-        return request.user.is_authenticated and request.user.client_can_view_profiles
 
 
 class IsClientCanAddFiles(permissions.BasePermission):
     def has_permission(self, request, view):
-        print("User:", request.user)
-        print("Client can add files:", request.user.client_can_add_files)
         if request.user.client_can_add_files_extra:
             return True
         if not request.user.client_can_add_files_extra:
@@ -70,8 +57,6 @@ class IsClientCanAddFiles(permissions.BasePermission):
 
 class IsClientCanViewLogs(permissions.BasePermission):
     def has_permission(self, request, view):
-        print("User:", request.user)
-        print("Client can view logs:", request.user.client_can_view_logs)
         if request.user.client_can_view_logs_extra:
             return True
         if not request.user.client_can_view_logs_extra:
@@ -81,10 +66,9 @@ class IsClientCanViewLogs(permissions.BasePermission):
         return request.user.is_authenticated and request.user.client_can_view_logs
 
 
+
 class IsClientCanAddChecklist(permissions.BasePermission):   ########### WARNING!!!!!!!!!!!!! ##########
     def has_permission(self, request, view):
-        print("User:", request.user)
-        print("Client can add checklist:", request.user.client_can_add_checklist)
         if request.user.client_can_add_checklist_extra:
             return True
         if not request.user.client_can_add_checklist_extra:
@@ -92,11 +76,27 @@ class IsClientCanAddChecklist(permissions.BasePermission):   ########### WARNING
         elif request.user.client_can_add_checklist_extra is None:
             return request.user.is_authenticated and request.user.client_can_add_checklist
 
-class IsClientCanCreateApplication(permissions.BasePermission):
+# class IsClientCanCreateApplication(permissions.BasePermission):
+#     def has_permission(self, request, view):
+#         print(request.user)
+#         print(request.user.client_can_create_application_extra)
+#         if request.user.is_authenticated and request.user.role_type == 'client':
+#             return request.user.main_company == request.data.get('company')
+#         return request.user.client_can_create_application_extra
+
+class IsClientCanCreateApplication(permissions.BasePermission):    ### перепроверить ###
     def has_permission(self, request, view):
-        if request.user.is_authenticated and request.user.role_type == 'client':
-            return request.user.main_company == request.data.get('company')
-        return request.user.client_can_create_application_extra
+        print(f'User: {request.user}')
+        if request.user.client_can_create_application_extra:
+            if request.user.is_client:
+                print(f'Create application: {request.user.client_can_create_application_extra}')
+                print(request.user.main_company)
+                return request.user.main_company == request.data.get('company')
+            else:
+                return False
+        else:
+            print(f'Gamno: {request.user.client_can_create_application_extra}')
+            return request.user.client_can_create_application_extra 
 
 class IsClientCanEditApplication(permissions.BasePermission):
     def has_object_permission(self, request, view, obj):
@@ -115,8 +115,6 @@ class IsManagerUser(permissions.BasePermission):
 
 class IsAdminUserOrIsManagerCanDeleteComments(permissions.BasePermission):
     def has_permission(self, request, view):
-        print("User:", request.user)
-        print("Manager can edit:", request.user.manager_can_delete_comments)
         if request.user.is_superuser:
             return True
         if request.user.manager_can_delete_comments_extra:
@@ -127,8 +125,6 @@ class IsAdminUserOrIsManagerCanDeleteComments(permissions.BasePermission):
 
 class IsManagerCanGetReports(permissions.BasePermission):
     def has_permission(self, request, view):
-        print("User:", request.user)
-        print("Manager can get reports:", request.user.manager_can_get_reports)
         if request.user.manager_can_get_reports_extra:
             return True
         if not request.user.manager_can_get_reports_extra:
@@ -140,8 +136,6 @@ class IsManagerCanGetReports(permissions.BasePermission):
 
 class IsManagerCanDeleteApplication(permissions.BasePermission):
     def has_permission(self, request, view):
-        print("User:", request.user)
-        print("Manager can delete application:", request.user.manager_can_delete_application)
         if request.user.manager_can_delete_application_extra:
             return True
         if not request.user.manager_can_delete_application_extra:
@@ -153,8 +147,6 @@ class IsManagerCanDeleteApplication(permissions.BasePermission):
 
 class IsManagerCanViewProfiles(permissions.BasePermission):
     def has_permission(self, request, view):
-        print("User:", request.user)
-        print("Manager can view profiles:", request.user.manager_can_view_profiles)
         if request.user.manager_can_view_profiles_extra:
             return True
         if not request.user.manager_can_view_profiles_extra:
@@ -166,18 +158,12 @@ class IsManagerCanViewProfiles(permissions.BasePermission):
 
 class IsManagerCanCreateAndEditCompany(permissions.BasePermission):
     def has_permission(self, request, view):
-        print("User:", request.user)
-        print("Manager can create company:", request.user.manager_can_create_and_edit_company_extra)
         return request.user.is_authenticated and request.user.manager_can_create_and_edit_company_extra
 
 class IsManagerCanCreateAndEditUser(permissions.BasePermission):
     def has_permission(self, request, view):
-        print("User:", request.user)
-        print("Manager can create user:", request.user.manager_can_create_and_edit_user_extra)
         return request.user.is_authenticated and request.user.manager_can_create_and_edit_user_extra
 
 class IsManagerCanCreateAndDeleteJobTitle(permissions.BasePermission):
     def has_permission(self, request, view):
-        print("User:", request.user)
-        print("Manager can create user:", request.user.manager_can_create_and_delete_job_title_extra)
         return request.user.is_authenticated and request.user.manager_can_create_and_delete_job_title_extra

@@ -12,6 +12,7 @@ import os
 from pathlib import Path
 from datetime import timedelta
 from . import jazzmin_settings
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -21,15 +22,22 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
+# SECRET_KEY = os.environ.get('SECRET_KEY')
 SECRET_KEY = 'django-insecure-#)307js-u)hl19%@!4i$90_24)2f7m!ro61)&$rbgq2+0p-x@z'
 
 # SECURITY WARNING: don't run with debug turned on in production!
+# DEBUG = True if os.environ.get('DEBUG') == 'on' else False
 DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 CORS_ALLOW_ALL_ORIGINS = True
 CSRF_TRUSTED_ORIGINS = ['http://localhost',
-                        'http://127.0.0.1:8000/', 'http://13.60.17.217', 'http://13.60.17.217:80']
+                        'http://127.0.0.1:8000/',
+                        'http://13.51.161.14',
+                        'http://13.51.161.14:80',
+                        'https://clients.siroca.com',
+                        'http://clients.siroca.com'
+                        ]
 
 
 
@@ -37,6 +45,7 @@ CSRF_TRUSTED_ORIGINS = ['http://localhost',
 
 INSTALLED_APPS = [
     'jazzmin',
+    "debug_toolbar",
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -51,9 +60,7 @@ INSTALLED_APPS = [
     'apps.user',
     'apps.application',
     'drf_yasg',
-    # 'rest_framework.authtoken',
-    'rest_framework_simplejwt'
-
+    'rest_framework_simplejwt',
 ]
 
 
@@ -61,14 +68,14 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ],
-    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
-    'PAGE_SIZE': 20
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 50
 }
 
 
 SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(days=1),
-    "REFRESH_TOKEN_LIFETIME": timedelta(days=2),
+    "ACCESS_TOKEN_LIFETIME": timedelta(days=5),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=10),
     "AUTH_HEADER_TYPES": ("JWT",),
 }
 
@@ -76,6 +83,7 @@ SIMPLE_JWT = {
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    "debug_toolbar.middleware.DebugToolbarMiddleware",
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -119,11 +127,11 @@ DATABASES = {
 # DATABASES = {
 #     'default': {
 #         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-#         'NAME': 'siroca_tecnology_db',
-#         'USER': 'postgres',
-#         'PASSWORD': 'ebu1da',
-#         'HOST': 'localhost',
-#         'PORT': '5432'
+#         'NAME': os.environ.get('DB_NAME'),
+#         'USER': os.environ.get('DB_USER'),
+#         'PASSWORD': os.environ.get('DB_PASSWORD'),
+#         'HOST': os.environ.get('DB_HOST'),
+#         'PORT': os.environ.get('DB_PORT')
 #     }
 # }
 
@@ -173,5 +181,11 @@ JAZZMIN_SETTINGS = jazzmin_settings.JAZZMIN_SETTINGS
 
 
 AUTH_USER_MODEL = 'user.CustomUser'
+
+INTERNAL_IPS = [
+    # ...
+    "127.0.0.1",
+    # ...
+]
 
 

@@ -4,6 +4,9 @@
     <option name="format" value="PLAIN" />
     <option name="myDocStringFormat" value="Plain" />
   </component>
+  <component name="SonarLintModuleSettings">
+    <option name="uniqueId" value="eb2e407a-07c2-46de-ac07-c7b32fc62a89" />
+  </component>
   <component name="TemplatesService">
     <option name="TEMPLATE_CONFIGURATION" value="Django" />
   </component>

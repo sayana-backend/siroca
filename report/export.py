@@ -11,14 +11,18 @@ from django.utils.http import unquote
 from openpyxl.styles import Alignment
 from django.http import HttpResponse
 from rest_framework import viewsets
+from django.conf import settings
 from datetime import datetime
 from io import BytesIO
 import pandas as pd
+import threading
 import platform
+from rest_framework import status
 import string
 import random
+import time
 import os
-
+from apps.company.models import Company
 
 class ApplicationFormFilterAPIView(viewsets.GenericViewSet):
     # class ApplicationFormFilterAPIView(generics.ListAPIView):
@@ -31,8 +35,8 @@ class ApplicationFormFilterAPIView(viewsets.GenericViewSet):
     def get_filtered_data_size(self, queryset):
         df = pd.DataFrame.from_records(queryset.values('start_date', 'finish_date'))
         excel_file = BytesIO()
-        df['start_date'] = pd.to_datetime(df['start_date']).dt.tz_localize(None)
-        df['finish_date'] = pd.to_datetime(df['finish_date']).dt.tz_localize(None)
+        # df['start_date'] = pd.to_datetime(df['start_date']).dt.tz_localize(None)
+        # df['finish_date'] = pd.to_datetime(df['finish_date']).dt.tz_localize(None)
         df.to_excel(excel_file, index=False, na_rep="нет значения")
         return excel_file.tell()
 
@@ -41,7 +45,9 @@ class ApplicationFormFilterAPIView(viewsets.GenericViewSet):
         filtered_data_size = self.get_filtered_data_size(queryset)
         count = queryset.count()
         serializer = self.get_serializer(queryset, many=True)
-        return Response({'count': count, 'results': serializer.data, 'filtered_data_size': filtered_data_size})
+        return Response({'count': count,
+                         'results': serializer.data,
+                         'filtered_data_size': filtered_data_size})
 
 
 class ExportToExcelView(APIView):
@@ -61,9 +67,10 @@ class ExportToExcelView(APIView):
             df[column] = df[column].map(lambda x: None if x == [] else x)
 
         df['status_info'] = df['status_info'].apply(
-            lambda x: ',\n '.join([f"{item['status']} - {item['date_status']}" for item in x]))
+            lambda x: ',\n '.join([f"{item['status']} - {item['date_status']}" for item in x]) if x else '')
+
         df['priority_info'] = df['priority_info'].apply(
-            lambda x: ',\n '.join([f"{item['priority']} - {item['date_priority']}" for item in x]))
+            lambda x: ',\n '.join([f"{item['priority']} - {item['date_priority']}" for item in x]) if x else '')
 
         count_df = pd.DataFrame([{'Количество заявок': len(data)}])
 
@@ -72,8 +79,6 @@ class ExportToExcelView(APIView):
         date_str = datetime.now().strftime('%Y-%m-%d')
         random_suffix = self.generate_random_string()
         filename = f"siroco_{date_str}_report_{random_suffix}.xlsx"
-        desktop_path = os.path.join(os.path.expanduser('~'), 'Desktop')
-        excel_file_path = os.path.join(desktop_path, filename)
 
         wb = Workbook()
         ws = wb.active
@@ -95,12 +100,14 @@ class ExportToExcelView(APIView):
             for cell in col:
                 cell.alignment = Alignment(horizontal='left', vertical='top', wrap_text=True)
 
-        wb.save(excel_file_path)
+        excel_file = BytesIO()
+        wb.save(excel_file)
 
-        if os.path.exists(excel_file_path):
-            with open(excel_file_path, 'rb') as excel_file:
-                response = HttpResponse(excel_file.read(), content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
-                response['Content-Disposition'] = f'attachment; filename={unquote(filename)}'
-                return response
-        else:
-            return HttpResponse("Не удалось открыть файл")
+        response = HttpResponse(excel_file.getvalue(), content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+        response['Content-Disposition'] = f'attachment; filename={unquote(filename)}'
+        response['Content-Transfer-Encoding'] = 'binary'
+        response['Expires'] = '0'
+        response['Cache-Control'] = 'must-revalidate'
+        response['Pragma'] = 'public'
+
+        return response

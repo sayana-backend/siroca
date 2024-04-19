@@ -23,9 +23,8 @@ services:
     depends_on:
       - django
 
-#  migration:
-#    build: .
-#    command: sh -c "python3 manage.py makemigrations && python3 manage.py migrate"
+
+
 volumes:
   static_volume:
   media_volumes:

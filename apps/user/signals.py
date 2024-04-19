@@ -1,23 +1,14 @@
-from django.db.models.signals import post_save, pre_save
+from django.db.models.signals import pre_delete
 from django.dispatch import receiver
 from .models import CustomUser
-from .permissions import *
+from django.core.exceptions import PermissionDenied
 
 
 
 
-# def jls_extract_def():
-#     return
-
-
-# @receiver(post_save, sender=CustomUser)
-# def update_username(sender, instance, created, **kwargs):
-#     if created:
-#         username = instance.surname.lower() + instance.first_name.lower()
-#         company_domain = instance.main_company.domain = jls_extract_def()
-#         full_username = f"{username}@{company_domain}.com"
-#         instance.username = full_username
-#         instance.save()
-
-
+@receiver(pre_delete, sender=CustomUser)
+def prevent_delete_first_user(sender, instance, **kwargs):
+    first_user = CustomUser.objects.first()
+    if instance.id == first_user.id:
+        raise PermissionDenied("Нельзя удалить первого пользователя!")
 
