@@ -33,8 +33,8 @@ ALLOWED_HOSTS = ['*']
 CORS_ALLOW_ALL_ORIGINS = True
 CSRF_TRUSTED_ORIGINS = ['http://localhost',
                         'http://127.0.0.1:8000/',
-                        'http://16.171.110.81',
-                        'http://16.171.110.81:80',
+                        'http://51.20.187.167',
+                        'http://51.20.187.167:80',
                         'https://clients.siroca.com',
                         'http://clients.siroca.com'
                         ]
