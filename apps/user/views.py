@@ -1,4 +1,4 @@
-from rest_framework.pagination import PageNumberPagination
+from ..application.views import CustomPagination
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.response import Response
 from django.contrib.auth import authenticate
@@ -51,7 +51,7 @@ class CreateUserView(generics.CreateAPIView):
 class ListUserProfileView(generics.ListAPIView):
     queryset = CustomUser.objects.all()
     serializer_class = UserProfileSerializer
-    pagination_class = PageNumberPagination
+    pagination_class = CustomPagination
     filter_backends = [filters.SearchFilter]
     search_fields = ['first_name', 'surname']
 
