@@ -53,7 +53,7 @@ class ListUserProfileView(generics.ListAPIView):
     serializer_class = UserProfileSerializer
     pagination_class = CustomPagination
     filter_backends = [filters.SearchFilter]
-    search_fields = ['first_name', 'surname']
+    search_fields = ['first_name', 'surname', 'main_company__name']
 
 
 

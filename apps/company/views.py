@@ -17,7 +17,7 @@ class CompanyListAPIView(generics.ListAPIView):
     pagination_class = CustomPagination
     # permission_classes = [IsAdminUser]
     filter_backends = [filters.SearchFilter]
-    search_fields = ['name']
+    search_fields = ['name', 'country', 'company_code']
 
 
 
