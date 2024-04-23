@@ -12,6 +12,7 @@ from django.db.models import Q
 from .models import Comments
 from .serializers import CommentsSerializer
 from .signals import *
+from django.core.cache import cache
 
 
 
@@ -135,7 +136,7 @@ class CommentsDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
     # permission_classes = [IsManagerCanDeleteComments,]
 
 
-class NotificationAPIView(generics.ListAPIView, generics.DestroyAPIView, generics.CreateAPIView, generics.UpdateAPIView):
+class NotificationAPIView(generics.ListAPIView):
     queryset = Notification.objects.all()
     serializer_class = NotificationSerializer
     permission_classes = [IsAuthenticated]
@@ -143,25 +144,51 @@ class NotificationAPIView(generics.ListAPIView, generics.DestroyAPIView, generic
 
     def get(self, request):
         if request.user.is_superuser:
-            admin_notifications = Notification.objects.filter(is_admin=True)
+            admin_id_n = request.user.id
+            admin_notifications = Notification.objects.filter(is_admin=True, admin_id=admin_id_n)
+
+            for notification in admin_notifications:
+                cache.set(f'notification_sent_{notification.id}', True)
+
             serializer = NotificationSerializer(admin_notifications, many=True)
             return Response(serializer.data, status=status.HTTP_200_OK)
         else:
             user_application = ApplicationForm.objects.filter(
                 Q(main_client=request.user) | Q(main_manager=request.user))
             notification_user_application = Notification.objects.filter(form__in=user_application)
+            if request.user.is_manager:
+                notification_user_application = notification_user_application.filter(is_manager_notic=True)
+            elif request.user.is_client:
+                notification_user_application = notification_user_application.filter(is_client_notic=True)
+
+            for notification in notification_user_application:
+                cache.set(f'notification_sent_{notification.id}', True)
+
             serializer = NotificationSerializer(notification_user_application, many=True)
             return Response(serializer.data, status=status.HTTP_200_OK)
 
-    # def perform_create(self, serializer):
-    #     serializer.save(made_change=self.request.user)
-    # def delete(self, request, *args, **kwargs):
-    #     if 'id' in kwargs:  # Если указан конкретный идентификатор уведомления
-    #         return self.destroy(request, *args, **kwargs)
-    #     else:  # Если не указан идентификатор, то удаляем все уведомления
-    #         notifications = self.get_queryset()
-    #         notifications.delete()
-    #         return Response(status=status.HTTP_204_NO_CONTENT)
+
+class NotificationDeleteViewAPI(generics.DestroyAPIView):
+    def delete(self, request, id=None):
+        admin_id = request.user.id
+        if id is None or id == 'all':
+            for notification in Notification.objects.all():
+                if cache.get(f'notification_sent_{notification.id}'):
+                    cache.delete(f'notification_sent_{notification.id}')
+                    notification.delete()
+                elif admin_id == notification.admin_id:
+                    notification.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        else:
+            try:
+                notification = Notification.objects.get(id=id)
+                if cache.get(f'notification_sent_{notification.id}'):
+                    cache.delete(f'notification_sent_{notification.id}')
+                notification.delete()
+                return Response(status=status.HTTP_204_NO_CONTENT)
+            except Notification.DoesNotExist:
+                return Response(status=status.HTTP_404_NOT_FOUND)
+        return Response(status=status.HTTP_400_BAD_REQUEST)
 
 
 class NotificationTrueAPIView(generics.ListAPIView):
@@ -171,74 +198,15 @@ class NotificationTrueAPIView(generics.ListAPIView):
 
     def get(self, request):
         if request.user.is_superuser:
-            admin_notifications = Notification.objects.filter(is_admin=True)
+            admin_id_get = request.user.id
+            admin_notifications = Notification.objects.filter(is_admin=True, admin_id=admin_id_get)
             serializer = NotificationSerializer(admin_notifications, many=True)
             admin_notifications.update(is_read=True)
             return Response(serializer.data, status=status.HTTP_200_OK)
         else:
             user_application = ApplicationForm.objects.filter(
-                Q(main_client=request.user) | Q(made_change=request.user))
+                Q(main_client=request.user) | Q(main_manager=request.user))
             notification_user_application = Notification.objects.filter(form__in=user_application)
             serializer = NotificationSerializer(notification_user_application, many=True)
             notification_user_application.update(is_read=True)
             return Response(serializer.data, status=status.HTTP_200_OK)
-
-    # def delete(self, request, *args, **kwargs):
-    #     if 'id' in kwargs:  # Если указан конкретный идентификатор уведомления
-    #         return self.destroy(request, *args, **kwargs)
-    #     else:  # Если не указан идентификатор, то удаляем все уведомления
-    #         notifications = self.get_queryset()
-    #         notifications.delete()
-    #         return Response(status=status.HTTP_204_NO_CONTENT)
-    # return self.destroy_all(request, *args, **kwargs)
-
-    # def destroy_all(self, request, *args, **kwargs):
-    #     notifications = self.get_queryset()
-    #     notifications.delete()
-    #     return Response(status=status.HTTP_204_NO_CONTENT)
-
-    # def get(self, request):
-    #     if request.user.is_superuser:
-    #         admin_notifications = Notification.objects.filter(is_admin=True)
-    #         serializer = NotificationSerializer(admin_notifications, many=True)
-    #         cache.set('notifications', admin_notifications)
-    #         return Response(serializer.data, status=status.HTTP_200_OK)
-    #     else:
-    #         user_application = ApplicationForm.objects.filter(
-    #             Q(main_client=request.user) | Q(main_manager=request.user))
-    #         notification_user_application = Notification.objects.filter(form__in=user_application)
-    #         serializer = NotificationSerializer(notification_user_application, many=True)
-    #         cache.set('notifications', notification_user_application)
-    #         return Response(serializer.data, status=status.HTTP_200_OK)
-    #
-    # def delete(self, request, *args, **kwargs):
-    #     notifications = cache.get('notifications')
-    #     if 'id' in kwargs and notifications.filter(id=kwargs['id']).exists():
-    #         notification = notifications.get(id=kwargs['id'])
-    #         notification.delete()
-    #         return Response(status=status.HTTP_204_NO_CONTENT)
-    #     elif 'id' not in kwargs:
-    #         notifications.delete()
-    #         return Response(status=status.HTTP_204_NO_CONTENT)
-    #     else:
-    #         return Response(status=status.HTTP_404_NOT_FOUND)
-
-
-# class NotificationDestroyAPIView(generics.DestroyAPIView):
-#     queryset = Notification.objects.all()
-#     serializer_class = NotificationSerializer
-#     permission_classes = [IsAuthenticated]
-#     lookup_field = 'id'
-
-    # def delete(self, request, id):
-    #     if id:
-    #         try:
-    #             notification = Notification.objects.get(id=id)
-    #             notification.delete()
-    #             return Response(status=status.HTTP_204_NO_CONTENT)
-    #         except Notification.DoesNotExist:
-    #             return Response(status=status.HTTP_404_NOT_FOUND)
-    #     else:
-    #         notifications = Notification.objects.all()
-    #         notifications.delete()
-    #         return Response(status=status.HTTP_204_NO_CONTENT)
