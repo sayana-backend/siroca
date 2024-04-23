@@ -24,7 +24,6 @@ class ApplicationFormCreateAPIView(generics.CreateAPIView):
 
 class CustomPagination(PageNumberPagination):
     page_size = 50
-
     def get_paginated_response(self, data):
         return Response(data)
 
@@ -77,7 +76,7 @@ class ApplicationFormListAPIView(generics.ListAPIView):
 
 
 class ApplicationFormRetrieveUpdateAPIView(generics.RetrieveUpdateAPIView):
-    ''' Second create and update API '''
+    '''  update API '''
     queryset = ApplicationForm.objects.all()
     lookup_field = 'id'
     serializer_class = ApplicationFormDetailSerializer

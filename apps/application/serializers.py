@@ -11,6 +11,7 @@ class ChecklistSerializer(serializers.ModelSerializer):
 
 class CommentsSerializer(serializers.ModelSerializer):
     user = serializers.CharField(source='user.username', read_only=True)
+    '''айди и аватарка'''
 
     class Meta:
         model = Comments
@@ -29,7 +30,7 @@ class ApplicationFormCreateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ApplicationForm
-        fields = ('id', 'title', 'company')
+        fields = ('id', 'title', 'company', 'task_number')
 
 
 class ApplicationFormListSerializer(serializers.ModelSerializer):
