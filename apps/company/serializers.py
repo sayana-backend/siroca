@@ -3,7 +3,6 @@ from .models import Company, JobTitle
 from ..user.models import CustomUser
 
 
-
 class JobTitleSerializer(serializers.ModelSerializer):
     class Meta:
         model = JobTitle

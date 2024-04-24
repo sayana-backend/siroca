@@ -1,7 +1,6 @@
 from rest_framework import serializers
 from .models import *
 from django.contrib.auth import get_user_model
-
 from ..company.models import Company, JobTitle
 
 User = get_user_model()
@@ -117,10 +116,7 @@ class ChangePasswordSerializer(serializers.Serializer):
 
         if new_password1 != new_password2:
             raise serializers.ValidationError("Новые пароли не совпадают")
-
         return data
-
-
 
 
 class AdminResetPasswordSerializer(serializers.Serializer):

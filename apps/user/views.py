@@ -3,14 +3,10 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.response import Response
 from django.contrib.auth import authenticate
 from rest_framework import generics, status
-from .models import CustomUser,AdminContact
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
-from django.http import Http404
 from .serializers import *
-from .permissions import IsAdminUserOrIsManagerCanDeleteComments
-from rest_framework import permissions, filters
+from rest_framework import filters
 from .models import CustomUser
-from .permissions import IsAdminUser, IsClientUser, IsManagerUser, IsClientCanViewProfiles
 
 
 class CreateUserView(generics.CreateAPIView):
@@ -45,18 +41,12 @@ class CreateUserView(generics.CreateAPIView):
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
-
-
-
 class ListUserProfileView(generics.ListAPIView):
     queryset = CustomUser.objects.all()
     serializer_class = UserProfileSerializer
     pagination_class = CustomPagination
     filter_backends = [filters.SearchFilter]
     search_fields = ['first_name', 'surname', 'main_company__name']
-
-
-
 
 
 class DetailUserProfileView(generics.RetrieveUpdateDestroyAPIView):
@@ -92,11 +82,8 @@ class UserLoginView(generics.CreateAPIView):
             return Response({'detail': 'Ошибка аутентификации'}, status=status.HTTP_401_UNAUTHORIZED)
 
 
-
-
-
-
-class AdminContactDetailView(generics.RetrieveUpdateAPIView):
+class AdminContactDetailView(generics.RetrieveUpdateAPIView): # пересмотреть кто это писал вообще
+    '''Редактирование контактов админа в профиле админа'''
     serializer_class = AdminContactSerializer
     # permission_classes = [IsAuthenticated]
 
@@ -110,6 +97,61 @@ class AdminContactDetailView(generics.RetrieveUpdateAPIView):
         if obj is None:
             return Response({'detail': 'Ошибка аутентификации'}, status=status.HTTP_404_NOT_FOUND)
         return obj
+
+
+class AdminContactListView(generics.ListAPIView):
+    '''Контакты админа при авторизации'''
+    serializer_class = AdminContactSerializer
+    def get_queryset(self):
+        return AdminContact.objects.all()
+
+
+class ChangePasswordView(generics.UpdateAPIView):
+    '''смена пароля в профиле у каждого пользователя'''
+    queryset = CustomUser.objects.all()
+    serializer_class = ChangePasswordSerializer
+    permission_classes = [IsAuthenticated]
+
+    def update(self, request, *args, **kwargs):
+        user = self.request.user
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        old_password = serializer.validated_data.get('old_password')
+        new_password1 = serializer.validated_data.get('new_password1')
+        new_password2 = serializer.validated_data.get('new_password2')
+
+        if not user.check_password(old_password):
+            return Response({'detail': 'Старый пароль неверен'}, status=status.HTTP_400_BAD_REQUEST)
+
+        if new_password1 != new_password2:
+            return Response({'detail': 'Новые пароли не совпадают'}, status=status.HTTP_400_BAD_REQUEST)
+
+        user.set_password(new_password1)
+        user.save()
+
+        return Response({'detail': 'Пароль успешно изменен'}, status=status.HTTP_200_OK)
+
+
+class AdminResetPasswordView(generics.UpdateAPIView):
+    '''Сброс пароля админом в случае если пароль забыли'''
+    queryset = CustomUser.objects.all()
+    serializer_class = AdminResetPasswordSerializer
+    permission_classes = [IsAdminUser]
+    lookup_field = 'id'
+
+    def update(self, request, *args, **kwargs):
+        user = self.get_object()
+        new_password = request.data.get('new_password')
+        confirm_password = request.data.get('confirm_password')
+
+        if new_password != confirm_password:
+            return Response({'detail': 'Новый пароль и его подтверждение не совпадают.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        user.set_password(new_password)
+        user.save()
+        return Response({'detail': 'Пароль пользователя успешно сброшен.', 'new_password': new_password}, status=status.HTTP_200_OK)
+
 
 
 
@@ -282,59 +324,4 @@ class UserPermissionsDetailAPIView(generics.RetrieveUpdateAPIView):
 
 
 
-
-
-class AdminContactListView(generics.ListAPIView):
-    serializer_class = AdminContactSerializer
-    def get_queryset(self):
-        return AdminContact.objects.all()
-
-
-
-class ChangePasswordView(generics.UpdateAPIView):
-    queryset = CustomUser.objects.all()
-    serializer_class = ChangePasswordSerializer
-    permission_classes = [IsAuthenticated]
-
-    def update(self, request, *args, **kwargs):
-        user = self.request.user
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-
-        old_password = serializer.validated_data.get('old_password')
-        new_password1 = serializer.validated_data.get('new_password1')
-        new_password2 = serializer.validated_data.get('new_password2')
-
-        if not user.check_password(old_password):
-            return Response({'detail': 'Старый пароль неверен'}, status=status.HTTP_400_BAD_REQUEST)
-
-        if new_password1 != new_password2:
-            return Response({'detail': 'Новые пароли не совпадают'}, status=status.HTTP_400_BAD_REQUEST)
-
-        user.set_password(new_password1)
-        user.save()
-
-        return Response({'detail': 'Пароль успешно изменен'}, status=status.HTTP_200_OK)
-
-
-class AdminResetPasswordView(generics.UpdateAPIView):
-    queryset = CustomUser.objects.all()
-    serializer_class = AdminResetPasswordSerializer
-    permission_classes = [IsAdminUser]
-    lookup_field = 'id'
-
-
-    def update(self, request, *args, **kwargs):
-        user = self.get_object()
-
-        new_password = request.data.get('new_password')
-        confirm_password = request.data.get('confirm_password')
-
-        if new_password != confirm_password:
-            return Response({'detail': 'Новый пароль и его подтверждение не совпадают.'}, status=status.HTTP_400_BAD_REQUEST)
-
-        user.set_password(new_password)
-        user.save()
-
-        return Response({'detail': 'Пароль пользователя успешно сброшен.', 'new_password': new_password}, status=status.HTTP_200_OK)
 

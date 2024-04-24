@@ -62,7 +62,18 @@ class ApplicationLogsSerializer(serializers.ModelSerializer):
         fields = ('id', 'task_number', 'text', 'username')
 
 
-class ApplicationFormDetailSerializer(serializers.ModelSerializer):
+class ApplicationFormUpdateSerializer(serializers.ModelSerializer):
+    company = serializers.CharField(source='company.name', read_only=True)
+    main_client = serializers.SlugRelatedField(slug_field='username', queryset=CustomUser.objects.all())
+    main_manager = serializers.SlugRelatedField(slug_field='username', queryset=CustomUser.objects.all())
+    checklists = ChecklistSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = ApplicationForm
+        fields = '__all__'
+
+
+class ApplicationFormDetailViewSerializer(serializers.ModelSerializer):
     logs = LogsSerializer(many=True, read_only=True)
     company = serializers.CharField(source='company.name', read_only=True)
     main_client = serializers.SlugRelatedField(slug_field='username', queryset=CustomUser.objects.all())

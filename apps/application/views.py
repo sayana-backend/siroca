@@ -80,14 +80,13 @@ class ApplicationFormRetrieveUpdateAPIView(generics.RetrieveUpdateAPIView):
     '''  update API '''
     queryset = ApplicationForm.objects.all()
     lookup_field = 'id'
-    serializer_class = ApplicationFormDetailSerializer
-
+    serializer_class = ApplicationFormUpdateSerializer
     # permission_classes = [IsManagerCanCreateAndEditCompany]
 
 
-class ApplicationFormRetrieveUpdateDestroyAPIView(generics.RetrieveDestroyAPIView):
+class ApplicationFormRetrieveDestroyAPIView(generics.RetrieveDestroyAPIView):
     queryset = ApplicationForm.objects.all()
-    serializer_class = ApplicationFormDetailSerializer
+    serializer_class = ApplicationFormDetailViewSerializer
     lookup_field = 'id'
 
 
@@ -98,24 +97,6 @@ class ApplicationLogsListCreateAPIView(generics.ListCreateAPIView):
     permission_classes = [IsAdminUserOrIsManagerCanDeleteComments]
 
 
-
-# def create_application_form(request):
-#     if request.method == 'POST':
-#         form = ApplicationForm(request.POST)
-#         if form.is_valid():
-#             application_form = form.save(commit=False)
-#             # Получаем текущего пользователя и передаем его в save() метод
-#             application_form.save(user=request.user)
-#             return HttpResponse('Форма успешно создана!')
-#     else:
-#         form = ApplicationForm()
-#     return render(request, 'create_application_form.html', {'form': form})
-
-
-# class ApplicationLogsRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):   #### убрать DELETE - запрос
-#     queryset = ApplicationLogs.objects.all()
-#     serializer_class = ApplicationLogsSerializer
-#     lookup_field = 'id'
 class ApplicationLogsRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):  #### убрать DELETE - запрос
     queryset = ApplicationLogs.objects.all()
     serializer_class = LogsSerializer
@@ -165,13 +146,15 @@ class CommentsAPIView(generics.ListCreateAPIView):
         serializer.save(user=self.request.user)
 
 
-        
-
 class CommentsDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Comments.objects.all()
     serializer_class = CommentsSerializer
     lookup_field = 'id'
     # permission_classes = [IsManagerCanDeleteComments,]
+
+
+
+
 
 
 class NotificationAPIView(generics.ListAPIView):
