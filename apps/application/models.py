@@ -54,9 +54,11 @@ class ApplicationForm(models.Model):
     )
 
     PRIORITY = (
+        ('Самый низкий', 'Самый низкий'),
         ('Низкий', 'Низкий'),
         ('Средний', 'Средний'),
         ('Высокий', 'Высокий'),
+        ('Самый высокий', 'Самый высокий'),
     )
 
     PAYMENT_STATE = (
@@ -75,8 +77,7 @@ class ApplicationForm(models.Model):
                               verbose_name='Статус заявки', blank=True, null=True)
     payment_state = models.CharField(max_length=100, choices=PAYMENT_STATE,
                                      verbose_name='Статус оплаты', blank=True, null=True)
-    priority = models.CharField(max_length=100, choices=PRIORITY, verbose_name='Приоритет заявки', blank=True,
-                                null=True)
+    priority = models.CharField(max_length=100, choices=PRIORITY, verbose_name='Приоритет заявки', blank=True, default='Средний')
 
     company = models.ForeignKey('company.Company', on_delete=models.CASCADE, verbose_name='Компания', blank=False,
                                 null=True)

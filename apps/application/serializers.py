@@ -23,7 +23,7 @@ class CommentsSerializer(serializers.ModelSerializer):
 class LogsSerializer(serializers.ModelSerializer):
     class Meta:
         model = ApplicationLogs
-        fields = ('id', 'username', 'task_number', 'text')
+        fields = ('id', 'username', 'task_number', 'text', 'created_at')
 
 
 class ApplicationFormCreateSerializer(serializers.ModelSerializer):
@@ -37,8 +37,8 @@ class ApplicationFormCreateSerializer(serializers.ModelSerializer):
 
 class ApplicationFormListSerializer(serializers.ModelSerializer):
     company = serializers.CharField(source='company.name', read_only=True)
-    main_client = serializers.CharField(source='main_client.name', read_only=True)
-    main_manager = serializers.CharField(source='main_manager.name', read_only=True)
+    main_client = serializers.SlugRelatedField(slug_field='username', read_only=True)
+    main_manager = serializers.SlugRelatedField(slug_field='username', read_only=True)
 
     class Meta:
         model = ApplicationForm

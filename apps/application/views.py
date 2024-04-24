@@ -64,7 +64,7 @@ class ApplicationFormListAPIView(generics.ListAPIView):
             serializer = self.get_serializer(page, many=True)
             created_count = queryset.count()
             in_progress_count = queryset.filter(status='В работе').count()
-            closed_count = queryset.filter(status='Закрыто').count()
+            closed_count = queryset.filter(status='Проверено').count()
             data = {
                 'created_count': created_count,
                 'in_progress_count': in_progress_count,
