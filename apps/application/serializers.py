@@ -1,9 +1,11 @@
 from rest_framework import serializers
 from .models import ApplicationForm, Checklist, Comments, ApplicationLogs, Notification
 from ..company.models import Company
+from ..user.models import CustomUser
 
 
 class ChecklistSerializer(serializers.ModelSerializer):
+    manager = serializers.SlugRelatedField(slug_field='username', queryset=CustomUser.objects.all())
     class Meta:
         model = Checklist
         fields = "__all__"
@@ -11,6 +13,7 @@ class ChecklistSerializer(serializers.ModelSerializer):
 
 class CommentsSerializer(serializers.ModelSerializer):
     user = serializers.CharField(source='user.username', read_only=True)
+    '''айди и аватарка'''
 
     class Meta:
         model = Comments
@@ -29,7 +32,7 @@ class ApplicationFormCreateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ApplicationForm
-        fields = ('id', 'title', 'company')
+        fields = ('id', 'title', 'company', 'task_number')
 
 
 class ApplicationFormListSerializer(serializers.ModelSerializer):
@@ -49,8 +52,8 @@ class ApplicationFormListSerializer(serializers.ModelSerializer):
 class ApplicationFormDetailSerializer(serializers.ModelSerializer):
     logs = LogsSerializer(many=True, read_only=True)
     company = serializers.CharField(source='company.name', read_only=True)
-    main_client = serializers.CharField(source='main_client.name', read_only=True)
-    main_manager = serializers.CharField(source='main_manager.name', read_only=True)
+    main_client = serializers.SlugRelatedField(slug_field='username', queryset=CustomUser.objects.all())
+    main_manager = serializers.SlugRelatedField(slug_field='username', queryset=CustomUser.objects.all())
     checklists = ChecklistSerializer(many=True, read_only=True)
     comments = CommentsSerializer(many=True, read_only=True)
 

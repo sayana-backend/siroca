@@ -15,18 +15,6 @@ from .signals import *
 from django.core.cache import cache
 
 
-class CustomSearchFilter(filters.SearchFilter):
-    def filter_queryset(self, request, queryset, view):
-        search_fields = getattr(view, 'search_fields', [])
-        search_term = request.query_params.get(self.search_param, '').strip()
-
-        if search_term:
-            or_condition = Q()
-            for field_name in search_fields:
-                or_condition |= Q(**{f'{field_name}__iregex': f'.*{search_term}.*'})
-            queryset = queryset.filter(or_condition)
-        return queryset
-
 
 class ApplicationFormCreateAPIView(generics.CreateAPIView):
     queryset = ApplicationForm.objects.all()
@@ -35,14 +23,20 @@ class ApplicationFormCreateAPIView(generics.CreateAPIView):
     def perform_create(self, serializer):
         serializer.save(main_manager=self.request.user)
 
+class CustomPagination(PageNumberPagination):
+    page_size = 50
+    def get_paginated_response(self, data):
+        return Response(data)
+
+
 
 class ApplicationFormListAPIView(generics.ListAPIView):
     serializer_class = ApplicationFormListSerializer
-    filter_backends = [CustomSearchFilter, DjangoFilterBackend]
+    filter_backends = [filters.SearchFilter, DjangoFilterBackend]
     permission_classes = [IsAuthenticated]
     filterset_class = ApplicationFormFilter
-    pagination_class = PageNumberPagination
-    search_fields = ['task_number', 'title', 'short_description',
+    pagination_class = CustomPagination
+    search_fields = ['task_number', 'title', 'company__name', 'short_description',
                      'main_client__first_name', 'main_manager__first_name',
                      'start_date', 'finish_date', 'priority', 'payment_state', 'comments__text']
 
@@ -83,7 +77,7 @@ class ApplicationFormListAPIView(generics.ListAPIView):
 
 
 class ApplicationFormRetrieveUpdateAPIView(generics.RetrieveUpdateAPIView):
-    ''' Second create and update API '''
+    '''  update API '''
     queryset = ApplicationForm.objects.all()
     lookup_field = 'id'
     serializer_class = ApplicationFormDetailSerializer

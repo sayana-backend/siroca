@@ -30,7 +30,7 @@ class Comments(models.Model):
         verbose_name_plural = 'Комментарии'
 
     text = models.TextField(verbose_name='Текст комментария')
-    date_added = models.DateTimeField(auto_now_add=True, verbose_name='Дата добавления')
+    date_added = models.DateField(auto_now_add=True, verbose_name='Дата добавления')
     application = models.ForeignKey('ApplicationForm', on_delete=models.CASCADE, related_name='comments',
                                     verbose_name='Заявка')
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, verbose_name='Пользователь',
