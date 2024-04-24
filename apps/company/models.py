@@ -13,14 +13,14 @@ class Company(models.Model):
         'user.CustomUser',
         on_delete=models.SET_NULL,
         null=True,
-        verbose_name='Менеджер компании',
+        verbose_name='Ответственный Менеджер',
         related_name='managed_companies',
         blank=True,
         limit_choices_to={'role_type': 'manager'}
     )
     managers = models.ManyToManyField(
         'user.CustomUser',
-        verbose_name='Пользователи',
+        verbose_name='Менеджеры',
         related_name='companies',
         blank=True,
         limit_choices_to={'is_manager': True}

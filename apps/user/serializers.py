@@ -1,7 +1,8 @@
 from rest_framework import serializers
 from .models import *
-from django.contrib.auth import get_user_model, authenticate
+from django.contrib.auth import get_user_model
 
+from ..company.models import Company, JobTitle
 
 User = get_user_model()
 
@@ -13,18 +14,17 @@ class UserAuthSerializer(serializers.ModelSerializer):
 
 
 class UserProfileRegisterSerializer(serializers.ModelSerializer):
+    main_company = serializers.SlugRelatedField(slug_field='name', queryset=Company.objects.all())
+    job_title = serializers.SlugRelatedField(slug_field='title', queryset=JobTitle.objects.all())
+
     class Meta:
         model = CustomUser
         fields = "id role_type image first_name surname username password main_company job_title".split()
 
-    def create(self, validated_data):
-        user = CustomUser.objects.create_user(**validated_data)
-        return user
-
 
 class UserProfileSerializer(serializers.ModelSerializer):
-    main_company = serializers.StringRelatedField()
-    job_title = serializers.StringRelatedField()
+    main_company = serializers.SlugRelatedField(slug_field='name', queryset=Company.objects.all())
+    job_title = serializers.SlugRelatedField(slug_field='title', queryset=JobTitle.objects.all())
 
     class Meta:
         model = CustomUser
@@ -38,19 +38,33 @@ class AdminContactSerializer(serializers.ModelSerializer):
         fields = ['email', 'phone_number', 'whatsapp_number']
 
 
-class ManagerPermissionsSerializer(serializers.ModelSerializer):
+class ManagerPermissionsGeneralSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
         fields = ['id',
-
+                  'username',
                   'role_type',
                   'manager_can_delete_comments',
                   'manager_can_get_reports',
                   'manager_can_view_profiles',
                   'manager_can_delete_application']
 
+class ManagerPermissionsDetailSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CustomUser
+        fields = ['id',
+                  'username',
+                  'role_type',
+                  'manager_can_delete_comments_extra',
+                  'manager_can_get_reports_extra',
+                  'manager_can_view_profiles_extra',
+                  'manager_can_delete_application_extra',
+                  'manager_can_create_and_edit_company_extra',
+                  'manager_can_create_and_edit_user_extra',
+                  'manager_can_create_and_delete_job_title_extra']
 
-class ClientPermissionsSerializer(serializers.ModelSerializer):
+
+class ClientPermissionsGeneralSerializer(serializers.ModelSerializer):
     # role_type = serializers.CharField(source='role_type', read_only=True)
 
     # company = serializers.CharField(source='company.name', read_only=True)
@@ -66,6 +80,31 @@ class ClientPermissionsSerializer(serializers.ModelSerializer):
                   'client_can_add_checklist',
                   'client_can_view_profiles']
 
+    def save(self, **kwargs):
+        instance = super().save(**kwargs)
+        return instance
+
+class ClientPermissionsDetailSerializer(serializers.ModelSerializer):
+    # role_type = serializers.CharField(source='role_type', read_only=True)
+
+    # company = serializers.CharField(source='company.name', read_only=True)
+    class Meta:
+        model = CustomUser
+        fields = ['id',
+                  'username',
+                  'role_type',
+                  'client_can_edit_comments_extra',
+                  'client_can_get_reports_extra',
+                  'client_can_view_logs_extra',
+                  'client_can_add_files_extra',
+                  'client_can_add_checklist_extra',
+                  'client_can_view_profiles_extra',
+                  'client_can_create_application_extra',
+                  'client_can_edit_application_extra']
+
+    def save(self, **kwargs):
+        instance = super().save(**kwargs)
+        return instance
 
 class ChangePasswordSerializer(serializers.Serializer):
     old_password = serializers.CharField(required=True)
@@ -80,7 +119,6 @@ class ChangePasswordSerializer(serializers.Serializer):
             raise serializers.ValidationError("Новые пароли не совпадают")
 
         return data
-
 
 
 

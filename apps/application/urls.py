@@ -8,15 +8,24 @@ urlpatterns = [
     path('filter/export-to-excel/', ExportToExcelView.as_view(), name='export_to_excel_view'),
     path('filter/', ApplicationFormFilterAPIView.as_view({'get': 'list'})),
     path('logs/', ApplicationLogsListCreateAPIView.as_view()),
-    path('create/', ApplicationFormCreateAPIView.as_view()),
-    path('form/', ApplicationFormListAPIView.as_view()),
-    path('form_redact/<int:id>/', ApplicationFormRetrieveUpdateDestroyAPIView.as_view()),
-    path('form_view/<int:id>/', ApplicationFormRetrieveAPIView.as_view()),
+    path('notifications/', NotificationAPIView.as_view()),
+
+    path('create/', ApplicationFormCreateAPIView.as_view()),   # POST
+    path('form_edit/<int:id>/', ApplicationFormRetrieveUpdateAPIView.as_view()), # GET PUT (id)
+    path('form_view/<int:id>/', ApplicationFormRetrieveUpdateDestroyAPIView.as_view()), # GET DELETE (id)
+    path('form/', ApplicationFormListAPIView.as_view()), # GET
+
     path('checklist/', ChecklistAPIView.as_view()),
     path('comments/', CommentsAPIView.as_view()),
     # path('logs/<int:id>/', ApplicationLogsRetrieveUpdateDestroyAPIView.as_view()),
     path('notifications/', NotificationAPIView.as_view()),
+    # path('notifications/delete/<int:id>/', NotificationDestroyAPIView.as_view()),
+    # path('notifications/delete-all/', NotificationDestroyAPIView.as_view()),
+    path('notifications/true/', NotificationTrueAPIView.as_view()),
     path('comments/<int:id>/', CommentsDetailAPIView.as_view()),
     path('checklist/<int:id>/', CheckListDetailAPIView.as_view()),
+    path('delete_all_checklists/<int:id>/', DeleteAllChecklistsAPIView.as_view()),
+
 ]
+
 

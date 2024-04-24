@@ -53,7 +53,7 @@ class AdminUser(admin.ModelAdmin):
                     'client_can_add_files']
     list_filter = ['role_type']
 #
-
+admin.site.register(AdminContact)
 
 # class ClientPermissionsAdmin(admin.ModelAdmin):
 #     def has_add_permission(self, request):

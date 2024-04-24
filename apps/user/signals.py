@@ -1,33 +1,14 @@
-from django.db.models.signals import post_save
+from django.db.models.signals import pre_delete
 from django.dispatch import receiver
 from .models import CustomUser
-from django.utils.text import slugify
-from .models import Company
+from django.core.exceptions import PermissionDenied
 
 
 
 
-
-
-
-
-@receiver(post_save, sender=CustomUser)
-def update_username(sender, instance, created, **kwargs):
-    if created:
-        username = (instance.surname.lower() + instance.first_name.lower()).replace(" ", "")
-        company_domain = instance.main_company.domain
-        
-        # Проверяем существование домена
-        if not Domain.objects.filter(domain=company_domain).exists():
-            full_username = f"{username}@{company_domain}.com"
-        else:
-            full_username = f"{username}@{company_domain}"
-
-        if full_username != instance.username:
-            instance.username = full_username
-            instance.save(update_fields=['username'])
-
-
-
-   
+@receiver(pre_delete, sender=CustomUser)
+def prevent_delete_first_user(sender, instance, **kwargs):
+    first_user = CustomUser.objects.first()
+    if instance.id == first_user.id:
+        raise PermissionDenied("Нельзя удалить первого пользователя!")
 

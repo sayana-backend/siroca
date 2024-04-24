@@ -11,9 +11,36 @@ from django.http import HttpRequest
 
 
 
+# @receiver(pre_save, sender=ApplicationForm)
+# def track_application_changes(sender, instance, **kwargs):
+#     user = kwargs.pop('user', None)  # Получаем пользователя из аргументов функции
+#     if instance.pk is not None:
+#         obj = sender.objects.get(id=instance.id)
+#         changes = {}
+#         for field in instance._meta.fields:
+#             old_value = getattr(obj, field.name)
+#             new_value = getattr(instance, field.name)
+#             if old_value != new_value:
+#                 changes[field] = (old_value, new_value)
+#         if changes:
+#             message = ""
+#             for field, (old_value, new_value) in changes.items():
+#                 message += f"{field.verbose_name} изменено с {old_value} на {new_value}\n "
+#             expiration_time = timezone.now() + timedelta(days=1)
+#             user_id = user.id if user else None
+#             username = user.username  # Получаем имя пользователя, если он есть
+#             ApplicationLogs.objects.create(
+#                 text=message, 
+#                 expiration_time=expiration_time,
+#                 task_number=instance.task_number, 
+#                 form_id=instance.id,
+#                 user_id=user_id,
+#                 username=username  # Сохраняем информацию о пользователе
+#             )
+    # expired_messages = ApplicationLogs.objects.filter(expiration_time__lt=timezone.now())
+    # expired_messages.delete()
 @receiver(pre_save, sender=ApplicationForm)
 def track_application_changes(sender, instance, **kwargs):
-    user = kwargs.pop('user', None)  # Получаем пользователя из аргументов функции
     if instance.pk is not None:
         obj = sender.objects.get(id=instance.id)
         changes = {}
@@ -27,16 +54,8 @@ def track_application_changes(sender, instance, **kwargs):
             for field, (old_value, new_value) in changes.items():
                 message += f"{field.verbose_name} изменено с {old_value} на {new_value}\n "
             expiration_time = timezone.now() + timedelta(days=1)
-            user_id = user.id if user else None
-            username = user.username if user else None  # Получаем имя пользователя, если он есть
-            ApplicationLogs.objects.create(
-                text=message, 
-                expiration_time=expiration_time,
-                task_number=instance.task_number, 
-                form_id=instance.id,
-                user_id=user_id,
-                username=username  # Сохраняем информацию о пользователе
-            )
+            ApplicationLogs.objects.create(text=message, expiration_time=expiration_time,
+                                           task_number=instance.task_number, form_id=instance.id)
     expired_messages = ApplicationLogs.objects.filter(expiration_time__lt=timezone.now())
     expired_messages.delete()
 
@@ -101,28 +120,30 @@ def track_application_send_notification(sender, instance, **kwargs):
         obj = sender.objects.get(id=instance.id)
         changes = []
         if obj.status != instance.status:
-            changes.append(f"Статус изменен с '{obj.get_status_display()}' на '{instance.get_status_display()}'")
+            changes.append(
+                f"Статус изменен с '{obj.get_status_display()}' на '{instance.get_status_display()}'")
         if obj.priority != instance.priority:
-            changes.append(f"Приоритет изменен с '{obj.get_priority_display()}' на '{instance.get_priority_display()}'")
+            changes.append(
+                f"Приоритет изменен с '{obj.get_priority_display()}' на '{instance.get_priority_display()}'")
         if changes:
-            message = ', '.join(changes)
             manager_name = f"{instance.main_manager.first_name} {instance.main_manager.surname}"
-            expiration_time = timezone.now() + timedelta(weeks=13)
-            Notification.objects.create(
-                task_number=instance.task_number,
-                title=instance.title,
-                text=message,
-                made_change=manager_name,
-                form_id=instance.id,
-                expiration_time=expiration_time
-            )
+            expiration_time = timezone.now() + timedelta(weeks=5)
+            for change in changes:
+                Notification.objects.create(
+                    task_number=instance.task_number,
+                    title=instance.title,
+                    text=change,
+                    made_change=manager_name,
+                    form_id=instance.id,
+                    expiration_time=expiration_time
+                )
     delete_expired_notifications()
 
 
 @receiver(post_save, sender=ApplicationForm)
 def send_notification_on_create_close(sender, instance, created, **kwargs):
     if created:
-        expiration_time = timezone.now() + timedelta(weeks=13)
+        expiration_time = timezone.now() + timedelta(weeks=5)
         Notification.objects.create(
             task_number=f'Номер заявки: {instance.task_number}',
             text=f'Создана новая заявка',
@@ -130,9 +151,9 @@ def send_notification_on_create_close(sender, instance, created, **kwargs):
             made_change=f"{instance.main_manager.first_name} {instance.main_manager.surname}",
             is_admin=True,
             expiration_time=expiration_time,
-            )
+        )
     elif instance.status == 'Закрыто':
-        expiration_time = timezone.now() + timedelta(weeks=13)
+        expiration_time = timezone.now() + timedelta(weeks=5)
         Notification.objects.create(
             task_number=f'Номер заявки: {instance.task_number}',
             text=f"Заявка закрыто",
@@ -140,5 +161,35 @@ def send_notification_on_create_close(sender, instance, created, **kwargs):
             made_change=f"{instance.main_manager.first_name} {instance.main_manager.surname}",
             is_admin=True,
             expiration_time=expiration_time
-            )
+        )
     delete_expired_notifications()
+
+
+@receiver(pre_save, sender=ApplicationForm)
+def track_application_changes(sender, instance, request=None, **kwargs):
+    if instance.pk is not None:
+        obj = sender.objects.get(id=instance.id)
+        for field in instance._meta.fields:
+            old_value = getattr(obj, field.name)
+            new_value = getattr(instance, field.name)
+            if old_value != new_value:
+                message = f"{field.verbose_name} изменено с {old_value} на {new_value}"
+                username = f"{instance.main_manager.first_name} {instance.main_manager.surname}"
+                print(f'########### User: {username} #############')
+                expiration_time = timezone.now() + timedelta(days=1)
+                ApplicationLogs.objects.create(text=message, expiration_time=expiration_time,
+                                               task_number=instance.task_number, form_id=instance.id, username=username)
+
+# @receiver(pre_save, sender=ApplicationForm)
+# def track_application_changes(sender, instance, **kwargs):
+#     if instance.pk is not None:
+#         obj = sender.objects.get(id=instance.id)
+#         for field in instance._meta.fields:
+#             old_value = getattr(obj, field.name)
+#             new_value = getattr(instance, field.name)
+#             if old_value != new_value:
+#                 message = f"{field.verbose_name} изменено с {old_value} на {new_value}"
+#                 username = f"{instance.main_client.first_name} {instance.main_client.surname}"
+#                 expiration_time = timezone.now() + timedelta(days=1)
+#                 ApplicationLogs.objects.create(text=message, expiration_time=expiration_time,
+#                                                task_number=instance.task_number, form_id=instance.id, username=username)
