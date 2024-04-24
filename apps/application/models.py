@@ -35,9 +35,13 @@ class Comments(models.Model):
                                     verbose_name='Заявка')
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, verbose_name='Пользователь',
                              related_name='user_comments', null=True, blank=True)
+                             
+
+
+  
 
     def __str__(self):
-        return self.text
+        return f"Комментарий от {self.user.username} по заявке {self.application.title}"
 
 
 class ApplicationForm(models.Model):
@@ -128,11 +132,14 @@ class ApplicationLogs(models.Model):
     created_at = models.DateTimeField(auto_now_add=True, null=True)
     expiration_time = models.DateTimeField(null=True)
     form = models.ForeignKey(ApplicationForm, on_delete=models.CASCADE, null=True, related_name='logs')
+    user = models.ForeignKey(CustomUser, on_delete=models.SET_NULL, null=True, blank=True)
+    username = models.CharField(max_length=150, null=True, blank=True)  # Добавляем поле username
 
     objects = models.Manager()
 
     def __str__(self):
         return self.text
+
 
 
 class Notification(models.Model):

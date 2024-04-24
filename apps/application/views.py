@@ -98,10 +98,29 @@ class ApplicationLogsListCreateAPIView(generics.ListCreateAPIView):
     permission_classes = [IsAdminUserOrIsManagerCanDeleteComments]
 
 
+
+# def create_application_form(request):
+#     if request.method == 'POST':
+#         form = ApplicationForm(request.POST)
+#         if form.is_valid():
+#             application_form = form.save(commit=False)
+#             # Получаем текущего пользователя и передаем его в save() метод
+#             application_form.save(user=request.user)
+#             return HttpResponse('Форма успешно создана!')
+#     else:
+#         form = ApplicationForm()
+#     return render(request, 'create_application_form.html', {'form': form})
+
+
+# class ApplicationLogsRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):   #### убрать DELETE - запрос
+#     queryset = ApplicationLogs.objects.all()
+#     serializer_class = ApplicationLogsSerializer
+#     lookup_field = 'id'
 class ApplicationLogsRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):  #### убрать DELETE - запрос
     queryset = ApplicationLogs.objects.all()
     serializer_class = LogsSerializer
     lookup_field = 'id'
+
 
 
 class ChecklistAPIView(generics.CreateAPIView):
@@ -110,6 +129,7 @@ class ChecklistAPIView(generics.CreateAPIView):
     # permission_classes = [IsClientCanAddChecklist,
     #                       IsAdminUser,
     #                       IsManagerUser]
+    lookup_field = 'id'
 
 
 class CheckListDetailAPIView(generics.RetrieveUpdateDestroyAPIView):  ### посмотреть внимательно
@@ -120,7 +140,23 @@ class CheckListDetailAPIView(generics.RetrieveUpdateDestroyAPIView):  ### пос
     #                       IsManagerUser]
 
 
-class CommentsAPIView(generics.CreateAPIView):
+# class DeleteAllChecklistsAPIView(generics.DestroyAPIView):
+#     queryset = Checklist.objects.all()
+#     serializer_class = ChecklistSerializer
+#
+#     def delete(self, request, *args, **kwargs):
+#         application_id = kwargs.get('application_id')
+#         try:
+#             application = ApplicationForm.objects.get(id=application_id)
+#         except ApplicationForm.DoesNotExist:
+#             return Response({"error": "Заявка не существует"}, status=404)
+#
+#         checklists = application.checklist_set.all()
+#         checklists.delete()
+#         return Response({"message": "Все чеклисты для заявки были удалены."}, status=204)
+
+
+class CommentsAPIView(generics.ListCreateAPIView):
     queryset = Comments.objects.all()
     serializer_class = CommentsSerializer
     permission_classes = [IsAuthenticated]
@@ -128,6 +164,8 @@ class CommentsAPIView(generics.CreateAPIView):
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
 
+
+        
 
 class CommentsDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Comments.objects.all()

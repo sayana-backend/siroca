@@ -13,11 +13,18 @@ class ChecklistSerializer(serializers.ModelSerializer):
 
 class CommentsSerializer(serializers.ModelSerializer):
     user = serializers.CharField(source='user.username', read_only=True)
-    '''айди и аватарка'''
+    user_id = serializers.IntegerField(source='user.id', read_only=True)
+    user_image = serializers.SerializerMethodField()
 
     class Meta:
         model = Comments
         fields = '__all__'
+
+    def get_user_image(self, obj):
+        user = obj.user
+        if hasattr(user, 'image')and user.image:
+            return user.image.url
+        return None  
 
 
 class LogsSerializer(serializers.ModelSerializer):
@@ -27,8 +34,10 @@ class LogsSerializer(serializers.ModelSerializer):
 
 
 class ApplicationFormCreateSerializer(serializers.ModelSerializer):
-    '''Для первой страницы создания заявки'''
+    '''Для страницы создания заявки'''
     company = serializers.SlugRelatedField(slug_field='name', queryset=Company.objects.all())
+    checklist = ChecklistSerializer(many=True)
+    comments = CommentsSerializer(many=True)
 
     class Meta:
         model = ApplicationForm
@@ -47,6 +56,10 @@ class ApplicationFormListSerializer(serializers.ModelSerializer):
                   'start_date', 'finish_date')
 
 
+class ApplicationLogsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ApplicationLogs
+        fields = ('id', 'task_number', 'text', 'username')
 
 
 class ApplicationFormDetailSerializer(serializers.ModelSerializer):
