@@ -36,8 +36,6 @@ class LogsSerializer(serializers.ModelSerializer):
 class ApplicationFormCreateSerializer(serializers.ModelSerializer):
     '''Для страницы создания заявки'''
     company = serializers.SlugRelatedField(slug_field='name', queryset=Company.objects.all())
-    checklist = ChecklistSerializer(many=True)
-    comments = CommentsSerializer(many=True)
 
     class Meta:
         model = ApplicationForm
