@@ -22,8 +22,6 @@ urlpatterns = [
     path('notifications/delete/all/', NotificationDeleteViewAPI.as_view()),
     path('notifications/true/', NotificationTrueAPIView.as_view()),
 
-    # path('delete_all_checklists/<int:id>/', DeleteAllChecklistsAPIView.as_view()),
-
 ]
 
 

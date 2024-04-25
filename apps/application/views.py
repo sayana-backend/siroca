@@ -1,33 +1,29 @@
-from .serializers import *
-from .models import *
-from rest_framework import generics, filters
 from django_filters.rest_framework import DjangoFilterBackend
-from .filters import ApplicationFormFilter
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated
-from apps.user.permissions import *
 from rest_framework.response import Response
+from rest_framework import generics, filters
+from .filters import ApplicationFormFilter
+from apps.user.permissions import *
+from django.core.cache import cache
 from rest_framework import status
 from django.db.models import Q
-from .models import Comments
-from .serializers import CommentsSerializer
+from .serializers import *
 from .signals import *
-from django.core.cache import cache
+from .models import *
 
-
-
-class ApplicationFormCreateAPIView(generics.CreateAPIView):
-    queryset = ApplicationForm.objects.all()
-    serializer_class = ApplicationFormCreateSerializer
-
-    def perform_create(self, serializer):
-        serializer.save(main_manager=self.request.user)
 
 class CustomPagination(PageNumberPagination):
     page_size = 50
     def get_paginated_response(self, data):
         return Response(data)
 
+
+class ApplicationFormCreateAPIView(generics.CreateAPIView):
+    queryset = ApplicationForm.objects.all()
+    serializer_class = ApplicationFormCreateSerializer
+    def perform_create(self, serializer):
+        serializer.save(main_manager=self.request.user)
 
 
 class ApplicationFormListAPIView(generics.ListAPIView):
@@ -42,9 +38,9 @@ class ApplicationFormListAPIView(generics.ListAPIView):
 
     def get_queryset(self):
         user = self.request.user
+
         if user.is_superuser:
             queryset = ApplicationForm.objects.all()
-
         elif user.is_client:
             queryset = ApplicationForm.objects.filter(Q(main_client=user) |
                                                       Q(company=user.main_company))
@@ -72,15 +68,14 @@ class ApplicationFormListAPIView(generics.ListAPIView):
                 'results': serializer.data
             }
             return self.get_paginated_response(data)
-
         return Response({'detail': 'Not found'}, status=404)
 
 
 class ApplicationFormRetrieveUpdateAPIView(generics.RetrieveUpdateAPIView):
     '''  update API '''
     queryset = ApplicationForm.objects.all()
-    lookup_field = 'id'
     serializer_class = ApplicationFormUpdateSerializer
+    lookup_field = 'id'
     # permission_classes = [IsManagerCanCreateAndEditCompany]
 
 
@@ -90,10 +85,11 @@ class ApplicationFormRetrieveDestroyAPIView(generics.RetrieveDestroyAPIView):
     lookup_field = 'id'
 
 
+
 class ApplicationLogsListCreateAPIView(generics.ListCreateAPIView):
     queryset = ApplicationLogs.objects.all()
-    lookup_field = 'id'
     serializer_class = LogsSerializer
+    lookup_field = 'id'
     permission_classes = [IsAdminUserOrIsManagerCanDeleteComments]
 
 
@@ -101,6 +97,7 @@ class ApplicationLogsRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroy
     queryset = ApplicationLogs.objects.all()
     serializer_class = LogsSerializer
     lookup_field = 'id'
+
 
 
 
@@ -119,22 +116,6 @@ class CheckListDetailAPIView(generics.RetrieveUpdateDestroyAPIView):  ### пос
     lookup_field = 'id'
     # permission_classes = [IsAdminUser,
     #                       IsManagerUser]
-
-
-# class DeleteAllChecklistsAPIView(generics.DestroyAPIView):
-#     queryset = Checklist.objects.all()
-#     serializer_class = ChecklistSerializer
-#
-#     def delete(self, request, *args, **kwargs):
-#         application_id = kwargs.get('application_id')
-#         try:
-#             application = ApplicationForm.objects.get(id=application_id)
-#         except ApplicationForm.DoesNotExist:
-#             return Response({"error": "Заявка не существует"}, status=404)
-#
-#         checklists = application.checklist_set.all()
-#         checklists.delete()
-#         return Response({"message": "Все чеклисты для заявки были удалены."}, status=204)
 
 
 class CommentsAPIView(generics.ListCreateAPIView):
@@ -209,6 +190,7 @@ class NotificationDeleteViewAPI(generics.DestroyAPIView):
                 return Response(status=status.HTTP_204_NO_CONTENT)
             except Notification.DoesNotExist:
                 return Response(status=status.HTTP_404_NOT_FOUND)
+
         return Response(status=status.HTTP_400_BAD_REQUEST)
 
 

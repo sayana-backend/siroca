@@ -10,14 +10,16 @@ from .models import CustomUser
 
 
 class CreateUserView(generics.CreateAPIView):
+    '''Create user'''
     queryset = CustomUser.objects.all()
     serializer_class = UserProfileRegisterSerializer
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-
         user = CustomUser.objects.create_user(**serializer.validated_data)
+
+        '''Set general permissions to new user'''
         first_client = CustomUser.objects.filter(role_type='client').first()
         first_manager = CustomUser.objects.filter(role_type='manager').first()
 
@@ -29,6 +31,7 @@ class CreateUserView(generics.CreateAPIView):
             user.client_can_add_checklist = first_client.client_can_add_checklist
             user.client_can_view_profiles = first_client.client_can_view_profiles
             user.save()
+
         elif first_manager:
             user.manager_can_delete_comments = first_manager.manager_can_delete_comments
             user.manager_can_get_reports = first_manager.manager_can_get_reports
@@ -37,11 +40,11 @@ class CreateUserView(generics.CreateAPIView):
             user.save()
         else:
             pass
-
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
 class ListUserProfileView(generics.ListAPIView):
+    '''list users'''
     queryset = CustomUser.objects.all()
     serializer_class = UserProfileSerializer
     pagination_class = CustomPagination
@@ -49,7 +52,7 @@ class ListUserProfileView(generics.ListAPIView):
     search_fields = ['first_name', 'surname', 'main_company__name']
 
 
-class DetailUserProfileView(generics.RetrieveUpdateDestroyAPIView):
+class DetailUserProfileView(generics.RetrieveUpdateDestroyAPIView): #разве не надо разделить просмтр и редактирование на две отдельные апишки
     queryset = CustomUser.objects.all()
     serializer_class = UserProfileSerializer
     lookup_field = 'id'
@@ -99,9 +102,10 @@ class AdminContactDetailView(generics.RetrieveUpdateAPIView): # пересмот
         return obj
 
 
-class AdminContactListView(generics.ListAPIView):
+class AdminContactListView(generics.ListAPIView): # что с кверисетом
     '''Контакты админа при авторизации'''
     serializer_class = AdminContactSerializer
+
     def get_queryset(self):
         return AdminContact.objects.all()
 
@@ -153,8 +157,7 @@ class AdminResetPasswordView(generics.UpdateAPIView):
         return Response({'detail': 'Пароль пользователя успешно сброшен.', 'new_password': new_password}, status=status.HTTP_200_OK)
 
 
-
-
+'''Permissions'''
 class ManagerPermissionsGeneralView(generics.UpdateAPIView, generics.ListAPIView):
     queryset = CustomUser.objects.filter(role_type='manager')
     serializer_class = ManagerPermissionsGeneralSerializer

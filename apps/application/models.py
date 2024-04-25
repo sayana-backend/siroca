@@ -19,7 +19,6 @@ class Checklist(models.Model):
                                 blank=True,
                                 null=True,
                                 limit_choices_to={'is_manager': True})
-
     def __str__(self):
         return self.text
 
@@ -35,10 +34,6 @@ class Comments(models.Model):
                                     verbose_name='Заявка')
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, verbose_name='Пользователь',
                              related_name='user_comments', null=True, blank=True)
-                             
-
-
-  
 
     def __str__(self):
         return f"Комментарий от {self.user.username} по заявке {self.application.title}"
@@ -81,7 +76,8 @@ class ApplicationForm(models.Model):
                               verbose_name='Статус заявки', blank=True, null=True)
     payment_state = models.CharField(max_length=100, choices=PAYMENT_STATE,
                                      verbose_name='Статус оплаты', blank=True, null=True)
-    priority = models.CharField(max_length=100, choices=PRIORITY, verbose_name='Приоритет заявки', blank=True, default='Средний')
+    priority = models.CharField(max_length=100, choices=PRIORITY, verbose_name='Приоритет заявки',
+                                blank=True, default='Средний')
 
     company = models.ForeignKey('company.Company', on_delete=models.CASCADE, verbose_name='Компания', blank=False,
                                 null=True)
@@ -129,8 +125,8 @@ class ApplicationLogs(models.Model):
     username = models.CharField(max_length=100, null=True, blank=True)
     task_number = models.CharField(max_length=50, null=True, blank=True)
     text = models.CharField(max_length=300, null=True, blank=True)
-    created_at = models.DateTimeField(auto_now_add=True, null=True)
-    expiration_time = models.DateTimeField(null=True)
+    created_at = models.DateField(auto_now_add=True, null=True)
+    expiration_time = models.DateField(null=True)
     form = models.ForeignKey(ApplicationForm, on_delete=models.CASCADE, null=True, related_name='logs')
     user = models.ForeignKey(CustomUser, on_delete=models.SET_NULL, null=True, blank=True)
     username = models.CharField(max_length=150, null=True, blank=True)  # Добавляем поле username
@@ -139,7 +135,6 @@ class ApplicationLogs(models.Model):
 
     def __str__(self):
         return self.text
-
 
 
 class Notification(models.Model):

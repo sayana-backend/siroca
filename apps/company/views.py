@@ -20,7 +20,6 @@ class CompanyListAPIView(generics.ListAPIView):
     search_fields = ['name', 'country', 'company_code']
 
 
-
 class CompanyDetailAPIView(generics.RetrieveAPIView):
     '''company detail only view'''
     queryset = Company.objects.all()
@@ -65,7 +64,6 @@ class JobTitleCreateAPIView(generics.CreateAPIView):
     serializer_class = JobTitleSerializer
 
 
-
 @csrf_exempt
 def generate_codes_view(request):
     if request.method == 'GET':
@@ -77,12 +75,9 @@ def generate_codes_view(request):
         return JsonResponse({'error': 'Method not allowed'}, status=405)
 
 
-
-
 class LogoAPIView(APIView):
     def get(self, request):
         logo_path = 'back_static/logo.svg'
-
         try:
             with open(logo_path, 'rb') as file:
                 response = HttpResponse(file.read(), content_type='image/svg+xml')
