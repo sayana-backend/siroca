@@ -141,7 +141,7 @@ def track_application_changes(sender, instance, request=None, **kwargs):
             if old_value != new_value:
                 message = f"{field.verbose_name} изменено с {old_value} на {new_value}"
                 username = f"{instance.main_manager.first_name} {instance.main_manager.surname}"
-                print(f'########### User: {username} #############')
+                # print(f'########### User: {username} #############')
                 expiration_time = timezone.now() + timedelta(days=1)
                 ApplicationLogs.objects.create(text=message, expiration_time=expiration_time,
                                                task_number=instance.task_number, form_id=instance.id, username=username)

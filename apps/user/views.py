@@ -7,15 +7,16 @@ from .models import CustomUser,AdminContact
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from django.http import Http404
 from .serializers import *
-from .permissions import IsAdminUserOrIsManagerCanDeleteComments
+from .permissions import *
 from rest_framework import permissions, filters
 from .models import CustomUser
-from .permissions import IsAdminUser, IsClientUser, IsManagerUser, IsClientCanViewProfiles
+from .permissions import IsAdminUser, IsClientUser, IsManagerUser
 
 
 class CreateUserView(generics.CreateAPIView):
     queryset = CustomUser.objects.all()
     serializer_class = UserProfileRegisterSerializer
+    permission_classes = [IsManagerCanCreateAndEditUserOrIsAdminUser]
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
@@ -31,7 +32,6 @@ class CreateUserView(generics.CreateAPIView):
             user.client_can_view_logs = first_client.client_can_view_logs
             user.client_can_add_files = first_client.client_can_add_files
             user.client_can_add_checklist = first_client.client_can_add_checklist
-            user.client_can_view_profiles = first_client.client_can_view_profiles
             user.save()
         elif first_manager:
             user.manager_can_delete_comments = first_manager.manager_can_delete_comments
@@ -51,6 +51,7 @@ class CreateUserView(generics.CreateAPIView):
 class ListUserProfileView(generics.ListAPIView):
     queryset = CustomUser.objects.all()
     serializer_class = UserProfileSerializer
+    permission_classes = [IsManagerCanCreateAndEditUserOrIsAdminUser]
     pagination_class = PageNumberPagination
     filter_backends = [filters.SearchFilter]
     search_fields = ['first_name', 'surname']
@@ -62,8 +63,8 @@ class ListUserProfileView(generics.ListAPIView):
 class DetailUserProfileView(generics.RetrieveUpdateDestroyAPIView):
     queryset = CustomUser.objects.all()
     serializer_class = UserProfileSerializer
+    permission_classes = [IsManagerCanViewProfilesOrIsAdminUser]
     lookup_field = 'id'
-    # permission_classes = [IsAdminUser, IsClientCanViewProfiles]
 
 
 class UserLoginView(generics.CreateAPIView):
@@ -149,6 +150,7 @@ class ManagerPermissionsGeneralView(generics.UpdateAPIView, generics.ListAPIView
 class ManagerPermissionsDetailAPIView(generics.ListAPIView):
     queryset = CustomUser.objects.filter(role_type='manager')
     serializer_class = ManagerPermissionsDetailSerializer
+    # permission_classes = [IsAdminUser]
 
     def put(self, request, *args, **kwargs):
         users_data = request.data.get('users_data', [])
@@ -176,15 +178,13 @@ class ClientPermissionsGeneralView(generics.UpdateAPIView, generics.ListAPIView)
         client_can_view_logs = request.data.get('client_can_view_logs')
         client_can_add_files = request.data.get('client_can_add_files')
         client_can_add_checklist = request.data.get('client_can_add_checklist')
-        client_can_view_profiles = request.data.get('client_can_view_profiles')
 
         self.queryset.update(
             client_can_edit_comments=bool(client_can_edit_comments),
             client_can_get_reports=bool(client_can_get_reports),
             client_can_view_logs=bool(client_can_view_logs),
             client_can_add_files=bool(client_can_add_files),
-            client_can_add_checklist=bool(client_can_add_checklist),
-            client_can_view_profiles=bool(client_can_view_profiles)
+            client_can_add_checklist=bool(client_can_add_checklist)
         )
         return Response('Права клиента обновлены')
 
@@ -200,8 +200,7 @@ class ClientPermissionsGeneralView(generics.UpdateAPIView, generics.ListAPIView)
                 "client_can_get_reports": first_client.client_can_get_reports,
                 "client_can_view_logs": first_client.client_can_view_logs,
                 "client_can_add_files": first_client.client_can_add_files,
-                "client_can_add_checklist": first_client.client_can_add_checklist,
-                "client_can_view_profiles": first_client.client_can_view_profiles,
+                "client_can_add_checklist": first_client.client_can_add_checklist
             }
         return Response(client_permissions)
 
@@ -209,6 +208,7 @@ class ClientPermissionsGeneralView(generics.UpdateAPIView, generics.ListAPIView)
 class ClientPermissionsDetailAPIView(generics.ListAPIView):
     queryset = CustomUser.objects.filter(role_type='client')
     serializer_class = ClientPermissionsDetailSerializer
+    # permission_classes = [IsAdminUser]
 
     def put(self, request, *args, **kwargs):
         users_data = request.data.get('users_data', [])
@@ -226,6 +226,7 @@ class ClientPermissionsDetailAPIView(generics.ListAPIView):
 class UserPermissionsDetailAPIView(generics.RetrieveUpdateAPIView):
     queryset = CustomUser.objects.all()
     lookup_field = 'id'
+    # permission_classes = [IsAdminUser]
 
     def get_serializer_class(self):
         user = self.get_object()
@@ -252,7 +253,7 @@ class AdminContactListView(generics.ListAPIView):
 class ChangePasswordView(generics.UpdateAPIView):
     queryset = CustomUser.objects.all()
     serializer_class = ChangePasswordSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAdminUser]
 
     def update(self, request, *args, **kwargs):
         user = self.request.user
