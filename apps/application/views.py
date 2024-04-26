@@ -22,6 +22,8 @@ class CustomPagination(PageNumberPagination):
 class ApplicationFormCreateAPIView(generics.CreateAPIView):
     queryset = ApplicationForm.objects.all()
     serializer_class = ApplicationFormCreateSerializer
+    permission_classes = [IsClientCanCreateApplicationOrIsAdminAndManagerUser]
+
     def perform_create(self, serializer):
         serializer.save(main_manager=self.request.user)
 
@@ -76,21 +78,21 @@ class ApplicationFormRetrieveUpdateAPIView(generics.RetrieveUpdateAPIView):
     queryset = ApplicationForm.objects.all()
     serializer_class = ApplicationFormUpdateSerializer
     lookup_field = 'id'
-    # permission_classes = [IsManagerCanCreateAndEditCompany]
+    permission_classes = [IsClientCanEditApplicationAndIsManagerUser]
 
 
 class ApplicationFormRetrieveDestroyAPIView(generics.RetrieveDestroyAPIView):
     queryset = ApplicationForm.objects.all()
     serializer_class = ApplicationFormDetailViewSerializer
     lookup_field = 'id'
-
+    permission_classes = [IsAdminUserAndManagerUser]
 
 
 class ApplicationLogsListCreateAPIView(generics.ListCreateAPIView):
     queryset = ApplicationLogs.objects.all()
     serializer_class = LogsSerializer
     lookup_field = 'id'
-    permission_classes = [IsAdminUserOrIsManagerCanDeleteComments]
+    permission_classes = [IsClientCanViewLogsOrIsAdminAndManagerUser]
 
 
 class ApplicationLogsRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):  #### убрать DELETE - запрос
@@ -104,24 +106,21 @@ class ApplicationLogsRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroy
 class ChecklistAPIView(generics.CreateAPIView):
     queryset = Checklist.objects.all()
     serializer_class = ChecklistSerializer
-    # permission_classes = [IsClientCanAddChecklist,
-    #                       IsAdminUser,
-    #                       IsManagerUser]
     lookup_field = 'id'
+    permission_classes = [IsClientCanAddChecklistOrIsAdminAndManagerUser]
 
 
 class CheckListDetailAPIView(generics.RetrieveUpdateDestroyAPIView):  ### посмотреть внимательно
     queryset = Checklist.objects.all()
     serializer_class = ChecklistSerializer
     lookup_field = 'id'
-    # permission_classes = [IsAdminUser,
-    #                       IsManagerUser]
+    permission_classes = [IsAdminUserAndManagerUser]
 
 
 class CommentsAPIView(generics.ListCreateAPIView):
     queryset = Comments.objects.all()
     serializer_class = CommentsSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsClientCanCreateCommentsOrIsAdminAndManagerUser]
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
@@ -131,7 +130,7 @@ class CommentsDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Comments.objects.all()
     serializer_class = CommentsSerializer
     lookup_field = 'id'
-    # permission_classes = [IsManagerCanDeleteComments,]
+    permission_classes = [IsAdminOrManagerOrClientUsersCanEditComments]
 
 
 

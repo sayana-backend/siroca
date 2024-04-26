@@ -5,14 +5,17 @@ from django.contrib.auth import authenticate
 from rest_framework import generics, status
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from .serializers import *
-from rest_framework import filters
+from .permissions import *
+from rest_framework import permissions, filters
 from .models import CustomUser
+from .permissions import IsAdminUser, IsClientUser, IsManagerUser
 
 
 class CreateUserView(generics.CreateAPIView):
     '''Create user'''
     queryset = CustomUser.objects.all()
     serializer_class = UserProfileRegisterSerializer
+    permission_classes = [IsManagerCanCreateAndEditUserOrIsAdminUser]
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
@@ -29,7 +32,6 @@ class CreateUserView(generics.CreateAPIView):
             user.client_can_view_logs = first_client.client_can_view_logs
             user.client_can_add_files = first_client.client_can_add_files
             user.client_can_add_checklist = first_client.client_can_add_checklist
-            user.client_can_view_profiles = first_client.client_can_view_profiles
             user.save()
 
         elif first_manager:
@@ -48,6 +50,7 @@ class ListUserProfileView(generics.ListAPIView):
     queryset = CustomUser.objects.all()
     serializer_class = UserProfileSerializer
     pagination_class = CustomPagination
+    permission_classes = [IsManagerCanCreateAndEditUserOrIsAdminUser]
     filter_backends = [filters.SearchFilter]
     search_fields = ['first_name', 'surname', 'main_company__name']
 
@@ -55,8 +58,8 @@ class ListUserProfileView(generics.ListAPIView):
 class DetailUserProfileView(generics.RetrieveUpdateDestroyAPIView): #разве не надо разделить просмтр и редактирование на две отдельные апишки
     queryset = CustomUser.objects.all()
     serializer_class = UserProfileSerializer
+    permission_classes = [IsManagerCanViewProfilesOrIsAdminUser]
     lookup_field = 'id'
-    # permission_classes = [IsAdminUser, IsClientCanViewProfiles]
 
 
 class UserLoginView(generics.CreateAPIView):
@@ -194,41 +197,20 @@ class ManagerPermissionsGeneralView(generics.UpdateAPIView, generics.ListAPIView
 class ManagerPermissionsDetailAPIView(generics.ListAPIView):
     queryset = CustomUser.objects.filter(role_type='manager')
     serializer_class = ManagerPermissionsDetailSerializer
+    # permission_classes = [IsAdminUser]
 
     def put(self, request, *args, **kwargs):
         users_data = request.data.get('users_data', [])
-        # print(f'Users data: {users_data}')
         for user_data in users_data:
             user_id = user_data.get('id')
-            # print(f'User id: {user_id}')
             try:
                 user_instance = CustomUser.objects.get(id=user_id)
             except CustomUser.DoesNotExist:
                 return Response(f'Менеджер с id={user_id} не найден', status=404)
-
-            update_data = {
-                'manager_can_delete_comments_extra': user_data.get('manager_can_delete_comments_extra',
-                                                                   user_instance.manager_can_delete_comments_extra),
-                'manager_can_get_reports_extra': user_data.get('manager_can_get_reports_extra',
-                                                               user_instance.manager_can_get_reports_extra),
-                'manager_can_view_profiles_extra': user_data.get('manager_can_view_profiles_extra',
-                                                                 user_instance.manager_can_view_profiles_extra),
-                'manager_can_delete_application_extra': user_data.get('manager_can_delete_application_extra',
-                                                                      user_instance.manager_can_delete_application_extra),
-                'manager_can_create_and_edit_company_extra': user_data.get('manager_can_create_and_edit_company_extra',
-                                                                      user_instance.manager_can_create_and_edit_company_extra),
-                'manager_can_create_and_edit_user_extra': user_data.get('manager_can_create_and_edit_user_extra',
-                                                                      user_instance.manager_can_create_and_edit_user_extra),
-                'manager_can_create_and_delete_job_title_extra': user_data.get('manager_can_create_and_delete_job_title_extra',
-                                                                      user_instance.manager_can_create_and_delete_job_title_extra),
-            }
-            # print(f'Update data: {update_data}')
-
-            serializer = self.get_serializer(user_instance, data=user_data, partial=True)
-            serializer.is_valid(raise_exception=True)
-            serializer.save()
+            for key, value in user_data.items():
+                setattr(user_instance, key, value)
+            user_instance.save()
         return Response('Права менеджера успешно обновлены')
-
 
 
 class ClientPermissionsGeneralView(generics.UpdateAPIView, generics.ListAPIView):
@@ -243,15 +225,13 @@ class ClientPermissionsGeneralView(generics.UpdateAPIView, generics.ListAPIView)
         client_can_view_logs = request.data.get('client_can_view_logs')
         client_can_add_files = request.data.get('client_can_add_files')
         client_can_add_checklist = request.data.get('client_can_add_checklist')
-        client_can_view_profiles = request.data.get('client_can_view_profiles')
 
         self.queryset.update(
             client_can_edit_comments=bool(client_can_edit_comments),
             client_can_get_reports=bool(client_can_get_reports),
             client_can_view_logs=bool(client_can_view_logs),
             client_can_add_files=bool(client_can_add_files),
-            client_can_add_checklist=bool(client_can_add_checklist),
-            client_can_view_profiles=bool(client_can_view_profiles)
+            client_can_add_checklist=bool(client_can_add_checklist)
         )
         return Response('Права клиента обновлены')
 
@@ -267,8 +247,7 @@ class ClientPermissionsGeneralView(generics.UpdateAPIView, generics.ListAPIView)
                 "client_can_get_reports": first_client.client_can_get_reports,
                 "client_can_view_logs": first_client.client_can_view_logs,
                 "client_can_add_files": first_client.client_can_add_files,
-                "client_can_add_checklist": first_client.client_can_add_checklist,
-                "client_can_view_profiles": first_client.client_can_view_profiles,
+                "client_can_add_checklist": first_client.client_can_add_checklist
             }
         return Response(client_permissions)
 
@@ -276,47 +255,26 @@ class ClientPermissionsGeneralView(generics.UpdateAPIView, generics.ListAPIView)
 class ClientPermissionsDetailAPIView(generics.ListAPIView):
     queryset = CustomUser.objects.filter(role_type='client')
     serializer_class = ClientPermissionsDetailSerializer
+    # permission_classes = [IsAdminUser]
 
     def put(self, request, *args, **kwargs):
         users_data = request.data.get('users_data', [])
-        # print(f'Users data: {users_data}')
         for user_data in users_data:
             user_id = user_data.get('id')
-            # print(f'User id: {user_id}')
             try:
                 user_instance = CustomUser.objects.get(id=user_id)
             except CustomUser.DoesNotExist:
                 return Response(f'Клиент с id={user_id} не найден', status=404)
-
-            update_data = {
-                'client_can_add_checklist_extra': user_data.get('client_can_add_checklist_extra',
-                                                                user_instance.client_can_add_checklist_extra),
-                'client_can_view_logs_extra': user_data.get('client_can_view_logs_extra',
-                                                            user_instance.client_can_view_logs_extra),
-                'client_can_get_reports_extra': user_data.get('client_can_get_reports_extra',
-                                                              user_instance.client_can_get_reports_extra),
-                'client_can_add_files_extra': user_data.get('client_can_add_files_extra',
-                                                            user_instance.client_can_add_files_extra),
-                'client_can_view_profiles_extra': user_data.get('client_can_view_profiles_extra',
-                                                                user_instance.client_can_view_profiles_extra),
-                'client_can_edit_comments_extra': user_data.get('client_can_edit_comments_extra',
-                                                                user_instance.client_can_edit_comments_extra),
-                'client_can_create_application_extra': user_data.get('client_can_create_application_extra',
-                                                                user_instance.client_can_create_application_extra),
-                'client_can_edit_application_extra': user_data.get('client_can_edit_application_extra',
-                                                                user_instance.client_can_edit_application_extra)
-            }
-            print(f'Update data: {update_data}')
-
-            serializer = self.get_serializer(user_instance, data=update_data, partial=True)
-            serializer.is_valid(raise_exception=True)
-            serializer.save()
-
+            for key, value in user_data.items():
+                setattr(user_instance, key, value)
+            user_instance.save()
         return Response('Права клиента успешно обновлены')
+
 
 class UserPermissionsDetailAPIView(generics.RetrieveUpdateAPIView):
     queryset = CustomUser.objects.all()
     lookup_field = 'id'
+    # permission_classes = [IsAdminUser]
 
     def get_serializer_class(self):
         user = self.get_object()
@@ -325,6 +283,10 @@ class UserPermissionsDetailAPIView(generics.RetrieveUpdateAPIView):
         elif user.role_type == 'manager':
             return ManagerPermissionsDetailSerializer
 
-
-
-
+    def update(self, request, *args, **kwargs):
+        partial = kwargs.pop('partial', False)
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data)

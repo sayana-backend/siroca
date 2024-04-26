@@ -35,6 +35,7 @@ class LogsSerializer(serializers.ModelSerializer):
 class ApplicationFormCreateSerializer(serializers.ModelSerializer):
     '''Application create'''
     company = serializers.SlugRelatedField(slug_field='name', queryset=Company.objects.all())
+    # company = serializers.CharField(source='company.name', read_only=True)
 
     class Meta:
         model = ApplicationForm
