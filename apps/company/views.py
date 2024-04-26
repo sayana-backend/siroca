@@ -32,7 +32,7 @@ class CompanyCreateAPIView(generics.CreateAPIView):
     '''company create'''
     queryset = Company.objects.all()
     serializer_class = CompanyCreateSerializer
-    permission_classes = [IsManagerCanCreateAndEditCompanyOrIsAdminUser]
+    # permission_classes = [IsManagerCanCreateAndEditCompanyOrIsAdminUser]
 
 
 class CompanyRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
