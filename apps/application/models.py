@@ -29,14 +29,14 @@ class Comments(models.Model):
         verbose_name_plural = 'Комментарии'
 
     text = models.TextField(verbose_name='Текст комментария')
-    date_added = models.DateField(auto_now_add=True, verbose_name='Дата добавления')
+    date_added = models.DateTimeField(auto_now_add=True, verbose_name='Дата добавления')
     application = models.ForeignKey('ApplicationForm', on_delete=models.CASCADE, related_name='comments',
                                     verbose_name='Заявка')
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, verbose_name='Пользователь',
                              related_name='user_comments', null=True, blank=True)
 
     def __str__(self):
-        return f"Комментарий от {self.user.username} по заявке {self.application.title}"
+        return self.text
 
 
 class ApplicationForm(models.Model):
@@ -125,7 +125,7 @@ class ApplicationLogs(models.Model):
     username = models.CharField(max_length=100, null=True, blank=True)
     task_number = models.CharField(max_length=50, null=True, blank=True)
     text = models.CharField(max_length=300, null=True, blank=True)
-    created_at = models.DateField(auto_now_add=True, null=True)
+    created_at = models.DateField(auto_now_add=True, null=True) ####
     expiration_time = models.DateField(null=True)
     form = models.ForeignKey(ApplicationForm, on_delete=models.CASCADE, null=True, related_name='logs')
     user = models.ForeignKey(CustomUser, on_delete=models.SET_NULL, null=True, blank=True)

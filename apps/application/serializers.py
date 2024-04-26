@@ -16,10 +16,14 @@ class CommentsSerializer(serializers.ModelSerializer):
     user = serializers.CharField(source='user.username', read_only=True)
     user_id = serializers.IntegerField(source='user.id', read_only=True)
     user_image = serializers.ImageField(source='user.image', read_only=True)
+    formatted_date_added = serializers.SerializerMethodField()
 
     class Meta:
         model = Comments
         fields = '__all__'
+
+    def get_formatted_date_added(self, instance):
+        return instance.date_added.strftime('%Y.%m.%d / %H:%M')
 
 
 class LogsSerializer(serializers.ModelSerializer):
