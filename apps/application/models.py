@@ -125,7 +125,7 @@ class ApplicationLogs(models.Model):
     username = models.CharField(max_length=100, null=True, blank=True)
     task_number = models.CharField(max_length=50, null=True, blank=True)
     text = models.CharField(max_length=300, null=True, blank=True)
-    created_at = models.DateField(auto_now_add=True, null=True) ####
+    created_at = models.DateTimeField(auto_now_add=True, null=True) ####
     expiration_time = models.DateField(null=True)
     form = models.ForeignKey(ApplicationForm, on_delete=models.CASCADE, null=True, related_name='logs')
     user = models.ForeignKey(CustomUser, on_delete=models.SET_NULL, null=True, blank=True)

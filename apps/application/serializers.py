@@ -27,9 +27,14 @@ class CommentsSerializer(serializers.ModelSerializer):
 
 
 class LogsSerializer(serializers.ModelSerializer):
+    formatted_created_at = serializers.SerializerMethodField()
+
     class Meta:
         model = ApplicationLogs
-        fields = ('id', 'username', 'task_number', 'text', 'created_at')
+        fields = ('id', 'username', 'task_number', 'text', 'formatted_created_at')
+
+    def get_formatted_created_at(self, instance):
+        return instance.created_at.strftime('%Y.%m.%d / %H:%M')
 
 
 class MultipleFilesField(serializers.ListField):
