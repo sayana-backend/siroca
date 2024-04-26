@@ -70,7 +70,7 @@ class ApplicationForm(models.Model):
     title = models.CharField(max_length=100, verbose_name='Название заявки', blank=False, null=True)
     description = models.TextField(verbose_name='Описание', blank=True, null=True)
     short_description = models.CharField(max_length=60, verbose_name='Краткое описание', blank=True, null=True)
-    files = models.ImageField(upload_to='', null=True, verbose_name='Файлы', blank=True)
+    files = models.FileField(upload_to='', null=True, verbose_name='Файлы', blank=True)
     jira = models.URLField(null=True, verbose_name='ссылка JIRA', blank=True)
     status = models.CharField(max_length=100, choices=STATUS, default='К выполнению',
                               verbose_name='Статус заявки', blank=True, null=True)
