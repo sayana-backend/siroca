@@ -37,14 +37,6 @@ class LogsSerializer(serializers.ModelSerializer):
         return instance.created_at.strftime('%Y.%m.%d / %H:%M')
 
 
-class MultipleFilesField(serializers.ListField):
-    def to_internal_value(self, data):
-        return data
-
-    def to_representation(self, data):
-        return data
-
-
 class ApplicationFormCreateSerializer(serializers.ModelSerializer):
     '''Application create'''
     company = serializers.SlugRelatedField(slug_field='name', queryset=Company.objects.all())
@@ -74,11 +66,12 @@ class ApplicationFormUpdateSerializer(serializers.ModelSerializer):
     main_client = serializers.SlugRelatedField(slug_field='username', queryset=CustomUser.objects.all(), required=False)
     main_manager = serializers.SlugRelatedField(slug_field='username', queryset=CustomUser.objects.all(), required=False)
     checklists = ChecklistSerializer(many=True, read_only=True)
-    files = MultipleFilesField(required=False)
+    files = serializers.ListField(child=serializers.FileField(), allow_empty=True)
 
     class Meta:
         model = ApplicationForm
         fields = '__all__'
+
 
 
 class ApplicationFormDetailViewSerializer(serializers.ModelSerializer):
