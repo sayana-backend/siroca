@@ -71,10 +71,10 @@ class ApplicationFormListSerializer(serializers.ModelSerializer):
 class ApplicationFormUpdateSerializer(serializers.ModelSerializer):
     '''Application ypdate'''
     company = serializers.CharField(source='company.name', read_only=True)
-    main_client = serializers.SlugRelatedField(slug_field='username', queryset=CustomUser.objects.all())
-    main_manager = serializers.SlugRelatedField(slug_field='username', queryset=CustomUser.objects.all())
+    main_client = serializers.SlugRelatedField(slug_field='username', queryset=CustomUser.objects.all(), required=False)
+    main_manager = serializers.SlugRelatedField(slug_field='username', queryset=CustomUser.objects.all(), required=False)
     checklists = ChecklistSerializer(many=True, read_only=True)
-    files = MultipleFilesField()
+    files = MultipleFilesField(required=False)
 
     class Meta:
         model = ApplicationForm

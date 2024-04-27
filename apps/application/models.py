@@ -104,7 +104,7 @@ class ApplicationForm(models.Model):
     deadline_date = models.DateField(null=True, verbose_name='Срок выполнения', blank=True)
 
     def __str__(self):
-        return f'{self.title}'
+        return self.title
 
 
 class TrackingStatus(models.Model):
