@@ -19,7 +19,6 @@ class Checklist(models.Model):
                                 blank=True,
                                 null=True,
                                 limit_choices_to={'is_manager': True})
-
     def __str__(self):
         return self.text
 
@@ -30,7 +29,7 @@ class Comments(models.Model):
         verbose_name_plural = 'Комментарии'
 
     text = models.TextField(verbose_name='Текст комментария')
-    date_added = models.DateField(auto_now_add=True, verbose_name='Дата добавления')
+    date_added = models.DateTimeField(auto_now_add=True, verbose_name='Дата добавления')
     application = models.ForeignKey('ApplicationForm', on_delete=models.CASCADE, related_name='comments',
                                     verbose_name='Заявка')
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, verbose_name='Пользователь',
@@ -54,9 +53,11 @@ class ApplicationForm(models.Model):
     )
 
     PRIORITY = (
+        ('Самый низкий', 'Самый низкий'),
         ('Низкий', 'Низкий'),
         ('Средний', 'Средний'),
         ('Высокий', 'Высокий'),
+        ('Самый высокий', 'Самый высокий'),
     )
 
     PAYMENT_STATE = (
@@ -69,14 +70,14 @@ class ApplicationForm(models.Model):
     title = models.CharField(max_length=100, verbose_name='Название заявки', blank=False, null=True)
     description = models.TextField(verbose_name='Описание', blank=True, null=True)
     short_description = models.CharField(max_length=60, verbose_name='Краткое описание', blank=True, null=True)
-    files = models.ImageField(upload_to='', null=True, verbose_name='Файлы', blank=True)
+    files = models.FileField(upload_to='', null=True, verbose_name='Файлы', blank=True)
     jira = models.URLField(null=True, verbose_name='ссылка JIRA', blank=True)
     status = models.CharField(max_length=100, choices=STATUS, default='К выполнению',
                               verbose_name='Статус заявки', blank=True, null=True)
     payment_state = models.CharField(max_length=100, choices=PAYMENT_STATE,
                                      verbose_name='Статус оплаты', blank=True, null=True)
-    priority = models.CharField(max_length=100, choices=PRIORITY, verbose_name='Приоритет заявки', blank=True,
-                                null=True)
+    priority = models.CharField(max_length=100, choices=PRIORITY, verbose_name='Приоритет заявки',
+                                blank=True, default='Средний')
 
     company = models.ForeignKey('company.Company', on_delete=models.CASCADE, verbose_name='Компания', blank=False,
                                 null=True)
@@ -103,7 +104,7 @@ class ApplicationForm(models.Model):
     deadline_date = models.DateField(null=True, verbose_name='Срок выполнения', blank=True)
 
     def __str__(self):
-        return f'{self.title}'
+        return self.title
 
     def save(self, *args, **kwargs):
         super(ApplicationForm, self).save(*args, **kwargs)
@@ -154,8 +155,9 @@ class ApplicationLogs(models.Model):
     task_number = models.CharField(max_length=50, null=True, blank=True)
     text = models.CharField(max_length=300, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True, null=True)
-    # expiration_time = models.DateTimeField(null=True)
+    expiration_time = models.DateField(null=True)
     form = models.ForeignKey(ApplicationForm, on_delete=models.CASCADE, null=True, related_name='logs')
+    user = models.ForeignKey(CustomUser, on_delete=models.SET_NULL, null=True, blank=True)
 
     objects = models.Manager()
 

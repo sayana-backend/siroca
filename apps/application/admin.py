@@ -28,6 +28,8 @@ class ChecklistAdmin(admin.ModelAdmin):
 class CommentsAdmin(admin.ModelAdmin):
     list_display = ['text',  'application']
     search_fields = ['text',  'application', 'date_added']
+    
+
 
 # admin.site.register(ApplicationLogs)
 # admin.site.register(Checklist)

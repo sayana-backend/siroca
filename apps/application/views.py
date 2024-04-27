@@ -1,33 +1,32 @@
-from .serializers import *
-from .models import *
-from rest_framework import generics, filters
 from django_filters.rest_framework import DjangoFilterBackend
-from .filters import ApplicationFormFilter
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated
-from apps.user.permissions import *
 from rest_framework.response import Response
+from rest_framework import generics, filters
+from .filters import ApplicationFormFilter
+from apps.user.permissions import *
+from django.core.cache import cache
 from rest_framework import status
 from django.db.models import Q
-from .models import Comments
-from .serializers import CommentsSerializer
+from .serializers import *
 from .signals import *
-from django.core.cache import cache
-# from apps.application.signals import track_application_changes
+from .models import *
+
+
+class CustomPagination(PageNumberPagination):
+    page_size = 50
+
+    def get_paginated_response(self, data):
+        return Response(data)
 
 
 class ApplicationFormCreateAPIView(generics.CreateAPIView):
     queryset = ApplicationForm.objects.all()
     serializer_class = ApplicationFormCreateSerializer
+    permission_classes = [IsClientCanCreateApplicationOrIsAdminAndManagerUser]
 
     def perform_create(self, serializer):
         serializer.save(main_manager=self.request.user)
-
-class CustomPagination(PageNumberPagination):
-    page_size = 50
-    def get_paginated_response(self, data):
-        return Response(data)
-
 
 
 class ApplicationFormListAPIView(generics.ListAPIView):
@@ -42,9 +41,9 @@ class ApplicationFormListAPIView(generics.ListAPIView):
 
     def get_queryset(self):
         user = self.request.user
+
         if user.is_superuser:
             queryset = ApplicationForm.objects.all()
-
         elif user.is_client:
             queryset = ApplicationForm.objects.filter(Q(main_client=user) |
                                                       Q(company=user.main_company))
@@ -64,7 +63,7 @@ class ApplicationFormListAPIView(generics.ListAPIView):
             serializer = self.get_serializer(page, many=True)
             created_count = queryset.count()
             in_progress_count = queryset.filter(status='В работе').count()
-            closed_count = queryset.filter(status='Закрыто').count()
+            closed_count = queryset.filter(status='Проверено').count()
             data = {
                 'created_count': created_count,
                 'in_progress_count': in_progress_count,
@@ -72,30 +71,29 @@ class ApplicationFormListAPIView(generics.ListAPIView):
                 'results': serializer.data
             }
             return self.get_paginated_response(data)
-
         return Response({'detail': 'Not found'}, status=404)
 
 
 class ApplicationFormRetrieveUpdateAPIView(generics.RetrieveUpdateAPIView):
     '''  update API '''
     queryset = ApplicationForm.objects.all()
+    serializer_class = ApplicationFormUpdateSerializer
     lookup_field = 'id'
-    serializer_class = ApplicationFormDetailSerializer
-
-    # permission_classes = [IsManagerCanCreateAndEditCompany]
+    permission_classes = [IsClientCanEditApplicationAndIsManagerUser]
 
 
-class ApplicationFormRetrieveUpdateDestroyAPIView(generics.RetrieveDestroyAPIView):
+class ApplicationFormRetrieveDestroyAPIView(generics.RetrieveDestroyAPIView):
     queryset = ApplicationForm.objects.all()
-    serializer_class = ApplicationFormDetailSerializer
+    serializer_class = ApplicationFormDetailViewSerializer
     lookup_field = 'id'
+    permission_classes = [IsAdminUserAndManagerUser]
 
 
 class ApplicationLogsListCreateAPIView(generics.ListCreateAPIView):
     queryset = ApplicationLogs.objects.all()
-    lookup_field = 'id'
     serializer_class = LogsSerializer
-    permission_classes = [IsAdminUserOrIsManagerCanDeleteComments]
+    lookup_field = 'id'
+    permission_classes = [IsClientCanViewLogsOrIsAdminAndManagerUser]
 
     # def create(self, request, *args, **kwargs):
     #     username = request.user.username
@@ -111,26 +109,26 @@ class ApplicationLogsRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroy
     lookup_field = 'id'
 
 
+
+
 class ChecklistAPIView(generics.CreateAPIView):
     queryset = Checklist.objects.all()
     serializer_class = ChecklistSerializer
-    # permission_classes = [IsClientCanAddChecklist,
-    #                       IsAdminUser,
-    #                       IsManagerUser]
+    lookup_field = 'id'
+    permission_classes = [IsClientCanAddChecklistOrIsAdminAndManagerUser]
 
 
 class CheckListDetailAPIView(generics.RetrieveUpdateDestroyAPIView):  ### посмотреть внимательно
     queryset = Checklist.objects.all()
     serializer_class = ChecklistSerializer
     lookup_field = 'id'
-    # permission_classes = [IsAdminUser,
-    #                       IsManagerUser]
+    permission_classes = [IsAdminUserAndManagerUser]
 
 
-class CommentsAPIView(generics.CreateAPIView):
+class CommentsAPIView(generics.ListCreateAPIView):
     queryset = Comments.objects.all()
     serializer_class = CommentsSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsClientCanCreateCommentsOrIsAdminAndManagerUser]
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
@@ -140,7 +138,11 @@ class CommentsDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Comments.objects.all()
     serializer_class = CommentsSerializer
     lookup_field = 'id'
-    # permission_classes = [IsManagerCanDeleteComments,]
+    permission_classes = [IsAdminOrManagerOrClientUsersCanEditComments]
+
+
+
+
 
 
 class NotificationAPIView(generics.ListAPIView):
@@ -195,6 +197,7 @@ class NotificationDeleteViewAPI(generics.DestroyAPIView):
                 return Response(status=status.HTTP_204_NO_CONTENT)
             except Notification.DoesNotExist:
                 return Response(status=status.HTTP_404_NOT_FOUND)
+
         return Response(status=status.HTTP_400_BAD_REQUEST)
 
 

@@ -3,7 +3,6 @@ from .models import Company, JobTitle
 from ..user.models import CustomUser
 
 
-
 class JobTitleSerializer(serializers.ModelSerializer):
     class Meta:
         model = JobTitle
@@ -19,8 +18,6 @@ class CompanyListSerializer(serializers.ModelSerializer):
         model = Company
         fields = ['id', 'name', 'country', 'count_users', 'count_applications', 
                   'main_manager', 'created_at', 'last_updated_at']
-
-
 
     def get_count_users(self, obj):
         return obj.get_count_users()
