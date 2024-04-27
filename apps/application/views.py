@@ -13,7 +13,7 @@ from .models import Comments
 from .serializers import CommentsSerializer
 from .signals import *
 from django.core.cache import cache
-
+# from apps.application.signals import track_application_changes
 
 
 class ApplicationFormCreateAPIView(generics.CreateAPIView):
@@ -96,6 +96,13 @@ class ApplicationLogsListCreateAPIView(generics.ListCreateAPIView):
     lookup_field = 'id'
     serializer_class = LogsSerializer
     permission_classes = [IsAdminUserOrIsManagerCanDeleteComments]
+
+    # def create(self, request, *args, **kwargs):
+    #     username = request.user.username
+    #     ApplicationLogs.objects.create(username=username, **self.request.data)
+    #     return super().create(request, *args, **kwargs)
+    # def perform_create(self, serializer):
+    #     serializer.save(username=self.request.user.username)
 
 
 class ApplicationLogsRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):  #### убрать DELETE - запрос

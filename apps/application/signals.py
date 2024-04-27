@@ -8,6 +8,7 @@ from .models import Comments
 from django.http import HttpRequest
 
 
+
 # @receiver(pre_save, sender=ApplicationForm)
 # def track_application_changes(sender, instance, **kwargs):
 #     if instance.pk is not None:
@@ -115,7 +116,6 @@ ADMIN_NOTIFICATION = CustomUser.objects.filter(is_superuser=True)
 def send_notification_on_create_close(sender, instance, created, **kwargs):
     for admin in ADMIN_NOTIFICATION:
         if created:
-            # expiration_time = timezone.now() + timedelta(weeks=5)
             Notification.objects.create(
                 task_number=f'Номер заявки: {instance.task_number}',
                 text=f'Создана новая заявка',
@@ -125,7 +125,6 @@ def send_notification_on_create_close(sender, instance, created, **kwargs):
                 admin_id=admin.id
             )
         elif instance.status == 'Проверено':
-            # expiration_time = timezone.now() + timedelta(weeks=5)
             Notification.objects.create(
                 task_number=f'Номер заявки: {instance.task_number}',
                 text=f"Заявка закрыто",
@@ -136,23 +135,8 @@ def send_notification_on_create_close(sender, instance, created, **kwargs):
             )
 
 
-@receiver(pre_save, sender=ApplicationForm)
-def track_application_changes(sender, instance, request=None, **kwargs):
-    if instance.pk is not None:
-        obj = sender.objects.get(id=instance.id)
-        for field in instance._meta.fields:
-            old_value = getattr(obj, field.name)
-            new_value = getattr(instance, field.name)
-            if old_value != new_value:
-                message = f"{field.verbose_name} изменено с {old_value} на {new_value}"
-                username = f"{instance.main_manager.first_name} {instance.main_manager.surname}"
-                print(f'########### User: {username} #############')
-                expiration_time = timezone.now() + timedelta(days=1)
-                ApplicationLogs.objects.create(text=message, expiration_time=expiration_time,
-                                               task_number=instance.task_number, form_id=instance.id, username=username)
-
 # @receiver(pre_save, sender=ApplicationForm)
-# def track_application_changes(sender, instance, **kwargs):
+# def track_application_changes(sender, instance, request=None, **kwargs):
 #     if instance.pk is not None:
 #         obj = sender.objects.get(id=instance.id)
 #         for field in instance._meta.fields:
@@ -160,7 +144,23 @@ def track_application_changes(sender, instance, request=None, **kwargs):
 #             new_value = getattr(instance, field.name)
 #             if old_value != new_value:
 #                 message = f"{field.verbose_name} изменено с {old_value} на {new_value}"
-#                 username = f"{instance.main_client.first_name} {instance.main_client.surname}"
+#                 username = f"{instance.main_manager.first_name} {instance.main_manager.surname}"
+#                 print(f'########### User: {username} #############')
 #                 expiration_time = timezone.now() + timedelta(days=1)
 #                 ApplicationLogs.objects.create(text=message, expiration_time=expiration_time,
 #                                                task_number=instance.task_number, form_id=instance.id, username=username)
+
+
+
+# @receiver(pre_save, sender=ApplicationForm)
+# def track_application_changes(sender, instance, **kwargs, ):
+#     if instance.pk is not None:
+#         obj = sender.objects.get(id=instance.id)
+#         for field in instance._meta.fields:
+#             old_value = getattr(obj, field.name)
+#             new_value = getattr(instance, field.name)
+#             if old_value != new_value:
+#                 message = f"{field.verbose_name} изменено с {old_value} на {new_value}"
+#                 # username = get_current_user().username
+#                 ApplicationLogs.objects.create(text=message, task_number=instance.task_number,
+#                                                form_id=instance.id, username=)
