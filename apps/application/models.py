@@ -4,25 +4,37 @@ from django.db import models
 
 
 class Checklist(models.Model):
-    class Meta:
-        verbose_name = 'Подзадача'
-        verbose_name_plural = 'Подзадачи'
+    
 
+    application = models.ForeignKey(ApplicationForm, verbose_name='Заявка', on_delete=models.CASCADE,
+                                    related_name='checklists')
+    
+    name = models.CharField(max_length=100, verbose_name='Название чеклиста')
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        verbose_name = 'Чеклист'
+        verbose_name_plural = 'Чеклисты'
+
+class SubTask(models.Model):
+    
+
+    checklist = models.ForeignKey(Checklist, verbose_name='Чеклист', on_delete=models.CASCADE,
+                                  related_name='subtasks')
     text = models.CharField(max_length=255, verbose_name='Текст подзадачи')
     completed = models.BooleanField(default=False)
-    application = models.ForeignKey('ApplicationForm', verbose_name='Заявки', on_delete=models.CASCADE,
-                                    related_name='checklists')
     deadline = models.DateField(verbose_name='Дедлайн', blank=True, null=True)
-    manager = models.ForeignKey(CustomUser,
-                                on_delete=models.CASCADE,
-                                verbose_name='Отмеченный менеджер',
-                                blank=True,
-                                null=True,
-                                limit_choices_to={'is_manager': True})
+    manager = models.ForeignKey(CustomUser, on_delete=models.CASCADE, verbose_name='Отмеченный менеджер',
+                                blank=True, null=True, limit_choices_to={'is_manager': True})
 
     def __str__(self):
         return self.text
-
+    
+    class Meta:
+        verbose_name = 'Подзадача'
+        verbose_name_plural = 'Подзадачи'
 
 class Comments(models.Model):
     class Meta:

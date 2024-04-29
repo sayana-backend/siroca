@@ -149,16 +149,7 @@ class DeleteAllChecklistsAPIView(generics.DestroyAPIView):
     queryset = Checklist.objects.all()
     serializer_class = ChecklistSerializer
 
-    def delete(self, request, *args, **kwargs):
-        application_id = kwargs.get('application_id')
-        try:
-            application = ApplicationForm.objects.get(id=application_id)
-        except ApplicationForm.DoesNotExist:
-            return Response({"error": "Заявка не существует"}, status=404)
-        
-        checklists = application.checklist_set.all()
-        checklists.delete()
-        return Response({"message": "Все чеклисты для заявки были удалены."}, status=204)   
+  
 
 
 class CommentsAPIView(generics.ListCreateAPIView):

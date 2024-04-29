@@ -5,6 +5,7 @@ from ..company.models import Company
 
 class ChecklistSerializer(serializers.ModelSerializer):
     main_manager = serializers.CharField(source='main_manager.name', read_only=True)
+
     class Meta:
         model = Checklist
         fields = "__all__"
