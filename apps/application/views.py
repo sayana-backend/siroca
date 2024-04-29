@@ -104,7 +104,7 @@ class ApplicationLogsRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroy
 
 
 
-class ChecklistAPIView(generics.CreateAPIView):
+class ChecklistListCreateAPIView(generics.ListCreateAPIView):
     queryset = Checklist.objects.all()
     serializer_class = ChecklistSerializer
     lookup_field = 'id'
@@ -115,7 +115,15 @@ class CheckListDetailAPIView(generics.RetrieveUpdateDestroyAPIView):  ### пос
     queryset = Checklist.objects.all()
     serializer_class = ChecklistSerializer
     lookup_field = 'id'
-    permission_classes = [IsAdminUserAndManagerUser]
+    # permission_classes = [IsAdminUser,
+    #                       IsManagerUser]
+
+
+class DeleteAllChecklistsAPIView(generics.DestroyAPIView):
+    queryset = Checklist.objects.all()
+    serializer_class = ChecklistSerializer
+
+  
 
 
 class CommentsAPIView(generics.ListCreateAPIView):

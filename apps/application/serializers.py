@@ -1,15 +1,22 @@
-from .models import ApplicationForm, Checklist, Comments, ApplicationLogs, Notification
+from .models import ApplicationForm, Checklist, Comments, ApplicationLogs, Notification,SubTask
 from rest_framework import serializers
 from ..company.models import Company
 from ..user.models import CustomUser
 
 
 class ChecklistSerializer(serializers.ModelSerializer):
-    manager = serializers.SlugRelatedField(slug_field='username', queryset=CustomUser.objects.all())
+    main_manager = serializers.CharField(source='main_manager.name', read_only=True)
+    subtasks = SubTaskSerializer(many=True, read_only=True)
+
 
     class Meta:
         model = Checklist
         fields = "__all__"
+
+class SubTaskSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SubTask
+        fields = '__all__'
 
 
 class CommentsSerializer(serializers.ModelSerializer):
