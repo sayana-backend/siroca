@@ -29,7 +29,7 @@ class SubTask(models.Model):
     text = models.CharField(max_length=255, verbose_name='Текст подзадачи')
     completed = models.BooleanField(default=False)
     deadline = models.DateField(verbose_name='Дедлайн', blank=True, null=True)
-    manager = models.ForeignKey('CustomUser', on_delete=models.SET_NULL, verbose_name='Отмеченный менеджер',
+    manager = models.ForeignKey('user.CustomUser', on_delete=models.SET_NULL, verbose_name='Отмеченный менеджер',
                                 blank=True, null=True, limit_choices_to={'is_manager': True})
 
     def __str__(self):
@@ -49,7 +49,7 @@ class Comments(models.Model):
     date_added = models.DateTimeField(auto_now_add=True, verbose_name='Дата добавления')
     application = models.ForeignKey('ApplicationForm', on_delete=models.CASCADE, related_name='comments',
                                     verbose_name='Заявка')
-    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, verbose_name='Пользователь',
+    user = models.ForeignKey('user.CustomUser', on_delete=models.CASCADE, verbose_name='Пользователь',
                              related_name='user_comments', null=True, blank=True)
 
     def __str__(self):
