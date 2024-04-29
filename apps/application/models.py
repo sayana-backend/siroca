@@ -74,7 +74,7 @@ class ApplicationForm(models.Model):
     jira = models.URLField(null=True, verbose_name='ссылка JIRA', blank=True)
     status = models.CharField(max_length=100, choices=STATUS, default='К выполнению',
                               verbose_name='Статус заявки', blank=True, null=True)
-    payment_state = models.CharField(max_length=100, choices=PAYMENT_STATE,
+    payment_state = models.CharField(max_length=100, choices=PAYMENT_STATE, default='Ожидание оплаты',
                                      verbose_name='Статус оплаты', blank=True, null=True)
     priority = models.CharField(max_length=100, choices=PRIORITY, verbose_name='Приоритет заявки',
                                 blank=True, default='Средний')
@@ -125,11 +125,10 @@ class ApplicationLogs(models.Model):
     username = models.CharField(max_length=100, null=True, blank=True)
     task_number = models.CharField(max_length=50, null=True, blank=True)
     text = models.CharField(max_length=300, null=True, blank=True)
-    created_at = models.DateTimeField(auto_now_add=True, null=True) ####
+    created_at = models.DateTimeField(auto_now_add=True, null=True) 
     expiration_time = models.DateField(null=True)
     form = models.ForeignKey(ApplicationForm, on_delete=models.CASCADE, null=True, related_name='logs')
     user = models.ForeignKey(CustomUser, on_delete=models.SET_NULL, null=True, blank=True)
-    username = models.CharField(max_length=150, null=True, blank=True)  # Добавляем поле username
 
     objects = models.Manager()
 

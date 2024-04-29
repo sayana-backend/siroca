@@ -26,7 +26,21 @@ def track_application_changes(sender, instance, **kwargs):
     expired_messages = ApplicationLogs.objects.filter(expiration_time__lt=timezone.now())
     expired_messages.delete()
 
-        
+# @receiver(pre_save, sender=ApplicationForm)
+# def track_application_changes(sender, instance, **kwargs):
+#     request = kwargs.get('request')
+#     if request:
+#         user = request.user
+#         if instance.pk is not None:
+#             obj = sender.objects.get(id=instance.id)
+#             for field in instance._meta.fields:
+#                 old_value = getattr(obj, field.name)
+#                 new_value = getattr(instance, field.name)
+#                 if old_value != new_value:
+#                     message = f"{field.verbose_name} изменено пользователем {instance.user} с {old_value} на {new_value}"
+#                     ApplicationLogs.objects.create(text=message, task_number=instance.task_number,
+#                                                    form_id=instance.id, user=instance.user)
+
 
 
 @receiver(post_save, sender=ApplicationForm)

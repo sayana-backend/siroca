@@ -29,18 +29,17 @@ class Company(models.Model):
     created_at = models.DateField(auto_now_add=True, verbose_name='Дата создания')
     last_updated_at = models.DateField(auto_now=True, verbose_name='Дата последнего редактирования')
 
-
     def generate_codes(self, company_name):
         company_name = translit(company_name.replace(' ', ''), 'ru', reversed=True).upper()
         middle_chars = [char for char in company_name[1:-1]]
 
-        codes = set()
-        for _ in range(15):
-            middle_char = random.choice(middle_chars)
-            code = company_name[0] + middle_char + company_name[-1]
-            if not Company.objects.filter(company_code=code).exists():
-                codes.add(code)
-        return list(codes)
+        # codes = set()
+        # for _ in range(15):
+        middle_char = random.choice(middle_chars)
+        code = company_name[0] + middle_char + company_name[-1]
+        if not Company.objects.filter(company_code=code).exists():
+            return code
+        # return list(codes)
 
     def get_count_users(self):
         count_users = CustomUser.objects.filter(main_company=self).count()

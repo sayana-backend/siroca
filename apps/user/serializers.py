@@ -7,12 +7,14 @@ User = get_user_model()
 
 
 class UserAuthSerializer(serializers.ModelSerializer):
+    '''Log in'''
     class Meta:
         model = CustomUser
         fields = ['username', 'password']
 
 
 class UserProfileRegisterSerializer(serializers.ModelSerializer):
+    '''Create user'''
     main_company = serializers.SlugRelatedField(slug_field='name', queryset=Company.objects.all())
     job_title = serializers.SlugRelatedField(slug_field='title', queryset=JobTitle.objects.all())
 
@@ -22,6 +24,18 @@ class UserProfileRegisterSerializer(serializers.ModelSerializer):
 
 
 class UserProfileSerializer(serializers.ModelSerializer):
+    '''User only view'''
+    main_company = serializers.CharField(source='main_company.name', read_only=True)
+    job_title = serializers.CharField(source='job_title.title', read_only=True)
+
+    class Meta:
+        model = CustomUser
+        fields = ['id', 'username', 'role_type',  'surname',
+                  'first_name', 'image', 'created_at', 'job_title', 'main_company']
+
+
+class UserUpdateSerializer(serializers.ModelSerializer):
+    '''Update user'''
     main_company = serializers.SlugRelatedField(slug_field='name', queryset=Company.objects.all())
     job_title = serializers.SlugRelatedField(slug_field='title', queryset=JobTitle.objects.all())
 
@@ -29,6 +43,12 @@ class UserProfileSerializer(serializers.ModelSerializer):
         model = CustomUser
         fields = ['id', 'username', 'role_type',  'surname', 'first_name', 'image', 'created_at', 'job_title', 'main_company']
 
+
+class UserDeleteSerializer(serializers.ModelSerializer):
+    '''Delete user'''
+    class Meta:
+        model = CustomUser
+        fields = ['id', 'username']
 
 
 class AdminContactSerializer(serializers.ModelSerializer):
@@ -47,6 +67,7 @@ class ManagerPermissionsGeneralSerializer(serializers.ModelSerializer):
                   'manager_can_get_reports',
                   'manager_can_view_profiles',
                   'manager_can_delete_application']
+
 
 class ManagerPermissionsDetailSerializer(serializers.ModelSerializer):
     class Meta:
@@ -86,6 +107,7 @@ class ClientPermissionsGeneralSerializer(serializers.ModelSerializer):
         instance = super().save(**kwargs)
         return instance
 
+
 class ClientPermissionsDetailSerializer(serializers.ModelSerializer):
     # role_type = serializers.CharField(source='role_type', read_only=True)
 
@@ -106,6 +128,7 @@ class ClientPermissionsDetailSerializer(serializers.ModelSerializer):
     def save(self, **kwargs):
         instance = super().save(**kwargs)
         return instance
+
 
 class ChangePasswordSerializer(serializers.Serializer):
     old_password = serializers.CharField(required=True)

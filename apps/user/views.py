@@ -55,10 +55,27 @@ class ListUserProfileView(generics.ListAPIView):
     search_fields = ['first_name', 'surname', 'main_company__name']
 
 
-class DetailUserProfileView(generics.RetrieveUpdateDestroyAPIView): #разве не надо разделить просмтр и редактирование на две отдельные апишки
+class DetailUserProfileView(generics.RetrieveAPIView):
+    '''User profile view'''
     queryset = CustomUser.objects.all()
     serializer_class = UserProfileSerializer
-    permission_classes = [IsManagerCanViewProfilesOrIsAdminUser]
+    permission_classes = [IsAuthenticated]
+    lookup_field = 'id'
+
+
+class UserUpdateView(generics.RetrieveUpdateAPIView):
+    '''User update'''
+    queryset = CustomUser.objects.all()
+    serializer_class = UserUpdateSerializer
+    permission_classes = [IsAuthenticated]
+    lookup_field = 'id'
+
+
+class DeleteUserView(generics.DestroyAPIView): #сожет совместить с просмотром пользователя
+    '''User delete'''
+    queryset = CustomUser.objects.all()
+    serializer_class = UserDeleteSerializer
+    permission_classes = [IsAdminUser]
     lookup_field = 'id'
 
 
