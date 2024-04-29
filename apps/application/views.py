@@ -119,9 +119,6 @@ class CheckListDetailAPIView(generics.RetrieveUpdateDestroyAPIView):  ### пос
     #                       IsManagerUser]
 
 
-class DeleteAllChecklistsAPIView(generics.DestroyAPIView):
-    queryset = Checklist.objects.all()
-    serializer_class = ChecklistSerializer
 
   
 

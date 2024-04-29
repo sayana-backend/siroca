@@ -4,29 +4,32 @@ from django.db import models
 
 
 class Checklist(models.Model):
-    
-
-    application = models.ForeignKey(ApplicationForm, verbose_name='Заявка', on_delete=models.CASCADE,
+    application = models.ForeignKey('ApplicationForm',
+                                    verbose_name='Заявка',
+                                    on_delete=models.CASCADE,
                                     related_name='checklists')
-    
     name = models.CharField(max_length=100, verbose_name='Название чеклиста')
 
     def __str__(self):
         return self.name
 
+    # def get_users(self):   добавить ткаую функцию в модель и сериализатор заявки которая выводете список связанных чеклистов по айдишка
+    #     users = CustomUser.objects.filter(main_company=self)
+    #     user_names = [{'id': user.id, 'first_name': user.first_name, 'last_name': user.surname} for user in users]
+    #     return user_names
+
     class Meta:
         verbose_name = 'Чеклист'
         verbose_name_plural = 'Чеклисты'
 
-class SubTask(models.Model):
-    
 
-    checklist = models.ForeignKey(Checklist, verbose_name='Чеклист', on_delete=models.CASCADE,
+class SubTask(models.Model):
+    checklist = models.ForeignKey('Checklist', verbose_name='Чеклист', on_delete=models.CASCADE,
                                   related_name='subtasks')
     text = models.CharField(max_length=255, verbose_name='Текст подзадачи')
     completed = models.BooleanField(default=False)
     deadline = models.DateField(verbose_name='Дедлайн', blank=True, null=True)
-    manager = models.ForeignKey(CustomUser, on_delete=models.CASCADE, verbose_name='Отмеченный менеджер',
+    manager = models.ForeignKey('CustomUser', on_delete=models.SET_NULL, verbose_name='Отмеченный менеджер',
                                 blank=True, null=True, limit_choices_to={'is_manager': True})
 
     def __str__(self):
@@ -35,6 +38,7 @@ class SubTask(models.Model):
     class Meta:
         verbose_name = 'Подзадача'
         verbose_name_plural = 'Подзадачи'
+
 
 class Comments(models.Model):
     class Meta:
