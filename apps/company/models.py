@@ -6,7 +6,7 @@ from ..application.models import ApplicationForm
 
 class Company(models.Model):
     name = models.CharField(max_length=255, verbose_name='Название  компании', unique=True)
-    company_code = models.CharField(max_length=255, unique=True, verbose_name='Краткий код')
+    company_code = models.CharField(max_length=3, unique=True, verbose_name='Краткий код')
     country = models.CharField(max_length=255, verbose_name='Страна')
     domain = models.CharField(max_length=100, unique=True)
     main_manager = models.ForeignKey(

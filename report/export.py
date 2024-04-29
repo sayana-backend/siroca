@@ -23,12 +23,14 @@ import random
 import time
 import os
 from apps.company.models import Company
+from apps.user.permissions import *
 
 class ApplicationFormFilterAPIView(viewsets.GenericViewSet):
     # class ApplicationFormFilterAPIView(generics.ListAPIView):
     # class ApplicationFormFilterAPIView(viewsets.ReadOnlyModelViewSet):
     queryset = ApplicationForm.objects.all()
     serializer_class = ApplicationFormFilterSerializer
+    permission_classes = [IsManagerAndClientCanGetReportsOrIsAdminUser]
     filter_backends = [DjangoFilterBackend, SearchFilter]
     filterset_class = ApplicationFormFilter
 
@@ -51,6 +53,7 @@ class ApplicationFormFilterAPIView(viewsets.GenericViewSet):
 
 
 class ExportToExcelView(APIView):
+    permission_classes = [IsManagerAndClientCanGetReportsOrIsAdminUser]
 
     def generate_random_string(self, length=6):
         letters = string.ascii_lowercase

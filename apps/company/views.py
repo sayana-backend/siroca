@@ -1,5 +1,5 @@
 from rest_framework import generics, status, filters
-from rest_framework.pagination import PageNumberPagination
+from ..application.views import CustomPagination
 from rest_framework.response import Response
 from ..company.models import Company, JobTitle
 from ..company.serializers import *
@@ -14,34 +14,33 @@ class CompanyListAPIView(generics.ListAPIView):
     '''company list'''
     queryset = Company.objects.all()
     serializer_class = CompanyListSerializer
-    pagination_class = PageNumberPagination
-    # permission_classes = [IsAdminUser]
+    pagination_class = CustomPagination
+    permission_classes = [IsManagerCanCreateAndEditCompanyOrIsAdminUser]
     filter_backends = [filters.SearchFilter]
-    search_fields = ['name']
-
+    search_fields = ['name', 'country', 'company_code']
 
 
 class CompanyDetailAPIView(generics.RetrieveAPIView):
     '''company detail only view'''
     queryset = Company.objects.all()
     serializer_class = CompanyDetailSerializer
+    permission_classes = [IsManagerCanCreateAndEditCompanyOrIsAdminUser]
     lookup_field = 'id'
-    # permission_classes = [IsAdminUser]
 
 
 class CompanyCreateAPIView(generics.CreateAPIView):
     '''company create'''
     queryset = Company.objects.all()
     serializer_class = CompanyCreateSerializer
-    # permission_classes = [IsAdminUser]
+    # permission_classes = [IsManagerCanCreateAndEditCompanyOrIsAdminUser]
 
 
 class CompanyRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
     '''company redact'''
     queryset = Company.objects.all()
     serializer_class = CompanyRetrieveUpdateSerializer
+    permission_classes = [IsManagerCanCreateAndEditCompanyOrIsAdminUser]
     lookup_field = 'id'
-    # permission_classes = [IsAdminUser]
 
 
 
@@ -49,7 +48,7 @@ class CompanyRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView)
 class JobTitleListAPIView(generics.ListAPIView):
     queryset = JobTitle.objects.all()
     serializer_class = JobTitleSerializer
-    # permission_classes = [IsAdminUser]
+    permission_classes = [IsManagerCanCreateAndDeleteJobTitleOrIsAdminUser]
     filter_backends = [filters.SearchFilter]
     search_fields = ['title']
 
@@ -57,13 +56,14 @@ class JobTitleListAPIView(generics.ListAPIView):
 class JobTitleDestroyAPIView(generics.DestroyAPIView):
     queryset = JobTitle.objects.all()
     serializer_class = JobTitleSerializer
+    permission_classes = [IsManagerCanCreateAndDeleteJobTitleOrIsAdminUser]
     lookup_field = 'id'
 
 
 class JobTitleCreateAPIView(generics.CreateAPIView):
     queryset = JobTitle.objects.all()
     serializer_class = JobTitleSerializer
-
+    permission_classes = [IsManagerCanCreateAndDeleteJobTitleOrIsAdminUser]
 
 
 @csrf_exempt
@@ -77,12 +77,9 @@ def generate_codes_view(request):
         return JsonResponse({'error': 'Method not allowed'}, status=405)
 
 
-
-
 class LogoAPIView(APIView):
     def get(self, request):
         logo_path = 'back_static/logo.svg'
-
         try:
             with open(logo_path, 'rb') as file:
                 response = HttpResponse(file.read(), content_type='image/svg+xml')

@@ -47,13 +47,9 @@ class Comments(models.Model):
                                     verbose_name='Заявка')
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, verbose_name='Пользователь',
                              related_name='user_comments', null=True, blank=True)
-                             
-
-
-  
 
     def __str__(self):
-        return f"Комментарий от {self.user.username} по заявке {self.application.title}"
+        return self.text
 
 
 class ApplicationForm(models.Model):
@@ -70,9 +66,11 @@ class ApplicationForm(models.Model):
     )
 
     PRIORITY = (
+        ('Самый низкий', 'Самый низкий'),
         ('Низкий', 'Низкий'),
         ('Средний', 'Средний'),
         ('Высокий', 'Высокий'),
+        ('Самый высокий', 'Самый высокий'),
     )
 
     PAYMENT_STATE = (
@@ -85,14 +83,14 @@ class ApplicationForm(models.Model):
     title = models.CharField(max_length=100, verbose_name='Название заявки', blank=False, null=True)
     description = models.TextField(verbose_name='Описание', blank=True, null=True)
     short_description = models.CharField(max_length=60, verbose_name='Краткое описание', blank=True, null=True)
-    files = models.ImageField(upload_to='', null=True, verbose_name='Файлы', blank=True)
+    files = models.FileField(upload_to='', null=True, verbose_name='Файлы', blank=True)
     jira = models.URLField(null=True, verbose_name='ссылка JIRA', blank=True)
     status = models.CharField(max_length=100, choices=STATUS, default='К выполнению',
                               verbose_name='Статус заявки', blank=True, null=True)
     payment_state = models.CharField(max_length=100, choices=PAYMENT_STATE,
                                      verbose_name='Статус оплаты', blank=True, null=True)
-    priority = models.CharField(max_length=100, choices=PRIORITY, verbose_name='Приоритет заявки', blank=True,
-                                null=True)
+    priority = models.CharField(max_length=100, choices=PRIORITY, verbose_name='Приоритет заявки',
+                                blank=True, default='Средний')
 
     company = models.ForeignKey('company.Company', on_delete=models.CASCADE, verbose_name='Компания', blank=False,
                                 null=True)
@@ -119,7 +117,7 @@ class ApplicationForm(models.Model):
     deadline_date = models.DateField(null=True, verbose_name='Срок выполнения', blank=True)
 
     def __str__(self):
-        return f'{self.title}'
+        return self.title
 
 
 class TrackingStatus(models.Model):
@@ -140,8 +138,8 @@ class ApplicationLogs(models.Model):
     username = models.CharField(max_length=100, null=True, blank=True)
     task_number = models.CharField(max_length=50, null=True, blank=True)
     text = models.CharField(max_length=300, null=True, blank=True)
-    created_at = models.DateTimeField(auto_now_add=True, null=True)
-    expiration_time = models.DateTimeField(null=True)
+    created_at = models.DateTimeField(auto_now_add=True, null=True) ####
+    expiration_time = models.DateField(null=True)
     form = models.ForeignKey(ApplicationForm, on_delete=models.CASCADE, null=True, related_name='logs')
     user = models.ForeignKey(CustomUser, on_delete=models.SET_NULL, null=True, blank=True)
     username = models.CharField(max_length=150, null=True, blank=True)  # Добавляем поле username
@@ -152,7 +150,6 @@ class ApplicationLogs(models.Model):
         return self.text
 
 
-
 class Notification(models.Model):
     task_number = models.CharField(max_length=50, null=True, blank=True)
     title = models.CharField(max_length=50, blank=True, null=True)
@@ -160,6 +157,8 @@ class Notification(models.Model):
     created_at = models.DateField(auto_now_add=True, null=True)
     made_change = models.CharField(max_length=70, null=True, blank=True)
     form = models.ForeignKey(ApplicationForm, on_delete=models.CASCADE, null=True, blank=True)
-    expiration_time = models.DateTimeField(null=True)
     is_read = models.BooleanField(default=False)
     is_admin = models.BooleanField(default=False, null=True, blank=True)
+    is_manager_notic = models.BooleanField(default=False, null=True, blank=True)
+    is_client_notic = models.BooleanField(default=False, null=True, blank=True)
+    admin_id = models.IntegerField(null=True, blank=True)
