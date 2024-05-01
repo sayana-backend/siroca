@@ -11,6 +11,9 @@ from django.db.models import Q
 from .serializers import *
 from .signals import *
 from .models import *
+# from apps.application.signals import track_application_changes
+# from rest_framework.decorators import api_view
+from django.dispatch import Signal
 
 
 class CustomPagination(PageNumberPagination):
@@ -95,20 +98,12 @@ class ApplicationLogsListCreateAPIView(generics.ListCreateAPIView):
     lookup_field = 'id'
     permission_classes = [IsClientCanViewLogsOrIsAdminAndManagerUser]
 
-    # def create(self, request, *args, **kwargs):
-    #     username = request.user.username
-    #     ApplicationLogs.objects.create(username=username, **self.request.data)
-    #     return super().create(request, *args, **kwargs)
-    # def perform_create(self, serializer):
-    #     serializer.save(username=self.request.user.username)
 
 
-class ApplicationLogsRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):  #### убрать DELETE - запрос
+class ApplicationLogsRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
     queryset = ApplicationLogs.objects.all()
     serializer_class = LogsSerializer
     lookup_field = 'id'
-
-
 
 
 class ChecklistAPIView(generics.CreateAPIView):
@@ -118,7 +113,7 @@ class ChecklistAPIView(generics.CreateAPIView):
     permission_classes = [IsClientCanAddChecklistOrIsAdminAndManagerUser]
 
 
-class CheckListDetailAPIView(generics.RetrieveUpdateDestroyAPIView):  ### посмотреть внимательно
+class CheckListDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Checklist.objects.all()
     serializer_class = ChecklistSerializer
     lookup_field = 'id'
@@ -139,10 +134,6 @@ class CommentsDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = CommentsSerializer
     lookup_field = 'id'
     permission_classes = [IsAdminOrManagerOrClientUsersCanEditComments]
-
-
-
-
 
 
 class NotificationAPIView(generics.ListAPIView):

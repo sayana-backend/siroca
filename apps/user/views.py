@@ -159,7 +159,6 @@ class AdminResetPasswordView(generics.UpdateAPIView):
         user.save()
         return Response({'detail': 'Пароль пользователя успешно сброшен.', 'new_password': new_password}, status=status.HTTP_200_OK)
 
-
 '''Permissions'''
 class ManagerPermissionsGeneralView(generics.UpdateAPIView, generics.ListAPIView):
     queryset = CustomUser.objects.filter(role_type='manager')

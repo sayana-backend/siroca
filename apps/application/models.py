@@ -106,35 +106,6 @@ class ApplicationForm(models.Model):
     def __str__(self):
         return self.title
 
-    def save(self, *args, **kwargs):
-        super(ApplicationForm, self).save(*args, **kwargs)
-        if hasattr(self, 'request') and self.request.user.is_authenticated:
-            obj = self.__class__.objects.get(pk=self.pk)
-            for field in self._meta.fields:
-                old_value = getattr(obj, field.name)
-                new_value = getattr(self, field.name)
-                if old_value != new_value:
-                    message = f"{field.verbose_name} изменено с {old_value} на {new_value}"
-                    username = f"{self.request.user.first_name} {self.request.user.last_name}"
-                    print(f'########### User: {username} #############')
-                    expiration_time = timezone.now() + timedelta(days=1)
-                    ApplicationLogs.objects.create(text=message, expiration_time=expiration_time,
-                                                   task_number=self.task_number, form_id=self.id, username=username)
-
-
-    # def save(self, *args, **kwargs):
-    #     if self.id is not None:
-    #         obj = ApplicationForm.objects.get(id=self.id)
-    #
-    #         for field in self._meta.fields:
-    #             old_value = getattr(obj, field.name)
-    #             new_value = getattr(self, field.name)
-    #             if old_value != new_value:
-    #                 message = f"{field.verbose_name} изменено с {old_value} на {new_value}"
-    #                 ApplicationLogs.objects.create(text=message, expiration_time=expiration_time,
-    #                                                task_number=self.task_number, form_id=self.id, username=username)
-    #     super(ApplicationForm, self).save(*args, **kwargs)
-
 
 class TrackingStatus(models.Model):
     status = models.CharField(max_length=100, null=True, blank=True)
@@ -155,9 +126,9 @@ class ApplicationLogs(models.Model):
     task_number = models.CharField(max_length=50, null=True, blank=True)
     text = models.CharField(max_length=300, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True, null=True)
-    expiration_time = models.DateField(null=True)
+    # expiration_time = models.DateField(null=True)
     form = models.ForeignKey(ApplicationForm, on_delete=models.CASCADE, null=True, related_name='logs')
-    user = models.ForeignKey(CustomUser, on_delete=models.SET_NULL, null=True, blank=True)
+    # username = models.ForeignKey(CustomUser, on_delete=models.SET_NULL, null=True, blank=True)
 
     objects = models.Manager()
 
@@ -172,6 +143,7 @@ class Notification(models.Model):
     created_at = models.DateField(auto_now_add=True, null=True)
     made_change = models.CharField(max_length=70, null=True, blank=True)
     form = models.ForeignKey(ApplicationForm, on_delete=models.CASCADE, null=True, blank=True)
+
     is_read = models.BooleanField(default=False)
     is_admin = models.BooleanField(default=False, null=True, blank=True)
     is_manager_notic = models.BooleanField(default=False, null=True, blank=True)
