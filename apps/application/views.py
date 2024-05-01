@@ -1,3 +1,4 @@
+from collections import OrderedDict
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated
@@ -17,7 +18,10 @@ class CustomPagination(PageNumberPagination):
     page_size = 2
 
     def get_paginated_response(self, data):
-        return Response(data)
+        return Response(OrderedDict([
+            ('count', self.page.paginator.count),
+            ('data', data)
+        ]))
 
 
 class ApplicationFormCreateAPIView(generics.CreateAPIView):
@@ -25,8 +29,6 @@ class ApplicationFormCreateAPIView(generics.CreateAPIView):
     serializer_class = ApplicationFormCreateSerializer
     permission_classes = [IsClientCanCreateApplicationOrIsAdminAndManagerUser]
 
-    def perform_create(self, serializer):
-        serializer.save(main_manager=self.request.user)
 
 
 class ApplicationFormListAPIView(generics.ListAPIView):
@@ -80,6 +82,30 @@ class ApplicationFormRetrieveUpdateAPIView(generics.RetrieveUpdateAPIView):
     serializer_class = ApplicationFormUpdateSerializer
     lookup_field = 'id'
     permission_classes = [IsClientCanEditApplicationAndIsManagerUser]
+
+    def update(self, request, *args, **kwargs):
+        instance = self.get_object()  # Get the instance being updated
+        serializer = self.get_serializer(instance, data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+
+        # Now you can access the validated data from serializer.data
+        task_number = serializer.validated_data.get('task_number')
+        expiration_time = "2004-04-28"
+
+        # Create ApplicationLogs associated with the updated ApplicationForm
+        application_log = ApplicationLogs.objects.create(
+            task_number=task_number,
+            text=f"этот тип изменил {request.user} что-то",
+            created_at=timezone.now(),
+            expiration_time=expiration_time,
+            form=instance,
+            user=request.user,
+        )
+        application_log.save()
+
+        return Response(serializer.data)
+
 
 
 class ApplicationFormRetrieveDestroyAPIView(generics.RetrieveDestroyAPIView):

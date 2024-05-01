@@ -8,6 +8,7 @@ class Checklist(models.Model):
                                     verbose_name='Заявка',
                                     on_delete=models.CASCADE,
                                     related_name='checklists')
+    completed = models.BooleanField(default=False)
     name = models.CharField(max_length=100, verbose_name='Название чеклиста')
 
     def __str__(self):
@@ -139,7 +140,7 @@ class TrackingPriority(models.Model):
 
 
 class ApplicationLogs(models.Model):
-    username = models.CharField(max_length=100, null=True, blank=True)
+    # username = models.CharField(max_length=100, null=True, blank=True)
     task_number = models.CharField(max_length=50, null=True, blank=True)
     text = models.CharField(max_length=300, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True, null=True) 
