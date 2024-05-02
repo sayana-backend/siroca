@@ -120,7 +120,8 @@ class CheckListDetailAPIView(generics.RetrieveUpdateDestroyAPIView):  ### пос
 
 
 
-  
+
+
 
 
 class CommentsAPIView(generics.ListCreateAPIView):

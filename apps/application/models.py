@@ -8,7 +8,14 @@ class Checklist(models.Model):
                                     verbose_name='Заявка',
                                     on_delete=models.CASCADE,
                                     related_name='checklists')
+    completed = models.BooleanField(default=False)
     name = models.CharField(max_length=100, verbose_name='Название чеклиста')
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        
+        if self.completed:
+            self.subtasks.update(completed=True)
 
     def __str__(self):
         return self.name

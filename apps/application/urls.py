@@ -14,6 +14,10 @@ urlpatterns = [
 
     path('checklist/', ChecklistListCreateAPIView.as_view()),
     path('checklist/<int:id>/', CheckListDetailAPIView.as_view()),
+
+
+
+
     path('comments/', CommentsAPIView.as_view()),
     path('comments/<int:id>/', CommentsDetailAPIView.as_view()),
 
