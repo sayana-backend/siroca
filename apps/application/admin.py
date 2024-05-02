@@ -18,11 +18,6 @@ class ApplicationFormAdmin(admin.ModelAdmin):
     #           'start_date', 'finish_date', 'priority',
     #           'status']
 
-@admin.register(Checklist)
-class ChecklistAdmin(admin.ModelAdmin):
-    list_display = ['text', 'completed']
-    search_fields = ['text']
-
 
 @admin.register(Comments)
 class CommentsAdmin(admin.ModelAdmin):
@@ -31,7 +26,7 @@ class CommentsAdmin(admin.ModelAdmin):
     
 
 
-# admin.site.register(ApplicationLogs)
+admin.site.register(ApplicationLogs)
 # admin.site.register(Checklist)
 # admin.site.register(Comments)
 # admin.site.register(ApplicationForm)

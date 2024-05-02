@@ -1,3 +1,4 @@
+from collections import OrderedDict
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated
@@ -11,25 +12,22 @@ from django.db.models import Q
 from .serializers import *
 from .signals import *
 from .models import *
-# from apps.application.signals import track_application_changes
-# from rest_framework.decorators import api_view
-from django.dispatch import Signal
 
 
 class CustomPagination(PageNumberPagination):
-    page_size = 50
+    page_size = 2
 
     def get_paginated_response(self, data):
-        return Response(data)
+        return Response(OrderedDict([
+            ('count', self.page.paginator.count),
+            ('data', data)
+        ]))
 
 
 class ApplicationFormCreateAPIView(generics.CreateAPIView):
     queryset = ApplicationForm.objects.all()
     serializer_class = ApplicationFormCreateSerializer
     permission_classes = [IsClientCanCreateApplicationOrIsAdminAndManagerUser]
-
-    def perform_create(self, serializer):
-        serializer.save(main_manager=self.request.user)
 
 
 class ApplicationFormListAPIView(generics.ListAPIView):
@@ -84,6 +82,27 @@ class ApplicationFormRetrieveUpdateAPIView(generics.RetrieveUpdateAPIView):
     lookup_field = 'id'
     permission_classes = [IsClientCanEditApplicationAndIsManagerUser]
 
+    def update(self, request, *args, **kwargs):
+        instance = self.get_object()
+        old_instance = ApplicationForm.objects.get(id=instance.id)
+        serializer = self.get_serializer(instance, data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+
+        instance = self.get_object()
+
+        user = request.user
+        username = f"{user.first_name}. {user.surname}"
+        for field in instance._meta.fields:
+            old_value = getattr(old_instance, field.name)
+            new_value = getattr(instance, field.name)
+            if old_value != new_value:
+                change_message = f"{field.verbose_name} изменено с {old_value} на {new_value}"
+                ApplicationLogs.objects.create(text=f"{change_message}",
+                                               form=instance, user=username)
+
+        return Response(serializer.data)
+
 
 class ApplicationFormRetrieveDestroyAPIView(generics.RetrieveDestroyAPIView):
     queryset = ApplicationForm.objects.all()
@@ -99,14 +118,13 @@ class ApplicationLogsListCreateAPIView(generics.ListCreateAPIView):
     permission_classes = [IsClientCanViewLogsOrIsAdminAndManagerUser]
 
 
-
 class ApplicationLogsRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
     queryset = ApplicationLogs.objects.all()
     serializer_class = LogsSerializer
     lookup_field = 'id'
 
 
-class ChecklistAPIView(generics.CreateAPIView):
+class ChecklistListCreateAPIView(generics.ListCreateAPIView):
     queryset = Checklist.objects.all()
     serializer_class = ChecklistSerializer
     lookup_field = 'id'
@@ -117,7 +135,8 @@ class CheckListDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Checklist.objects.all()
     serializer_class = ChecklistSerializer
     lookup_field = 'id'
-    permission_classes = [IsAdminUserAndManagerUser]
+    # permission_classes = [IsAdminUser,
+    #                       IsManagerUser]
 
 
 class CommentsAPIView(generics.ListCreateAPIView):

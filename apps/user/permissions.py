@@ -6,8 +6,8 @@ from rest_framework import permissions
 '''ONLY FOR SUPERUSER'S PERMISSIONS'''
 class IsAdminUserAndManagerUser(permissions.BasePermission):
     def has_permission(self, request, view):
-        print(request.user)
         return request.user.is_superuser or request.user.is_manager
+
 
 '''SUPERUSER AND MANAGER'''        
 class IsAdminUser(permissions.BasePermission):
@@ -152,15 +152,15 @@ class IsManagerCanDeleteApplicationOrIsAdminUser(permissions.BasePermission):
         else:
             return request.user.manager_can_delete_applications
 
-'''MANAGER CAN VIEW USERS' PROFILES'''
-class IsManagerCanViewProfilesOrIsAdminUser(permissions.BasePermission):
-    def has_permission(self, request, view):
-        if request.user.is_superuser:
-            return True
-        if request.user.manager_can_view_profiles_extra:
-            return request.user.manager_can_view_profiles_extra
-        else:
-            return request.user.manager_can_view_profiles
+# '''MANAGER CAN VIEW USERS' PROFILES'''
+# class IsManagerCanViewProfilesOrIsAdminUser(permissions.BasePermission):
+#     def has_permission(self, request, view):
+#         if request.user.is_superuser:
+#             return True
+#         if request.user.manager_can_view_profiles_extra:
+#             return request.user.manager_can_view_profiles_extra
+#         else:
+#             return request.user.manager_can_view_profiles
 
 '''MANAGER CAN CREATE AND EDIT COMPANY'''
 class IsManagerCanCreateAndEditCompanyOrIsAdminUser(permissions.BasePermission):

@@ -4,23 +4,41 @@ from django.db import models
 
 
 class Checklist(models.Model):
+    application = models.ForeignKey('ApplicationForm',
+                                    verbose_name='Заявка',
+                                    on_delete=models.CASCADE,
+                                    related_name='checklists')
+    completed = models.BooleanField(default=False)
+    name = models.CharField(max_length=100, verbose_name='Название чеклиста')
+
+    def __str__(self):
+        return self.name
+
+    # def get_users(self):   добавить ткаую функцию в модель и сериализатор заявки которая выводете список связанных чеклистов по айдишка
+    #     users = CustomUser.objects.filter(main_company=self)
+    #     user_names = [{'id': user.id, 'first_name': user.first_name, 'last_name': user.surname} for user in users]
+    #     return user_names
+
+    class Meta:
+        verbose_name = 'Чеклист'
+        verbose_name_plural = 'Чеклисты'
+
+
+class SubTask(models.Model):
+    checklist = models.ForeignKey('Checklist', verbose_name='Чеклист', on_delete=models.CASCADE,
+                                  related_name='subtasks')
+    text = models.CharField(max_length=255, verbose_name='Текст подзадачи')
+    completed = models.BooleanField(default=False)
+    deadline = models.DateField(verbose_name='Дедлайн', blank=True, null=True)
+    manager = models.ForeignKey('user.CustomUser', on_delete=models.SET_NULL, verbose_name='Отмеченный менеджер',
+                                blank=True, null=True, limit_choices_to={'is_manager': True})
+
+    def __str__(self):
+        return self.text
+    
     class Meta:
         verbose_name = 'Подзадача'
         verbose_name_plural = 'Подзадачи'
-
-    text = models.CharField(max_length=255, verbose_name='Текст подзадачи')
-    completed = models.BooleanField(default=False)
-    application = models.ForeignKey('ApplicationForm', verbose_name='Заявки', on_delete=models.CASCADE,
-                                    related_name='checklists')
-    deadline = models.DateField(verbose_name='Дедлайн', blank=True, null=True)
-    manager = models.ForeignKey(CustomUser,
-                                on_delete=models.CASCADE,
-                                verbose_name='Отмеченный менеджер',
-                                blank=True,
-                                null=True,
-                                limit_choices_to={'is_manager': True})
-    def __str__(self):
-        return self.text
 
 
 class Comments(models.Model):
@@ -32,7 +50,7 @@ class Comments(models.Model):
     date_added = models.DateTimeField(auto_now_add=True, verbose_name='Дата добавления')
     application = models.ForeignKey('ApplicationForm', on_delete=models.CASCADE, related_name='comments',
                                     verbose_name='Заявка')
-    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, verbose_name='Пользователь',
+    user = models.ForeignKey('user.CustomUser', on_delete=models.CASCADE, verbose_name='Пользователь',
                              related_name='user_comments', null=True, blank=True)
 
     def __str__(self):
@@ -74,7 +92,7 @@ class ApplicationForm(models.Model):
     jira = models.URLField(null=True, verbose_name='ссылка JIRA', blank=True)
     status = models.CharField(max_length=100, choices=STATUS, default='К выполнению',
                               verbose_name='Статус заявки', blank=True, null=True)
-    payment_state = models.CharField(max_length=100, choices=PAYMENT_STATE,
+    payment_state = models.CharField(max_length=100, choices=PAYMENT_STATE, default='Ожидание оплаты',
                                      verbose_name='Статус оплаты', blank=True, null=True)
     priority = models.CharField(max_length=100, choices=PRIORITY, verbose_name='Приоритет заявки',
                                 blank=True, default='Средний')
@@ -122,13 +140,11 @@ class TrackingPriority(models.Model):
 
 
 class ApplicationLogs(models.Model):
-    username = models.CharField(max_length=100, null=True, blank=True)
-    task_number = models.CharField(max_length=50, null=True, blank=True)
+    user = models.CharField(max_length=100, null=True, blank=True)
     text = models.CharField(max_length=300, null=True, blank=True)
-    created_at = models.DateTimeField(auto_now_add=True, null=True)
-    # expiration_time = models.DateField(null=True)
+    created_at = models.DateTimeField(auto_now_add=True, null=True) 
     form = models.ForeignKey(ApplicationForm, on_delete=models.CASCADE, null=True, related_name='logs')
-    # username = models.ForeignKey(CustomUser, on_delete=models.SET_NULL, null=True, blank=True)
+    # user = models.ForeignKey(CustomUser, on_delete=models.SET_NULL, null=True, blank=True)
 
     objects = models.Manager()
 

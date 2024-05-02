@@ -1,11 +1,18 @@
-from .models import ApplicationForm, Checklist, Comments, ApplicationLogs, Notification
+from .models import ApplicationForm, Checklist, Comments, ApplicationLogs, Notification,SubTask
 from rest_framework import serializers
 from ..company.models import Company
 from ..user.models import CustomUser
 
 
+class SubTaskSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SubTask
+        fields = '__all__'
+
+
 class ChecklistSerializer(serializers.ModelSerializer):
-    manager = serializers.SlugRelatedField(slug_field='username', queryset=CustomUser.objects.all())
+    main_manager = serializers.CharField(source='main_manager.name', read_only=True)
+    subtasks = SubTaskSerializer(many=True, read_only=True)
 
     class Meta:
         model = Checklist
@@ -31,18 +38,10 @@ class LogsSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ApplicationLogs
-        fields = ('id', 'username', 'task_number', 'text', 'formatted_created_at')
+        fields = ('id', 'user', 'task_number', 'text', 'formatted_created_at')
 
     def get_formatted_created_at(self, instance):
         return instance.created_at.strftime('%Y.%m.%d / %H:%M')
-
-
-class MultipleFilesField(serializers.ListField):
-    def to_internal_value(self, data):
-        return data
-
-    def to_representation(self, data):
-        return data
 
 
 class ApplicationFormCreateSerializer(serializers.ModelSerializer):
@@ -74,11 +73,12 @@ class ApplicationFormUpdateSerializer(serializers.ModelSerializer):
     main_client = serializers.SlugRelatedField(slug_field='username', queryset=CustomUser.objects.all(), required=False)
     main_manager = serializers.SlugRelatedField(slug_field='username', queryset=CustomUser.objects.all(), required=False)
     checklists = ChecklistSerializer(many=True, read_only=True)
-    files = MultipleFilesField(required=False)
+    files = serializers.ListField(child=serializers.FileField(), allow_empty=True)
 
     class Meta:
         model = ApplicationForm
         fields = '__all__'
+
 
 
 class ApplicationFormDetailViewSerializer(serializers.ModelSerializer):
