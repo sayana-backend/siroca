@@ -140,18 +140,17 @@ class TrackingPriority(models.Model):
 
 
 class ApplicationLogs(models.Model):
-    username = models.CharField(max_length=100, null=True, blank=True)
-    task_number = models.CharField(max_length=50, null=True, blank=True)
-    text = models.CharField(max_length=300, null=True, blank=True)
+    user = models.CharField(max_length=100, null=True, blank=True)
+    field = models.CharField(max_length=500, null=True, blank=True)
+    initially = models.CharField(max_length=500, null=True, blank=True)
+    new = models.CharField(max_length=500, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True, null=True) 
-    expiration_time = models.DateField(null=True)
     form = models.ForeignKey(ApplicationForm, on_delete=models.CASCADE, null=True, related_name='logs')
-    user = models.ForeignKey(CustomUser, on_delete=models.SET_NULL, null=True, blank=True)
 
     objects = models.Manager()
 
     def __str__(self):
-        return self.text
+        return self.new
 
 
 class Notification(models.Model):
@@ -161,6 +160,7 @@ class Notification(models.Model):
     created_at = models.DateField(auto_now_add=True, null=True)
     made_change = models.CharField(max_length=70, null=True, blank=True)
     form = models.ForeignKey(ApplicationForm, on_delete=models.CASCADE, null=True, blank=True)
+
     is_read = models.BooleanField(default=False)
     is_admin = models.BooleanField(default=False, null=True, blank=True)
     is_manager_notic = models.BooleanField(default=False, null=True, blank=True)

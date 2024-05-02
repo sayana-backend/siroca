@@ -15,7 +15,12 @@ services:
   nginx:
     image: nginx
     ports:
+<<<<<<< HEAD
       - "80:80"
+=======
+      - "81:81"
+      - "443:443"
+>>>>>>> 42810e2c6e6d78dc49a3f2352f38806416ffdd43
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf
       - static_volume:/usr/src/app/back_static
