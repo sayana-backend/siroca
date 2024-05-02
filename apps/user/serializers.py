@@ -65,7 +65,6 @@ class ManagerPermissionsGeneralSerializer(serializers.ModelSerializer):
                   'role_type',
                   'manager_can_delete_comments',
                   'manager_can_get_reports',
-                  'manager_can_view_profiles',
                   'manager_can_delete_application']
 
 
@@ -77,7 +76,6 @@ class ManagerPermissionsDetailSerializer(serializers.ModelSerializer):
                   'role_type',
                   'manager_can_delete_comments_extra',
                   'manager_can_get_reports_extra',
-                  'manager_can_view_profiles_extra',
                   'manager_can_delete_application_extra',
                   'manager_can_create_and_edit_company_extra',
                   'manager_can_create_and_edit_user_extra',

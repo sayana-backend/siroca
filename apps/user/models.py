@@ -52,8 +52,6 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     manager_can_delete_comments_extra = models.BooleanField(null=True, verbose_name='Удаление комментариев')
     manager_can_get_reports = models.BooleanField(default=False, verbose_name='Отчет по заявкам(Менеджер)')
     manager_can_get_reports_extra = models.BooleanField(null=True, verbose_name='Отчет по заявкам(Менеджер)')
-    manager_can_view_profiles = models.BooleanField(default=False, verbose_name='Просмотр профиля пользователей(Менеджер)')
-    manager_can_view_profiles_extra = models.BooleanField(null=True, verbose_name='Просмотр профиля пользователей(Менеджер)')
     manager_can_delete_application = models.BooleanField(default=False, verbose_name='Удаление заявки')
     manager_can_delete_application_extra = models.BooleanField(null=True, verbose_name='Удаление заявки')
     manager_can_create_and_edit_company_extra = models.BooleanField(null=True, verbose_name='Создание/Редактирование заявки')

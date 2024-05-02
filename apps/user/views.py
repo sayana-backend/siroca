@@ -37,7 +37,6 @@ class CreateUserView(generics.CreateAPIView):
         elif first_manager:
             user.manager_can_delete_comments = first_manager.manager_can_delete_comments
             user.manager_can_get_reports = first_manager.manager_can_get_reports
-            user.manager_can_view_profiles = first_manager.manager_can_view_profiles
             user.manager_can_delete_application = first_manager.manager_can_delete_application
             user.save()
         else:
@@ -191,7 +190,6 @@ class ManagerPermissionsGeneralView(generics.UpdateAPIView, generics.ListAPIView
             manager_permissions = {
                 "manager_can_delete_comments": first_manager.manager_can_delete_comments,
                 "manager_can_get_reports": first_manager.manager_can_get_reports,
-                "manager_can_view_profiles": first_manager.manager_can_view_profiles,
                 "manager_can_delete_application": first_manager.manager_can_delete_application
             }
         return Response(manager_permissions)
@@ -199,13 +197,11 @@ class ManagerPermissionsGeneralView(generics.UpdateAPIView, generics.ListAPIView
     def update(self, request, *args, **kwargs):
         manager_can_delete_comments = request.data.get('manager_can_delete_comments')
         manager_can_get_reports = request.data.get('manager_can_get_reports')
-        manager_can_view_profiles = request.data.get('manager_can_view_profiles')
         manager_can_delete_application = request.data.get('manager_can_delete_application')
 
         self.queryset.update(
             manager_can_delete_comments=bool(manager_can_delete_comments),
             manager_can_get_reports=bool(manager_can_get_reports),
-            manager_can_view_profiles=bool(manager_can_view_profiles),
             manager_can_delete_application=bool(manager_can_delete_application)
         )
         return Response("Права менеджера обновлены", status=status.HTTP_200_OK)
