@@ -30,8 +30,8 @@ class ApplicationFormCreateAPIView(generics.CreateAPIView):
     serializer_class = ApplicationFormCreateSerializer
     permission_classes = [IsClientCanCreateApplicationOrIsAdminAndManagerUser]
 
-    def perform_create(self, serializer):
-        serializer.save(main_manager=self.request.user)
+    # def perform_create(self, serializer):
+    #     serializer.save(main_manager=self.request.user)
 
 
 class ApplicationFormListAPIView(generics.ListAPIView):
@@ -84,7 +84,7 @@ class ApplicationFormRetrieveUpdateAPIView(generics.RetrieveUpdateAPIView):
     queryset = ApplicationForm.objects.all()
     serializer_class = ApplicationFormUpdateSerializer
     lookup_field = 'id'
-    permission_classes = [IsClientCanEditApplicationAndIsManagerUser]
+    # permission_classes = [IsClientCanEditApplicationAndIsManagerUser]
 
 
 class ApplicationFormRetrieveDestroyAPIView(generics.RetrieveDestroyAPIView):

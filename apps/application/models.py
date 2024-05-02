@@ -105,7 +105,7 @@ class ApplicationForm(models.Model):
                                     blank=True,
                                     related_name='client_application',
                                     verbose_name='Заявитель',
-                                    limit_choices_to={'is_manager': False})
+                                    limit_choices_to={'is_client': True})
     main_manager = models.ForeignKey('user.CustomUser',
                                      on_delete=models.SET_NULL,
                                      null=True,
