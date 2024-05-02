@@ -141,10 +141,12 @@ class TrackingPriority(models.Model):
 
 class ApplicationLogs(models.Model):
     user = models.CharField(max_length=100, null=True, blank=True)
-    text = models.CharField(max_length=300, null=True, blank=True)
+    # text = models.CharField(max_length=500, null=True, blank=True)
+    field = models.CharField(max_length=500, null=True, blank=True)
+    initially = models.CharField(max_length=500, null=True, blank=True)
+    new = models.CharField(max_length=500, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True, null=True) 
     form = models.ForeignKey(ApplicationForm, on_delete=models.CASCADE, null=True, related_name='logs')
-    # user = models.ForeignKey(CustomUser, on_delete=models.SET_NULL, null=True, blank=True)
 
     objects = models.Manager()
 

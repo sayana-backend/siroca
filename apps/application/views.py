@@ -109,14 +109,14 @@ class ApplicationFormRetrieveUpdateAPIView(generics.RetrieveUpdateAPIView):
         instance = self.get_object()
 
         user = request.user
-        user_name = f"{user.first_name}. {user.surname}"
+        user_name = f"{user.first_name} {user.surname}"
         for field in instance._meta.fields:
             old_value = getattr(old_instance, field.name)
             new_value = getattr(instance, field.name)
             if old_value != new_value:
-                change_message = f"{field.verbose_name} изменено с {old_value} на {new_value}"
-                ApplicationLogs.objects.create(text=f"{change_message}",
-                                               form=instance, user=user_name)
+                ApplicationLogs.objects.create(field=f"изменил поле: {field.verbose_name}",
+                                               initially=f"Изначально: {old_value}", new=f"Новая: {new_value}",
+                                               form=instance, user=f"Внес изменения: {user_name}")
 
         changes = []
         if old_instance.status != instance.status:
@@ -137,7 +137,8 @@ class ApplicationFormRetrieveUpdateAPIView(generics.RetrieveUpdateAPIView):
                                             is_client_notic=True)
 
         admin_notification = CustomUser.objects.filter(is_superuser=True)
-
+        user = request.user
+        manager_name = f"{user.first_name} {user.surname}"
         for admin in admin_notification:
             if instance.status == 'Проверено':
                 Notification.objects.create(task_number=f'Номер заявки: {instance.task_number}',
