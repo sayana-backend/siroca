@@ -48,8 +48,8 @@ class ListUserProfileView(generics.ListAPIView):
     '''list users'''
     queryset = CustomUser.objects.all()
     serializer_class = UserProfileSerializer
-    pagination_class = CustomPagination
     permission_classes = [IsManagerCanCreateAndEditUserOrIsAdminUser]
+    pagination_class = CustomPagination
     filter_backends = [filters.SearchFilter]
     search_fields = ['first_name', 'surname', 'main_company__name']
 
@@ -180,7 +180,7 @@ class AdminResetPasswordView(generics.UpdateAPIView):
 class ManagerPermissionsGeneralView(generics.UpdateAPIView, generics.ListAPIView):
     queryset = CustomUser.objects.filter(role_type='manager')
     serializer_class = ManagerPermissionsGeneralSerializer
-    # permission_classes = [IsAdminUser]
+    permission_classes = [IsAdminUser]
 
     def get(self, request, *args, **kwargs):
         managers = CustomUser.objects.filter(role_type='manager')
@@ -210,7 +210,10 @@ class ManagerPermissionsGeneralView(generics.UpdateAPIView, generics.ListAPIView
 class ManagerPermissionsDetailAPIView(generics.ListAPIView):
     queryset = CustomUser.objects.filter(role_type='manager')
     serializer_class = ManagerPermissionsDetailSerializer
-    # permission_classes = [IsAdminUser]
+    pagination_class = CustomPagination
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['first_name', 'surname', 'username']
+    permission_classes = [IsAdminUser]
 
     def put(self, request, *args, **kwargs):
         users_data = request.data.get('users_data', [])
@@ -229,7 +232,7 @@ class ManagerPermissionsDetailAPIView(generics.ListAPIView):
 class ClientPermissionsGeneralView(generics.UpdateAPIView, generics.ListAPIView):
     queryset = CustomUser.objects.filter(role_type='client')
     serializer_class = ClientPermissionsGeneralSerializer
-    # permission_classes = [IsAdminUser]
+    permission_classes = [IsAdminUser]
 
 
     def update(self, request, *args, **kwargs):
@@ -268,7 +271,10 @@ class ClientPermissionsGeneralView(generics.UpdateAPIView, generics.ListAPIView)
 class ClientPermissionsDetailAPIView(generics.ListAPIView):
     queryset = CustomUser.objects.filter(role_type='client')
     serializer_class = ClientPermissionsDetailSerializer
-    # permission_classes = [IsAdminUser]
+    pagination_class = CustomPagination
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['first_name', 'surname', 'username']
+    permission_classes = [IsAdminUser]
 
     def put(self, request, *args, **kwargs):
         users_data = request.data.get('users_data', [])
@@ -287,7 +293,7 @@ class ClientPermissionsDetailAPIView(generics.ListAPIView):
 class UserPermissionsDetailAPIView(generics.RetrieveUpdateAPIView):
     queryset = CustomUser.objects.all()
     lookup_field = 'id'
-    # permission_classes = [IsAdminUser]
+    permission_classes = [IsAdminUser]
 
     def get_serializer_class(self):
         user = self.get_object()
