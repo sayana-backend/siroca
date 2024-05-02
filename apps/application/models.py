@@ -8,6 +8,7 @@ class Checklist(models.Model):
                                     verbose_name='Заявка',
                                     on_delete=models.CASCADE,
                                     related_name='checklists')
+    completed = models.BooleanField(default=False)
     name = models.CharField(max_length=100, verbose_name='Название чеклиста')
 
     def __str__(self):

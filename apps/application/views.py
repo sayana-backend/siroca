@@ -1,3 +1,5 @@
+from collections import OrderedDict
+
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated
@@ -17,7 +19,10 @@ class CustomPagination(PageNumberPagination):
     page_size = 2
 
     def get_paginated_response(self, data):
-        return Response(data)
+        return Response(OrderedDict([
+            ('count', self.page.paginator.count),
+            ('data', data)
+        ]))
 
 
 class ApplicationFormCreateAPIView(generics.CreateAPIView):
@@ -102,6 +107,7 @@ class ApplicationLogsRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroy
     lookup_field = 'id'
 
 
+''''''''''''''''''
 
 
 class ChecklistListCreateAPIView(generics.ListCreateAPIView):
@@ -115,12 +121,21 @@ class CheckListDetailAPIView(generics.RetrieveUpdateDestroyAPIView):  ### пос
     queryset = Checklist.objects.all()
     serializer_class = ChecklistSerializer
     lookup_field = 'id'
-    # permission_classes = [IsAdminUser,
-    #                       IsManagerUser]
+    permission_classes = [IsClientCanAddChecklistOrIsAdminAndManagerUser]
 
 
+class SubTaskCreateAPIView(generics.CreateAPIView):
+    queryset = SubTask.objects.all()
+    serializer_class = SubTaskSerializer
+    lookup_field = 'id'
+    permission_classes = [IsClientCanAddChecklistOrIsAdminAndManagerUser]
 
-  
+
+class SubTaskDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = SubTask.objects.all()
+    serializer_class = SubTaskSerializer
+    lookup_field = 'id'
+    permission_classes = [IsClientCanAddChecklistOrIsAdminAndManagerUser]
 
 
 class CommentsAPIView(generics.ListCreateAPIView):

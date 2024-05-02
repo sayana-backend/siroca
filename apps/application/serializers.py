@@ -11,7 +11,6 @@ class SubTaskSerializer(serializers.ModelSerializer):
 
 
 class ChecklistSerializer(serializers.ModelSerializer):
-    main_manager = serializers.CharField(source='main_manager.name', read_only=True)
     subtasks = SubTaskSerializer(many=True, read_only=True)
 
     class Meta:
