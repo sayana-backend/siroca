@@ -103,6 +103,20 @@ class UserLoginView(generics.CreateAPIView):
             return Response({'detail': 'Ошибка аутентификации'}, status=status.HTTP_401_UNAUTHORIZED)
 
 
+class UserLogoutView(generics.GenericAPIView):
+    permission_classes = (IsAuthenticated,)
+
+    def post(self, request, *args, **kwargs):
+        try:
+            refresh_token = request.data.get('refreshToken')
+            token = RefreshToken(refresh_token)
+            token.blacklist()
+
+            return Response({'detail': 'Вы успешно вышли'}, status=status.HTTP_200_OK)
+        except Exception:
+            return Response({'detail': 'Ошибка выхода из системы'}, status=status.HTTP_400_BAD_REQUEST)
+
+
 class AdminContactDetailView(generics.RetrieveUpdateAPIView): # пересмотреть кто это писал вообще
     '''Редактирование контактов админа в профиле админа'''
     serializer_class = AdminContactSerializer
