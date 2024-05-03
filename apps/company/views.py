@@ -1,12 +1,11 @@
 from rest_framework import generics, status, filters
 from ..application.views import CustomPagination
 from rest_framework.response import Response
-from ..company.models import Company, JobTitle
 from ..company.serializers import *
+from ..company.models import Company, JobTitle
 from django.http import JsonResponse, HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.views import APIView
-from rest_framework.permissions import IsAuthenticated
 from apps.user.permissions import *
 
 
@@ -24,7 +23,7 @@ class CompanyDetailAPIView(generics.RetrieveAPIView):
     '''company detail only view'''
     queryset = Company.objects.all()
     serializer_class = CompanyDetailSerializer
-    permission_classes = [IsManagerCanCreateAndEditCompanyOrIsAdminUser]
+    permission_classes = [IsManagerCanCreateAndEditCompanyOrIsAdminUser]  # неправильный пермишн
     lookup_field = 'id'
 
 
@@ -43,6 +42,7 @@ class CompanyRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView)
     lookup_field = 'id'
 
 
+'''Job Title'''
 
 
 class JobTitleListAPIView(generics.ListAPIView):

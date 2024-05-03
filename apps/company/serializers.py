@@ -46,7 +46,7 @@ class CompanyDetailSerializer(serializers.ModelSerializer):
         return obj.get_count_applications()
 
 
-class CompanyCreateSerializer(serializers.ModelSerializer):
+class CompanyCreateSerializer(serializers.ModelSerializer):  # не правильно но сначала нужна оптимизация
     class Meta:
         model = Company
         fields = ['id', 'name', 'country', 'company_code', 'domain', 'main_manager', 'managers']

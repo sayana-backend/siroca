@@ -1,16 +1,15 @@
-from collections import OrderedDict
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import generics, filters
 from .filters import ApplicationFormFilter
-from apps.user.permissions import *
+from collections import OrderedDict
 from django.core.cache import cache
+from apps.user.permissions import *
 from rest_framework import status
 from django.db.models import Q
 from .serializers import *
-from .signals import *
 from .models import *
 
 
@@ -96,7 +95,7 @@ class ApplicationFormRetrieveUpdateAPIView(generics.RetrieveUpdateAPIView):
     queryset = ApplicationForm.objects.all()
     serializer_class = ApplicationFormUpdateSerializer
     lookup_field = 'id'
-    # permission_classes = [IsClientCanEditApplicationAndIsManagerUser]
+    permission_classes = [IsClientCanEditApplicationAndIsManagerUser]
 
     def update(self, request, *args, **kwargs):
         '''Change tracking for logs and notifications'''
@@ -169,7 +168,17 @@ class ApplicationLogsRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroy
     lookup_field = 'id'
 
 
-''''''''''''''''''
+class FileCreateAPIView(generics.CreateAPIView):
+    queryset = ApplicationFile.objects.all()
+    serializer_class = FileSerializer
+
+
+class ApplicationsOnlyDescriptionAPIView(generics.RetrieveUpdateAPIView):
+    queryset = ApplicationForm.objects.all()
+    serializer_class = ApplicationsOnlyDescriptionSerializer
+    lookup_field = 'id'
+
+
 class ChecklistListCreateAPIView(generics.ListCreateAPIView):
     queryset = Checklist.objects.all()
     serializer_class = ChecklistSerializer

@@ -6,6 +6,9 @@ urlpatterns = [
     path('filter/export-to-excel/', ExportToExcelView.as_view(), name='export_to_excel_view'),
     path('filter/', ApplicationFormFilterAPIView.as_view({'get': 'list'})),
     path('logs/', ApplicationLogsListCreateAPIView.as_view()), # нужно ли?
+    path('file/', FileCreateAPIView.as_view()),
+    path('description/<int:id>/', ApplicationsOnlyDescriptionAPIView.as_view()),
+
 
     path('create/', ApplicationFormCreateAPIView.as_view()),   # POST
     path('form_edit/<int:id>/', ApplicationFormRetrieveUpdateAPIView.as_view()), # GET PUT (id)

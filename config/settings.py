@@ -39,7 +39,6 @@ CSRF_TRUSTED_ORIGINS = ['http://localhost',
                         'http://clients.siroca.com'
                         ]
 
-# Application definition
 
 INSTALLED_APPS = [
     'jazzmin',
