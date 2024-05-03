@@ -103,12 +103,14 @@ class UserLoginView(generics.CreateAPIView):
             return Response({'detail': 'Ошибка аутентификации'}, status=status.HTTP_401_UNAUTHORIZED)
 
 
-class AdminContactDetailView(generics.RetrieveUpdateAPIView): # пересмотреть кто это писал вообще
+class AdminContactDetailView(generics.RetrieveUpdateAPIView):
     '''Редактирование контактов админа в профиле админа'''
     serializer_class = AdminContactSerializer
     # permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
+        if self.request.user.is_superuser:
+            return AdminContact.objects.all()
         return AdminContact.objects.filter(user=self.request.user)
 
     def get_object(self):
@@ -118,7 +120,6 @@ class AdminContactDetailView(generics.RetrieveUpdateAPIView): # пересмот
         if obj is None:
             return Response({'detail': 'Ошибка аутентификации'}, status=status.HTTP_404_NOT_FOUND)
         return obj
-
 
 class AdminContactListView(generics.ListAPIView): # что с кверисетом
     '''Контакты админа при авторизации'''
