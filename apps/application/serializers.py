@@ -20,13 +20,12 @@ class CommentsSerializer(serializers.ModelSerializer):
 class LogsSerializer(serializers.ModelSerializer):
     class Meta:
         model = ApplicationLogs
-        fields = ('id', 'username', 'task_number', 'text', 'created_at')
+        fields = ('id', 'username', 'task_number', 'text')
 
 
 class ApplicationFormCreateSerializer(serializers.ModelSerializer):
     '''Для первой страницы создания заявки'''
     company = serializers.SlugRelatedField(slug_field='name', queryset=Company.objects.all())
-    # company = serializers.CharField(source='company.name', read_only=True)
 
     class Meta:
         model = ApplicationForm

@@ -48,6 +48,7 @@ class AdminUser(admin.ModelAdmin):
                     'client_can_edit_comments',
                     'client_can_get_reports',
                     'client_can_view_logs',
+                    'client_can_view_profiles',
                     'client_can_add_checklist',
                     'client_can_add_files']
     list_filter = ['role_type']
