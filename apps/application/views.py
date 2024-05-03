@@ -154,7 +154,7 @@ class ApplicationFormRetrieveDestroyAPIView(generics.RetrieveDestroyAPIView):
     queryset = ApplicationForm.objects.all()
     serializer_class = ApplicationFormDetailViewSerializer
     lookup_field = 'id'
-    permission_classes = [IsAdminUserAndManagerUser]
+    # permission_classes = [IsAdminUserAndManagerUser]
 
 
 class ApplicationLogsListCreateAPIView(generics.ListCreateAPIView):
@@ -170,7 +170,7 @@ class ApplicationLogsRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroy
     lookup_field = 'id'
 
 
-class FileCreateAPIView(generics.CreateAPIView): # расставить пермишны
+class FileListCreateAPIView(generics.ListCreateAPIView): # расставить пермишны
     queryset = ApplicationFile.objects.all()
     serializer_class = FileSerializer
 
