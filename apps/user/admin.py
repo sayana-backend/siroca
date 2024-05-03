@@ -43,7 +43,6 @@ class AdminUser(admin.ModelAdmin):
     list_display = ['username', 'role_type', 'is_manager', 'is_client',
                     'manager_can_delete_comments',
                     'manager_can_get_reports',
-                    'manager_can_view_profiles',
                     'manager_can_delete_application',
                     'client_can_edit_comments',
                     'client_can_get_reports',

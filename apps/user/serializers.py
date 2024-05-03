@@ -51,10 +51,35 @@ class UserDeleteSerializer(serializers.ModelSerializer):
         fields = ['id', 'username']
 
 
+'''Serializers for admin contact and password change and reset'''
+
+
 class AdminContactSerializer(serializers.ModelSerializer):
     class Meta:
         model = AdminContact
         fields = ['email', 'phone_number', 'whatsapp_number']
+
+
+class ChangePasswordSerializer(serializers.Serializer):
+    old_password = serializers.CharField(required=True)
+    new_password1 = serializers.CharField(required=True)
+    new_password2 = serializers.CharField(required=True)
+
+    def validate(self, data):
+        new_password1 = data.get('new_password1')
+        new_password2 = data.get('new_password2')
+
+        if new_password1 != new_password2:
+            raise serializers.ValidationError("Новые пароли не совпадают")
+        return data
+
+
+class AdminResetPasswordSerializer(serializers.Serializer):
+    new_password = serializers.CharField(required=True)
+    confirm_password = serializers.CharField(required=True)
+
+
+'''Permission serializer'''
 
 
 class ManagerPermissionsGeneralSerializer(serializers.ModelSerializer):
@@ -65,7 +90,6 @@ class ManagerPermissionsGeneralSerializer(serializers.ModelSerializer):
                   'role_type',
                   'manager_can_delete_comments',
                   'manager_can_get_reports',
-                  'manager_can_view_profiles',
                   'manager_can_delete_application']
 
 
@@ -77,7 +101,6 @@ class ManagerPermissionsDetailSerializer(serializers.ModelSerializer):
                   'role_type',
                   'manager_can_delete_comments_extra',
                   'manager_can_get_reports_extra',
-                  'manager_can_view_profiles_extra',
                   'manager_can_delete_application_extra',
                   'manager_can_create_and_edit_company_extra',
                   'manager_can_create_and_edit_user_extra',
@@ -130,23 +153,7 @@ class ClientPermissionsDetailSerializer(serializers.ModelSerializer):
         return instance
 
 
-class ChangePasswordSerializer(serializers.Serializer):
-    old_password = serializers.CharField(required=True)
-    new_password1 = serializers.CharField(required=True)
-    new_password2 = serializers.CharField(required=True)
 
-    def validate(self, data):
-        new_password1 = data.get('new_password1')
-        new_password2 = data.get('new_password2')
-
-        if new_password1 != new_password2:
-            raise serializers.ValidationError("Новые пароли не совпадают")
-        return data
-
-
-class AdminResetPasswordSerializer(serializers.Serializer):
-    new_password = serializers.CharField(required=True)
-    confirm_password = serializers.CharField(required=True)
 
 
 

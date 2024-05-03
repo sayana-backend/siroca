@@ -1,17 +1,18 @@
-from .models import ApplicationForm, Checklist, Comments, ApplicationLogs, Notification,SubTask
+from .models import ApplicationForm, Checklist, Comments, ApplicationLogs, Notification, SubTask, ApplicationFile
 from rest_framework import serializers
 from ..company.models import Company
 from ..user.models import CustomUser
 
 
 class SubTaskSerializer(serializers.ModelSerializer):
+    manager = serializers.SlugRelatedField(slug_field='username', queryset=CustomUser.objects.all(), required=False)
+
     class Meta:
         model = SubTask
         fields = '__all__'
 
 
 class ChecklistSerializer(serializers.ModelSerializer):
-    main_manager = serializers.CharField(source='main_manager.name', read_only=True)
     subtasks = SubTaskSerializer(many=True, read_only=True)
 
     class Meta:
@@ -33,12 +34,18 @@ class CommentsSerializer(serializers.ModelSerializer):
         return instance.date_added.strftime('%Y.%m.%d / %H:%M')
 
 
+class FileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ApplicationFile
+        fields = '__all__'
+
+
 class LogsSerializer(serializers.ModelSerializer):
     formatted_created_at = serializers.SerializerMethodField()
 
     class Meta:
         model = ApplicationLogs
-        fields = ('id', 'username', 'task_number', 'text', 'formatted_created_at')
+        fields = ('id', 'user', 'formatted_created_at', 'field', 'initially', 'new')
 
     def get_formatted_created_at(self, instance):
         return instance.created_at.strftime('%Y.%m.%d / %H:%M')
@@ -47,7 +54,6 @@ class LogsSerializer(serializers.ModelSerializer):
 class ApplicationFormCreateSerializer(serializers.ModelSerializer):
     '''Application create'''
     company = serializers.SlugRelatedField(slug_field='name', queryset=Company.objects.all())
-    # company = serializers.CharField(source='company.name', read_only=True)
 
     class Meta:
         model = ApplicationForm
@@ -70,15 +76,14 @@ class ApplicationFormListSerializer(serializers.ModelSerializer):
 class ApplicationFormUpdateSerializer(serializers.ModelSerializer):
     '''Application ypdate'''
     company = serializers.CharField(source='company.name', read_only=True)
-    main_client = serializers.SlugRelatedField(slug_field='username', queryset=CustomUser.objects.all(), required=False)
-    main_manager = serializers.SlugRelatedField(slug_field='username', queryset=CustomUser.objects.all(), required=False)
+    main_client = serializers.SlugRelatedField(slug_field='username', source='get_full_name', queryset=CustomUser.objects.all(), required=False)
+    main_manager = serializers.SlugRelatedField(slug_field='username', source='get_full_name', queryset=CustomUser.objects.all(), required=False)
     checklists = ChecklistSerializer(many=True, read_only=True)
-    files = serializers.ListField(child=serializers.FileField(), allow_empty=True)
+    files = FileSerializer(many=True, read_only=True)
 
     class Meta:
         model = ApplicationForm
         fields = '__all__'
-
 
 
 class ApplicationFormDetailViewSerializer(serializers.ModelSerializer):
@@ -89,10 +94,17 @@ class ApplicationFormDetailViewSerializer(serializers.ModelSerializer):
     main_manager = serializers.SlugRelatedField(slug_field='username', queryset=CustomUser.objects.all())
     checklists = ChecklistSerializer(many=True, read_only=True)
     comments = CommentsSerializer(many=True, read_only=True)
+    files = FileSerializer(many=True, read_only=True)
 
     class Meta:
         model = ApplicationForm
         fields = '__all__'
+
+
+class ApplicationsOnlyDescriptionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ApplicationForm
+        fields = ['description']
 
 
 class NotificationSerializer(serializers.ModelSerializer):

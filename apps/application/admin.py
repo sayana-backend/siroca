@@ -19,7 +19,6 @@ class ApplicationFormAdmin(admin.ModelAdmin):
     #           'status']
 
 
-
 @admin.register(Comments)
 class CommentsAdmin(admin.ModelAdmin):
     list_display = ['text',  'application']
@@ -27,7 +26,7 @@ class CommentsAdmin(admin.ModelAdmin):
     
 
 
-# admin.site.register(ApplicationLogs)
+admin.site.register(ApplicationLogs)
 # admin.site.register(Checklist)
 # admin.site.register(Comments)
 # admin.site.register(ApplicationForm)

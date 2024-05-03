@@ -25,6 +25,7 @@ import os
 from apps.company.models import Company
 from apps.user.permissions import *
 
+
 class ApplicationFormFilterAPIView(viewsets.GenericViewSet):
     # class ApplicationFormFilterAPIView(generics.ListAPIView):
     # class ApplicationFormFilterAPIView(viewsets.ReadOnlyModelViewSet):

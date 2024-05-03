@@ -4,12 +4,12 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import generics, filters
 from .filters import ApplicationFormFilter
-from apps.user.permissions import *
+from collections import OrderedDict
 from django.core.cache import cache
+from apps.user.permissions import *
 from rest_framework import status
 from django.db.models import Q
 from .serializers import *
-from .signals import *
 from .models import *
 
 
@@ -17,16 +17,32 @@ class CustomPagination(PageNumberPagination):
     page_size = 2
 
     def get_paginated_response(self, data):
-        return Response(data)
+        return Response(OrderedDict([
+            ('count', self.page.paginator.count),
+            ('data', data)
+        ]))
 
 
 class ApplicationFormCreateAPIView(generics.CreateAPIView):
+    '''Create new application'''
     queryset = ApplicationForm.objects.all()
     serializer_class = ApplicationFormCreateSerializer
     permission_classes = [IsClientCanCreateApplicationOrIsAdminAndManagerUser]
 
     def perform_create(self, serializer):
-        serializer.save(main_manager=self.request.user)
+        '''Tracking the creation of an application for notifications'''
+        instance = serializer.save()
+
+        # Создание уведомления для администраторов при создании новой заявки
+        admin_notification = CustomUser.objects.filter(is_superuser=True)
+        user = self.request.user
+        user_name = f"{user.first_name}. {user.surname}"
+        for admin in admin_notification:
+            Notification.objects.create(
+                task_number=f'Номер заявки: {instance.task_number}',
+                text=f'Создана новая заявка', title=instance.title,
+                made_change=user_name, is_admin=True, admin_id=admin.id
+            )
 
 
 class ApplicationFormListAPIView(generics.ListAPIView):
@@ -76,10 +92,62 @@ class ApplicationFormListAPIView(generics.ListAPIView):
 
 class ApplicationFormRetrieveUpdateAPIView(generics.RetrieveUpdateAPIView):
     '''  update API '''
-    queryset = ApplicationForm.objects.all()
     serializer_class = ApplicationFormUpdateSerializer
     lookup_field = 'id'
-    permission_classes = [IsClientCanEditApplicationAndIsManagerUser]
+    # permission_classes = [IsClientCanEditApplicationAndIsManagerUser]
+
+    def get_queryset(self):
+        return ApplicationForm.objects.all().select_related('main_client', 'main_manager')
+
+    def update(self, request, *args, **kwargs):
+        '''Change tracking for logs and notifications'''
+        instance = self.get_object()
+        old_instance = ApplicationForm.objects.get(id=instance.id)
+        serializer = self.get_serializer(instance, data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+
+        instance = self.get_object()
+
+        user = request.user
+        user_name = f"{user.first_name} {user.surname}"
+        for field in instance._meta.fields:
+            old_value = getattr(old_instance, field.name)
+            new_value = getattr(instance, field.name)
+            if old_value != new_value:
+                ApplicationLogs.objects.create(field=f"изменил поле: {field.verbose_name}",
+                                               initially=f"Изначально: {old_value}", new=f"Новая: {new_value}",
+                                               form=instance, user=f"Внес изменения: {user_name}")
+
+        changes = []
+        if old_instance.status != instance.status:
+            changes.append(
+                f"Статус изменен с '{old_instance.get_status_display()}' на '{instance.get_status_display()}'")
+        if old_instance.priority != instance.priority:
+            changes.append(
+                f"Приоритет изменен с '{old_instance.get_priority_display()}' на '{instance.get_priority_display()}'")
+
+        if changes:
+            manager_name = f"{user_name}"
+            for change in changes:
+                Notification.objects.create(task_number=instance.task_number, title=instance.title,
+                                            text=change, made_change=manager_name, form_id=instance.id,
+                                            is_manager_notic=True)
+                Notification.objects.create(task_number=instance.task_number, title=instance.title, text=change,
+                                            made_change=manager_name, form_id=instance.id,
+                                            is_client_notic=True)
+
+        admin_notification = CustomUser.objects.filter(is_superuser=True)
+        user = request.user
+        manager_name = f"{user.first_name} {user.surname}"
+        for admin in admin_notification:
+            if instance.status == 'Проверено':
+                Notification.objects.create(task_number=f'Номер заявки: {instance.task_number}',
+                                            text=f"Заявка закрыто",
+                                            title=instance.title, made_change=manager_name, is_admin=True,
+                                            admin_id=admin.id)
+
+        return Response(serializer.data)
 
 
 class ApplicationFormRetrieveDestroyAPIView(generics.RetrieveDestroyAPIView):
@@ -96,12 +164,27 @@ class ApplicationLogsListCreateAPIView(generics.ListCreateAPIView):
     permission_classes = [IsClientCanViewLogsOrIsAdminAndManagerUser]
 
 
-class ApplicationLogsRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):  #### убрать DELETE - запрос
+class ApplicationLogsRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
     queryset = ApplicationLogs.objects.all()
     serializer_class = LogsSerializer
     lookup_field = 'id'
 
 
+class FileCreateAPIView(generics.CreateAPIView): # расставить пермишны
+    queryset = ApplicationFile.objects.all()
+    serializer_class = FileSerializer
+
+
+class FileDeleteAPIView(generics.DestroyAPIView):
+    queryset = ApplicationFile.objects.all()
+    serializer_class = FileSerializer
+    lookup_field = 'id'
+
+
+class ApplicationsOnlyDescriptionAPIView(generics.RetrieveUpdateAPIView):
+    queryset = ApplicationForm.objects.all()
+    serializer_class = ApplicationsOnlyDescriptionSerializer
+    lookup_field = 'id'
 
 
 class ChecklistListCreateAPIView(generics.ListCreateAPIView):
@@ -111,15 +194,18 @@ class ChecklistListCreateAPIView(generics.ListCreateAPIView):
     permission_classes = [IsClientCanAddChecklistOrIsAdminAndManagerUser]
 
 
-class CheckListDetailAPIView(generics.RetrieveUpdateDestroyAPIView):  ### посмотреть внимательно
+class CheckListDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Checklist.objects.all()
     serializer_class = ChecklistSerializer
     lookup_field = 'id'
-    # permission_classes = [IsAdminUser,
-    #                       IsManagerUser]
+    permission_classes = [IsClientCanAddChecklistOrIsAdminAndManagerUser]
 
 
-
+class SubTaskCreateAPIView(generics.CreateAPIView):
+    queryset = SubTask.objects.all()
+    serializer_class = SubTaskSerializer
+    lookup_field = 'id'
+    permission_classes = [IsClientCanAddChecklistOrIsAdminAndManagerUser]
 
 
 
@@ -140,11 +226,8 @@ class CommentsDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = [IsAdminOrManagerOrClientUsersCanEditComments]
 
 
-
-
-
-
 class NotificationAPIView(generics.ListAPIView):
+    '''Sending notifications'''
     queryset = Notification.objects.all()
     serializer_class = NotificationSerializer
     permission_classes = [IsAuthenticated]
@@ -177,6 +260,7 @@ class NotificationAPIView(generics.ListAPIView):
 
 
 class NotificationDeleteViewAPI(generics.DestroyAPIView):
+    '''Deleting notifications'''
     def delete(self, request, id=None):
         admin_id = request.user.id
         if id is None or id == 'all':
@@ -201,6 +285,7 @@ class NotificationDeleteViewAPI(generics.DestroyAPIView):
 
 
 class NotificationTrueAPIView(generics.ListAPIView):
+    '''API for separating notifications into read and unread'''
     queryset = Notification.objects.all()
     serializer_class = NotificationSerializer
     permission_classes = [IsAuthenticated]

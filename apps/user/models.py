@@ -1,27 +1,11 @@
-from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
-from django.db.models.signals import post_save
-from django.dispatch import receiver
 from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 from .usermanager import CustomUserManager
+from .permissions import UsersPermissions
 
 
-class AdminContact(models.Model):
-    user = models.OneToOneField('CustomUser', on_delete=models.CASCADE, related_name='contact')
-    email = models.EmailField(verbose_name='Электронная почта')
-    phone_number = models.CharField(max_length=20, verbose_name='Телефонный номер')
-    whatsapp_number = models.CharField(max_length=20, verbose_name='Номер WhatsApp')
-
-    def __str__(self):
-        return f"Контакт для админа {self.user}"
-
-    class Meta:
-        verbose_name = 'Контакт для админа'
-        verbose_name_plural = "Контакты для админа"
-
-
-class CustomUser(AbstractBaseUser, PermissionsMixin):
+class CustomUser(AbstractBaseUser, PermissionsMixin, UsersPermissions):
     RoleType = {
         'client': 'Клиент',
         'manager': 'Менеджер',
@@ -48,33 +32,6 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
                                   related_name='user_job_titles',
                                   on_delete=models.SET_NULL)
 
-    manager_can_delete_comments = models.BooleanField(default=False, verbose_name='Удаление комментариев')
-    manager_can_delete_comments_extra = models.BooleanField(null=True, verbose_name='Удаление комментариев')
-    manager_can_get_reports = models.BooleanField(default=False, verbose_name='Отчет по заявкам(Менеджер)')
-    manager_can_get_reports_extra = models.BooleanField(null=True, verbose_name='Отчет по заявкам(Менеджер)')
-    manager_can_view_profiles = models.BooleanField(default=False, verbose_name='Просмотр профиля пользователей(Менеджер)')
-    manager_can_view_profiles_extra = models.BooleanField(null=True, verbose_name='Просмотр профиля пользователей(Менеджер)')
-    manager_can_delete_application = models.BooleanField(default=False, verbose_name='Удаление заявки')
-    manager_can_delete_application_extra = models.BooleanField(null=True, verbose_name='Удаление заявки')
-    manager_can_create_and_edit_company_extra = models.BooleanField(null=True, verbose_name='Создание/Редактирование заявки')
-    manager_can_create_and_edit_user_extra = models.BooleanField(null=True,verbose_name='Создание/Редактирование пользователя')
-    manager_can_create_and_delete_job_title_extra = models.BooleanField(null=True,
-                                                                  verbose_name='Просмотр списка по компаниям/пользователям/должностям')
-
-    client_can_edit_comments = models.BooleanField(default=False, verbose_name='Добавление/удаление комментария')
-    client_can_edit_comments_extra = models.BooleanField(null=True, verbose_name='Добавление/удаление комментария')
-    client_can_get_reports = models.BooleanField(default=False, verbose_name='Отчет по заявкам(Клиент)')
-    client_can_get_reports_extra = models.BooleanField(null=True,  verbose_name='Отчет по заявкам(Клиент)')
-    client_can_view_logs = models.BooleanField(default=False, verbose_name='Просмотр логов')
-    client_can_view_logs_extra = models.BooleanField(null=True,  verbose_name='Просмотр логов')
-    client_can_add_checklist = models.BooleanField(default=False, verbose_name='Добавление чеклиста')
-    client_can_add_checklist_extra = models.BooleanField(null=True,  verbose_name='Добавление чеклиста')
-    client_can_add_files = models.BooleanField(default=False, verbose_name='Добавление файла')
-    client_can_add_files_extra = models.BooleanField(null=True,  verbose_name='Добавление файла')
-    client_can_create_application_extra = models.BooleanField(null=True,  verbose_name='Создание заявки')
-    client_can_edit_application_extra = models.BooleanField(null=True,  verbose_name='Редактирование заявки')
-
-
     objects = CustomUserManager()
 
     def save(self, *args, **kwargs):
@@ -90,6 +47,8 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
 
         super().save(*args, **kwargs)
 
+    def get_full_name(self):
+        return f'{self.first_name} {self.surname}'
 
     def __str__(self):
         return self.username
@@ -98,5 +57,18 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
         verbose_name = _('Пользователь')
         verbose_name_plural = _('Пользователи')
 
-
     USERNAME_FIELD = "username"
+
+
+class AdminContact(models.Model):
+    user = models.OneToOneField('CustomUser', on_delete=models.CASCADE, related_name='contact')
+    email = models.EmailField(verbose_name='Электронная почта')
+    phone_number = models.CharField(max_length=20, verbose_name='Телефонный номер')
+    whatsapp_number = models.CharField(max_length=20, verbose_name='Номер WhatsApp')
+
+    def __str__(self):
+        return f"Контакт для админа {self.user}"
+
+    class Meta:
+        verbose_name = 'Контакт для админа'
+        verbose_name_plural = "Контакты для админа"
