@@ -7,6 +7,7 @@ urlpatterns = [
     path('filter/', ApplicationFormFilterAPIView.as_view({'get': 'list'})),
     path('logs/', ApplicationLogsListCreateAPIView.as_view()), # нужно ли?
     path('file/', FileCreateAPIView.as_view()),
+    path('delete_file/<int:id>/', FileDeleteAPIView.as_view()),
     path('description/<int:id>/', ApplicationsOnlyDescriptionAPIView.as_view()),
 
 

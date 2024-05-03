@@ -47,8 +47,11 @@ class CustomUser(AbstractBaseUser, PermissionsMixin, UsersPermissions):
 
         super().save(*args, **kwargs)
 
-    def __str__(self):
+    def get_full_name(self):
         return f'{self.first_name} {self.surname}'
+
+    def __str__(self):
+        return self.username
 
     class Meta:
         verbose_name = _('Пользователь')

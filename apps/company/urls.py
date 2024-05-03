@@ -13,7 +13,9 @@ urlpatterns = [
     path('delete_job-title/<int:id>/', JobTitleDestroyAPIView.as_view()),
 
     path('code/', generate_codes_view),
-    path('logo/', LogoAPIView.as_view())
+    path('logo/', LogoAPIView.as_view()),
+    path('name_list/', CompanyOnlyNameListAPIView.as_view()),
+
 ]
 
 

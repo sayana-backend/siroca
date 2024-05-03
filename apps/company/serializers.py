@@ -56,3 +56,9 @@ class CompanyRetrieveUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Company
         fields = ['id', 'name', 'country', 'company_code', 'domain', 'main_manager', 'managers']
+
+
+class CompanyOnlyNameListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Company
+        fields = ['id', 'name']

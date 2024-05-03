@@ -42,6 +42,14 @@ class CompanyRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView)
     lookup_field = 'id'
 
 
+class CompanyOnlyNameListAPIView(generics.ListAPIView):
+    '''company list, only with name, for frontend developers'''
+    queryset = Company.objects.all()
+    serializer_class = CompanyOnlyNameListSerializer
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['name']
+
+
 '''Job Title'''
 
 

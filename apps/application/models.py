@@ -71,7 +71,7 @@ class ApplicationForm(models.Model):
 
 
 class ApplicationFile(models.Model):
-    file = models.FileField(upload_to='', null=True, verbose_name='Файлы', blank=True)
+    file = models.FileField(upload_to='', verbose_name='file', blank=True)
     application = models.ForeignKey('ApplicationForm',
                                     on_delete=models.CASCADE,
                                     verbose_name='file',

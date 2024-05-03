@@ -92,10 +92,12 @@ class ApplicationFormListAPIView(generics.ListAPIView):
 
 class ApplicationFormRetrieveUpdateAPIView(generics.RetrieveUpdateAPIView):
     '''  update API '''
-    queryset = ApplicationForm.objects.all()
     serializer_class = ApplicationFormUpdateSerializer
     lookup_field = 'id'
-    permission_classes = [IsClientCanEditApplicationAndIsManagerUser]
+    # permission_classes = [IsClientCanEditApplicationAndIsManagerUser]
+
+    def get_queryset(self):
+        return ApplicationForm.objects.all().select_related('main_client', 'main_manager')
 
     def update(self, request, *args, **kwargs):
         '''Change tracking for logs and notifications'''
@@ -168,9 +170,15 @@ class ApplicationLogsRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroy
     lookup_field = 'id'
 
 
-class FileCreateAPIView(generics.CreateAPIView):
+class FileCreateAPIView(generics.CreateAPIView): # расставить пермишны
     queryset = ApplicationFile.objects.all()
     serializer_class = FileSerializer
+
+
+class FileDeleteAPIView(generics.DestroyAPIView):
+    queryset = ApplicationFile.objects.all()
+    serializer_class = FileSerializer
+    lookup_field = 'id'
 
 
 class ApplicationsOnlyDescriptionAPIView(generics.RetrieveUpdateAPIView):
