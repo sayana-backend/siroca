@@ -109,6 +109,8 @@ class AdminContactDetailView(generics.RetrieveUpdateAPIView):
     # permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
+        if self.request.user.is_superuser:
+            return AdminContact.objects.all()
         return AdminContact.objects.filter(user=self.request.user)
 
     def get_object(self):
@@ -120,7 +122,7 @@ class AdminContactDetailView(generics.RetrieveUpdateAPIView):
         return obj
 
 
-class AdminContactListView(generics.ListAPIView): 
+class AdminContactListView(generics.ListAPIView):
     '''Контакты админа при авторизации'''
     queryset = AdminContact.objects.all()
     serializer_class = AdminContactSerializer

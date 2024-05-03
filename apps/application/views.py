@@ -201,6 +201,7 @@ class CheckListDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = [IsClientCanAddChecklistOrIsAdminAndManagerUser]
 
 
+
 class SubTaskCreateAPIView(generics.CreateAPIView):
     queryset = SubTask.objects.all()
     serializer_class = SubTaskSerializer
