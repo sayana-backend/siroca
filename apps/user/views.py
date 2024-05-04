@@ -8,6 +8,8 @@ from .serializers import *
 from .permissions import *
 from rest_framework import filters
 from .models import CustomUser
+from rest_framework_simplejwt.token_blacklist.models import BlacklistedToken
+from rest_framework_simplejwt.exceptions import TokenError
 
 
 class CreateUserView(generics.CreateAPIView):

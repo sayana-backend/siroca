@@ -115,9 +115,9 @@ class ApplicationFormRetrieveUpdateAPIView(generics.RetrieveUpdateAPIView):
             old_value = getattr(old_instance, field.name)
             new_value = getattr(instance, field.name)
             if old_value != new_value:
-                ApplicationLogs.objects.create(field=f"изменил поле: {field.verbose_name}",
-                                               initially=f"Изначально: {old_value}", new=f"Новая: {new_value}",
-                                               form=instance, user=f"Внес изменения: {user_name}")
+                ApplicationLogs.objects.create(field=f"{field.verbose_name}",
+                                               initially=f"{old_value}", new=f"{new_value}",
+                                               form=instance, user=f"{user_name}")
 
         changes = []
         if old_instance.status != instance.status:
