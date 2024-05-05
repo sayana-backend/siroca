@@ -1,11 +1,14 @@
-from .models import ApplicationForm, ApplicationLogs, TrackingStatus, TrackingPriority, Notification
+from .models import ApplicationForm, ApplicationLogs, TrackingStatus, TrackingPriority, Notification,Checklist
 from django.db.models.signals import post_save, pre_save
 from apps.user.models import CustomUser
 from django.dispatch import receiver
 from django.utils import timezone
 from datetime import timedelta
 
-
+@receiver(post_save, sender=Checklist)
+def update_subtasks_on_checklist_completion(sender, instance, **kwargs):
+    if instance.completed:
+        instance.subtasks.update(completed=True)
 
 @receiver(post_save, sender=ApplicationForm)
 def fill_task_number(sender, instance, created, **kwargs):
