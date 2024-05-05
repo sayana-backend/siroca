@@ -110,12 +110,13 @@ class ApplicationFormRetrieveUpdateAPIView(generics.RetrieveUpdateAPIView):
         instance = self.get_object()
 
         user = request.user
+        user_id = f"{user.id}"
         user_name = f"{user.first_name} {user.surname}"
         for field in instance._meta.fields:
             old_value = getattr(old_instance, field.name)
             new_value = getattr(instance, field.name)
             if old_value != new_value:
-                ApplicationLogs.objects.create(field=f"{field.verbose_name}",
+                ApplicationLogs.objects.create(field=f"{field.verbose_name}", user_id=user_id,
                                                initially=f"{old_value}", new=f"{new_value}",
                                                form=instance, user=f"{user_name}")
 
