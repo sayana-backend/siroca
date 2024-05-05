@@ -121,12 +121,11 @@ class AdminContactDetailView(generics.RetrieveUpdateAPIView):
             return Response({'detail': 'Ошибка аутентификации'}, status=status.HTTP_404_NOT_FOUND)
         return obj
 
-class AdminContactListView(generics.ListAPIView): # что с кверисетом
-    '''Контакты админа при авторизации'''
-    serializer_class = AdminContactSerializer
 
-    def get_queryset(self):
-        return AdminContact.objects.all()
+class AdminContactListView(generics.ListAPIView): 
+    '''Контакты админа при авторизации'''
+    queryset = AdminContact.objects.all()
+    serializer_class = AdminContactSerializer
 
 
 class ChangePasswordView(generics.UpdateAPIView):
