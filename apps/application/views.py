@@ -27,7 +27,6 @@ class ApplicationFormCreateAPIView(generics.CreateAPIView):
     '''Create new application'''
     queryset = ApplicationForm.objects.all()
     serializer_class = ApplicationFormCreateSerializer
-    permission_classes = [IsClientCanCreateApplicationOrIsAdminAndManagerUser]
 
     def perform_create(self, serializer):
         '''Tracking the creation of an application for notifications'''
@@ -156,9 +155,9 @@ class ApplicationFormRetrieveDestroyAPIView(generics.RetrieveDestroyAPIView):
     queryset = ApplicationForm.objects.all()
     serializer_class = ApplicationFormDetailViewSerializer
     lookup_field = 'id'
-    permission_classes = [IsAdminUserAndManagerUser]
 
 
+class ApplicationLogsListCreateAPIView(generics.ListCreateAPIView):
 class ApplicationLogsListCreateAPIView(generics.ListCreateAPIView):
     queryset = ApplicationLogs.objects.all()
     serializer_class = LogsSerializer
@@ -221,7 +220,7 @@ class SubTaskDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
 class CommentsAPIView(generics.ListCreateAPIView):
     queryset = Comments.objects.all()
     serializer_class = CommentsSerializer
-    permission_classes = [IsClientCanCreateCommentsOrIsAdminAndManagerUser]
+    permission_classes = [IsAuthenticated]
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
@@ -231,7 +230,7 @@ class CommentsDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Comments.objects.all()
     serializer_class = CommentsSerializer
     lookup_field = 'id'
-    permission_classes = [IsAdminOrManagerOrClientUsersCanEditComments]
+    # permission_classes = [IsManagerCanDeleteComments,]
 
 
 class NotificationAPIView(generics.ListAPIView):

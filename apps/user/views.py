@@ -14,7 +14,6 @@ class CreateUserView(generics.CreateAPIView):
     '''Create user'''
     queryset = CustomUser.objects.all()
     serializer_class = UserProfileRegisterSerializer
-    permission_classes = [IsManagerCanCreateAndEditUserOrIsAdminUser]
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
@@ -31,6 +30,7 @@ class CreateUserView(generics.CreateAPIView):
             user.client_can_view_logs = first_client.client_can_view_logs
             user.client_can_add_files = first_client.client_can_add_files
             user.client_can_add_checklist = first_client.client_can_add_checklist
+            user.client_can_view_profiles = first_client.client_can_view_profiles
             user.save()
 
         elif first_manager:
@@ -75,6 +75,7 @@ class DeleteUserView(generics.DestroyAPIView): #сожет совместить 
     serializer_class = UserDeleteSerializer
     permission_classes = [IsAdminUser]
     lookup_field = 'id'
+    # permission_classes = [IsAdminUser, IsClientCanViewProfiles]
 
 
 class UserLoginView(generics.CreateAPIView):
@@ -132,6 +133,7 @@ class ChangePasswordView(generics.UpdateAPIView):
     '''смена пароля в профиле у каждого пользователя'''
     queryset = CustomUser.objects.all()
     serializer_class = ChangePasswordSerializer
+    permission_classes = [IsAuthenticated]
     permission_classes = [IsAuthenticated]
 
     def update(self, request, *args, **kwargs):

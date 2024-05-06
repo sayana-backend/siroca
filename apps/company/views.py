@@ -25,6 +25,7 @@ class CompanyDetailAPIView(generics.RetrieveAPIView):
     serializer_class = CompanyDetailSerializer
     permission_classes = [IsManagerCanCreateAndEditCompanyOrIsAdminUser]  # неправильный пермишн
     lookup_field = 'id'
+    # permission_classes = [IsAdminUser]
 
 
 class CompanyCreateAPIView(generics.CreateAPIView):
@@ -38,7 +39,6 @@ class CompanyRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView)
     '''company redact'''
     queryset = Company.objects.all()
     serializer_class = CompanyRetrieveUpdateSerializer
-    permission_classes = [IsManagerCanCreateAndEditCompanyOrIsAdminUser]
     lookup_field = 'id'
 
 
@@ -56,7 +56,7 @@ class CompanyOnlyNameListAPIView(generics.ListAPIView):
 class JobTitleListAPIView(generics.ListAPIView):
     queryset = JobTitle.objects.all()
     serializer_class = JobTitleSerializer
-    permission_classes = [IsManagerCanCreateAndDeleteJobTitleOrIsAdminUser]
+    # permission_classes = [IsAdminUser]
     filter_backends = [filters.SearchFilter]
     search_fields = ['title']
 
@@ -64,14 +64,12 @@ class JobTitleListAPIView(generics.ListAPIView):
 class JobTitleDestroyAPIView(generics.DestroyAPIView):
     queryset = JobTitle.objects.all()
     serializer_class = JobTitleSerializer
-    permission_classes = [IsManagerCanCreateAndDeleteJobTitleOrIsAdminUser]
     lookup_field = 'id'
 
 
 class JobTitleCreateAPIView(generics.CreateAPIView):
     queryset = JobTitle.objects.all()
     serializer_class = JobTitleSerializer
-    permission_classes = [IsManagerCanCreateAndDeleteJobTitleOrIsAdminUser]
 
 
 @csrf_exempt
