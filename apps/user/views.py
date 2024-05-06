@@ -8,8 +8,6 @@ from .serializers import *
 from .permissions import *
 from rest_framework import filters
 from .models import CustomUser
-from rest_framework_simplejwt.token_blacklist.models import BlacklistedToken
-from rest_framework_simplejwt.exceptions import TokenError
 
 
 class CreateUserView(generics.CreateAPIView):
@@ -55,8 +53,8 @@ class ListUserProfileView(generics.ListAPIView):
     search_fields = ['first_name', 'surname', 'main_company__name']
 
 
-class DetailUserProfileView(generics.RetrieveAPIView):
-    '''User profile view'''
+class DetailUserProfileView(generics.RetrieveDestroyAPIView):
+    '''User profile view and delete'''
     queryset = CustomUser.objects.all()
     serializer_class = UserProfileSerializer
     permission_classes = [IsAuthenticated]
@@ -71,13 +69,15 @@ class UserUpdateView(generics.RetrieveUpdateAPIView):
     lookup_field = 'id'
 
 
-class DeleteUserView(generics.DestroyAPIView): #сожет совместить с просмотром пользователя
-    '''User delete'''
+class ListUserONlyNameView(generics.ListAPIView):
+    '''list users for front'''
     queryset = CustomUser.objects.all()
-    serializer_class = UserDeleteSerializer
-    permission_classes = [IsAdminUser]
-    lookup_field = 'id'
-    # permission_classes = [IsAdminUser, IsClientCanViewProfiles]
+    serializer_class = UserListOnlyNameSerializer
+    permission_classes = [IsAuthenticated]
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['first_name', 'surname', 'username', 'full_name']
+
+
 
 
 class UserLoginView(generics.CreateAPIView):

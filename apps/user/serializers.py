@@ -44,11 +44,16 @@ class UserUpdateSerializer(serializers.ModelSerializer):
         fields = ['id', 'username', 'role_type',  'surname', 'first_name', 'image', 'created_at', 'job_title', 'main_company']
 
 
-class UserDeleteSerializer(serializers.ModelSerializer):
-    '''Delete user'''
+class UserListOnlyNameSerializer(serializers.ModelSerializer):
+    '''User list for frontenders'''
+    full_name = serializers.CharField()
+
+    def get_full_name(self, obj):
+        return f'{obj.first_name} {obj.surname}'
+
     class Meta:
         model = CustomUser
-        fields = ['id', 'username']
+        fields = ['id', 'username', 'full_name', 'surname', 'first_name']
 
 
 '''Serializers for admin contact and password change and reset'''

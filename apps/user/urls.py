@@ -6,9 +6,9 @@ from .permissions_views import *
 urlpatterns = [
     path('create/', CreateUserView.as_view()),            # POST
     path('profiles/', ListUserProfileView.as_view()),     # GET
-    path('<int:id>/', DetailUserProfileView.as_view()),   # GET id
-    path('destroy/<int:id>/', DeleteUserView.as_view()),  # DELETE
+    path('<int:id>/', DetailUserProfileView.as_view()),   # GET DELETE
     path('edit/<int:id>/', UserUpdateView.as_view()),     # PUT
+    path('name_list/', ListUserONlyNameView.as_view()),
 
     path('login/', UserLoginView.as_view()),
     path('logout/', UserLogoutView.as_view()),
