@@ -1,11 +1,14 @@
-from .models import ApplicationForm, ApplicationLogs, TrackingStatus, TrackingPriority, Notification
+from .models import ApplicationForm, ApplicationLogs, TrackingStatus, TrackingPriority, Notification,Checklist
 from django.db.models.signals import post_save, pre_save
 from apps.user.models import CustomUser
 from django.dispatch import receiver
 from django.utils import timezone
 from datetime import timedelta
 
-
+@receiver(post_save, sender=Checklist)
+def update_subtasks_on_checklist_completion(sender, instance, **kwargs):
+    if instance.completed:
+        instance.subtasks.update(completed=True)
 
 @receiver(post_save, sender=ApplicationForm)
 def fill_task_number(sender, instance, created, **kwargs):
@@ -125,16 +128,3 @@ def track_application_changes(sender, instance, request=None, **kwargs):
                 ApplicationLogs.objects.create(text=message, expiration_time=expiration_time,
                                                task_number=instance.task_number, form_id=instance.id, username=username)
 
-# @receiver(pre_save, sender=ApplicationForm)
-# def track_application_changes(sender, instance, **kwargs):
-#     if instance.pk is not None:
-#         obj = sender.objects.get(id=instance.id)
-#         for field in instance._meta.fields:
-#             old_value = getattr(obj, field.name)
-#             new_value = getattr(instance, field.name)
-#             if old_value != new_value:
-#                 message = f"{field.verbose_name} изменено с {old_value} на {new_value}"
-#                 username = f"{instance.main_client.first_name} {instance.main_client.surname}"
-#                 expiration_time = timezone.now() + timedelta(days=1)
-#                 ApplicationLogs.objects.create(text=message, expiration_time=expiration_time,
-#                                                task_number=instance.task_number, form_id=instance.id, username=username)
