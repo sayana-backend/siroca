@@ -55,6 +55,7 @@ class ApplicationFormListAPIView(generics.ListAPIView):
 
     def get_queryset(self):
         user = self.request.user
+        queryset = ApplicationForm.objects.none()
 
         if user.is_superuser:
             queryset = ApplicationForm.objects.all()
