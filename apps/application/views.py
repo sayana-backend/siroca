@@ -14,7 +14,7 @@ from .models import *
 
 
 class CustomPagination(PageNumberPagination):
-    page_size = 2
+    page_size = 50
 
     def get_paginated_response(self, data):
         return Response(OrderedDict([
@@ -33,7 +33,6 @@ class ApplicationFormCreateAPIView(generics.CreateAPIView):
         '''Tracking the creation of an application for notifications'''
         instance = serializer.save()
 
-        # Создание уведомления для администраторов при создании новой заявки
         admin_notification = CustomUser.objects.filter(is_superuser=True)
         user = self.request.user
         user_name = f"{user.first_name}. {user.surname}"
@@ -92,6 +91,7 @@ class ApplicationFormListAPIView(generics.ListAPIView):
 
 class ApplicationFormRetrieveUpdateAPIView(generics.RetrieveUpdateAPIView):
     '''  update API '''
+    # queryset = ApplicationForm.objects.all()
     serializer_class = ApplicationFormUpdateSerializer
     lookup_field = 'id'
     # permission_classes = [IsClientCanEditApplicationAndIsManagerUser]
@@ -115,9 +115,9 @@ class ApplicationFormRetrieveUpdateAPIView(generics.RetrieveUpdateAPIView):
             old_value = getattr(old_instance, field.name)
             new_value = getattr(instance, field.name)
             if old_value != new_value:
-                ApplicationLogs.objects.create(field=f"изменил поле: {field.verbose_name}",
-                                               initially=f"Изначально: {old_value}", new=f"Новая: {new_value}",
-                                               form=instance, user=f"Внес изменения: {user_name}")
+                ApplicationLogs.objects.create(field=field.verbose_name,
+                                               initially=old_value, new=new_value,
+                                               form=instance, user=user_name)
 
         changes = []
         if old_instance.status != instance.status:

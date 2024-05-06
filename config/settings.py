@@ -58,6 +58,7 @@ INSTALLED_APPS = [
     'apps.application',
     'drf_yasg',
     'rest_framework_simplejwt',
+    'rest_framework_simplejwt.token_blacklist'
 ]
 
 
@@ -72,6 +73,7 @@ SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(days=5),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=10),
     "AUTH_HEADER_TYPES": ("JWT",),
+    'TOKEN_BLACKLIST_ENABLE': True,
 }
 
 

@@ -11,6 +11,7 @@ urlpatterns = [
     path('edit/<int:id>/', UserUpdateView.as_view()),     # PUT
 
     path('login/', UserLoginView.as_view()),
+    path('logout/', UserLogoutView.as_view()),
     path('change_password/', ChangePasswordView.as_view()),
     path('admin_reset_password/<int:id>/', AdminResetPasswordView.as_view()),
     path('admin_contacts/', AdminContactDetailView.as_view()),
@@ -21,8 +22,6 @@ urlpatterns = [
     path('clientpermissions/detail/', ClientPermissionsDetailAPIView.as_view()),
     path('managerpermissions/detail/', ManagerPermissionsDetailAPIView.as_view()),
     path('userpermissions/<int:id>/', UserPermissionsDetailAPIView.as_view()),
-
-
 
 ]
 
