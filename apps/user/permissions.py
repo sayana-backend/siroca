@@ -238,7 +238,10 @@ class IsManagerCanCreateAndEditUserOrIsAdminUser(permissions.BasePermission):
     MANAGER CAN CREATE USER
     '''
     def has_permission(self, request, view):
-        return request.user.is_authenticated and request.user.manager_can_create_and_edit_user_extra
+        if request.user.is_superuser:
+            return True
+        else:
+            return request.user.manager_can_create_and_edit_user_extra
 
 
 class IsManagerCanCreateAndDeleteJobTitleOrIsAdminUser(permissions.BasePermission):
@@ -246,4 +249,7 @@ class IsManagerCanCreateAndDeleteJobTitleOrIsAdminUser(permissions.BasePermissio
     MANAGER CAN CREATE AND DELETE JOB TITLES
     '''
     def has_permission(self, request, view):
-        return request.user.is_authenticated and request.user.manager_can_create_and_delete_job_title_extra
+        if request.user.is_superuser:
+            return True
+        else:
+            return request.user.manager_can_create_and_delete_job_title_extra
