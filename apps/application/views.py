@@ -111,7 +111,7 @@ class ApplicationFormRetrieveUpdateAPIView(generics.RetrieveUpdateAPIView):
         instance = self.get_object()
 
         user = request.user
-        user_id = f"{user.id}"
+        user_id = user.id
         user_name = f"{user.first_name} {user.surname}"
         for field in instance._meta.fields:
             old_value = getattr(old_instance, field.name)

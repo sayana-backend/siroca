@@ -46,14 +46,14 @@ class UserUpdateSerializer(serializers.ModelSerializer):
 
 class UserListOnlyNameSerializer(serializers.ModelSerializer):
     '''User list for frontenders'''
-    full_name = serializers.CharField()
+    full_name = serializers.SerializerMethodField()
 
     def get_full_name(self, obj):
         return f'{obj.first_name} {obj.surname}'
 
     class Meta:
         model = CustomUser
-        fields = ['id', 'username', 'full_name', 'surname', 'first_name']
+        fields = ['id', 'username', 'full_name', 'surname', 'first_name', 'role_type']
 
 
 '''Serializers for admin contact and password change and reset'''
@@ -129,8 +129,7 @@ class ClientPermissionsGeneralSerializer(serializers.ModelSerializer):
                   'client_can_get_reports',
                   'client_can_view_logs',
                   'client_can_add_files',
-                  'client_can_add_checklist',
-                  'client_can_view_profiles']
+                  'client_can_add_checklist',]
 
     def save(self, **kwargs):
         instance = super().save(**kwargs)
@@ -151,7 +150,6 @@ class ClientPermissionsDetailSerializer(serializers.ModelSerializer):
                   'client_can_view_logs_extra',
                   'client_can_add_files_extra',
                   'client_can_add_checklist_extra',
-                  'client_can_view_profiles_extra',
                   'client_can_create_application_extra',
                   'client_can_edit_application_extra']
 

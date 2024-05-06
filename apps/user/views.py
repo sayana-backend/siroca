@@ -30,7 +30,6 @@ class CreateUserView(generics.CreateAPIView):
             user.client_can_view_logs = first_client.client_can_view_logs
             user.client_can_add_files = first_client.client_can_add_files
             user.client_can_add_checklist = first_client.client_can_add_checklist
-            user.client_can_view_profiles = first_client.client_can_view_profiles
             user.save()
 
         elif first_manager:
