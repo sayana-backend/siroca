@@ -74,8 +74,11 @@ class ApplicationFile(models.Model):
     file = models.FileField(upload_to='', verbose_name='file', blank=True)
     application = models.ForeignKey('ApplicationForm',
                                     on_delete=models.CASCADE,
-                                    verbose_name='file',
-                                    related_name='application_file')
+                                    verbose_name='application',
+                                    related_name='files')
+
+    def __str__(self):
+        return self.file.name
 
 
 class Checklist(models.Model):

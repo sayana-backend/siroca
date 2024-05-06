@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Checklist, Comments
+from .models import Checklist, Comments, ApplicationFile
 from .models import ApplicationForm, ApplicationLogs
 
 
@@ -29,6 +29,6 @@ class CommentsAdmin(admin.ModelAdmin):
 admin.site.register(ApplicationLogs)
 # admin.site.register(Checklist)
 # admin.site.register(Comments)
-# admin.site.register(ApplicationForm)
+admin.site.register(ApplicationFile)
 
 

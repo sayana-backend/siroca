@@ -35,9 +35,14 @@ class CommentsSerializer(serializers.ModelSerializer):
 
 
 class FileSerializer(serializers.ModelSerializer):
+    file_name = serializers.SerializerMethodField()
+
+    def get_file_name(self, obj):
+        return obj.file.name
+
     class Meta:
         model = ApplicationFile
-        fields = '__all__'
+        fields = ('id', 'file', 'application', 'file_name')
 
 
 class LogsSerializer(serializers.ModelSerializer):

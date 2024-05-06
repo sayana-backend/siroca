@@ -119,7 +119,7 @@ class UserLogoutView(generics.GenericAPIView):
             return Response({'detail': 'Ошибка выхода из системы'}, status=status.HTTP_400_BAD_REQUEST)
 
 
-class AdminContactDetailView(generics.RetrieveUpdateAPIView): # пересмотреть кто это писал вообще
+class AdminContactDetailView(generics.RetrieveUpdateAPIView):
     '''Редактирование контактов админа в профиле админа'''
     serializer_class = AdminContactSerializer
     # permission_classes = [IsAuthenticated]
@@ -136,12 +136,10 @@ class AdminContactDetailView(generics.RetrieveUpdateAPIView): # пересмот
         return obj
 
 
-class AdminContactListView(generics.ListAPIView): # что с кверисетом
+class AdminContactListView(generics.ListAPIView): 
     '''Контакты админа при авторизации'''
+    queryset = AdminContact.objects.all()
     serializer_class = AdminContactSerializer
-
-    def get_queryset(self):
-        return AdminContact.objects.all()
 
 
 class ChangePasswordView(generics.UpdateAPIView):
