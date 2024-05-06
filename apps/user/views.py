@@ -8,6 +8,8 @@ from .serializers import *
 from .permissions import *
 from rest_framework import filters
 from .models import CustomUser
+from rest_framework_simplejwt.token_blacklist.models import BlacklistedToken
+from rest_framework_simplejwt.exceptions import TokenError
 
 
 class CreateUserView(generics.CreateAPIView):
@@ -118,7 +120,7 @@ class UserLogoutView(generics.GenericAPIView):
             return Response({'detail': 'Ошибка выхода из системы'}, status=status.HTTP_400_BAD_REQUEST)
 
 
-class AdminContactDetailView(generics.RetrieveUpdateAPIView): ############
+class AdminContactDetailView(generics.RetrieveUpdateAPIView):
     '''Редактирование контактов админа в профиле админа'''
     serializer_class = AdminContactSerializer
     # permission_classes = [IsAuthenticated]

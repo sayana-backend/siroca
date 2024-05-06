@@ -77,6 +77,9 @@ class ApplicationFile(models.Model):
                                     verbose_name='application',
                                     related_name='files')
 
+    def __str__(self):
+        return self.file.name
+
 
 class Checklist(models.Model):
     application = models.ForeignKey('ApplicationForm',
@@ -134,6 +137,7 @@ class Comments(models.Model):
 
 class ApplicationLogs(models.Model):
     user = models.CharField(max_length=100, null=True, blank=True)
+    user_id = models.IntegerField(null=True, blank=True)
     field = models.CharField(max_length=500, null=True, blank=True)
     initially = models.CharField(max_length=500, null=True, blank=True)
     new = models.CharField(max_length=500, null=True, blank=True)
