@@ -29,7 +29,6 @@ import os
 class ApplicationFormFilterAPIView(viewsets.GenericViewSet):
     queryset = ApplicationForm.objects.all()
     serializer_class = ApplicationFormFilterSerializer
-    permission_classes = [IsManagerAndClientCanGetReportsOrIsAdminUser]
     filter_backends = [DjangoFilterBackend, SearchFilter]
     filterset_class = ApplicationFormFilter
 
@@ -55,7 +54,6 @@ class ApplicationFormFilterAPIView(viewsets.GenericViewSet):
 
 
 class ExportToExcelView(APIView):
-    permission_classes = [IsManagerAndClientCanGetReportsOrIsAdminUser]
 
     def generate_random_string(self, length=6):
         letters = string.ascii_lowercase

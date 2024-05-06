@@ -27,7 +27,6 @@ class ApplicationFormCreateAPIView(generics.CreateAPIView):
     '''Create new application'''
     queryset = ApplicationForm.objects.all()
     serializer_class = ApplicationFormCreateSerializer
-    permission_classes = [IsClientCanCreateApplicationOrIsAdminAndManagerUser]
 
     def perform_create(self, serializer):
         '''Tracking the creation of an application for notifications'''
@@ -95,6 +94,8 @@ class ApplicationFormRetrieveUpdateAPIView(generics.RetrieveUpdateAPIView):
     serializer_class = ApplicationFormUpdateSerializer
     lookup_field = 'id'
     # permission_classes = [IsClientCanEditApplicationAndIsManagerUser]
+
+
 
     def get_queryset(self):
         return ApplicationForm.objects.all().select_related('main_client', 'main_manager')
@@ -187,6 +188,7 @@ class ApplicationsOnlyDescriptionAPIView(generics.RetrieveUpdateAPIView):
     lookup_field = 'id'
 
 
+
 class ChecklistListCreateAPIView(generics.ListCreateAPIView):
     queryset = Checklist.objects.all()
     serializer_class = ChecklistSerializer
@@ -219,7 +221,7 @@ class SubTaskDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
 class CommentsAPIView(generics.ListCreateAPIView):
     queryset = Comments.objects.all()
     serializer_class = CommentsSerializer
-    permission_classes = [IsClientCanCreateCommentsOrIsAdminAndManagerUser]
+    permission_classes = [IsAuthenticated]
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
@@ -229,7 +231,7 @@ class CommentsDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Comments.objects.all()
     serializer_class = CommentsSerializer
     lookup_field = 'id'
-    permission_classes = [IsAdminOrManagerOrClientUsersCanEditComments]
+    # permission_classes = [IsManagerCanDeleteComments,]
 
 
 class NotificationAPIView(generics.ListAPIView):
@@ -263,6 +265,7 @@ class NotificationAPIView(generics.ListAPIView):
 
             serializer = NotificationSerializer(notification_user_application, many=True)
             return Response(serializer.data, status=status.HTTP_200_OK)
+
 
 
 class NotificationDeleteViewAPI(generics.DestroyAPIView):
@@ -310,3 +313,5 @@ class NotificationTrueAPIView(generics.ListAPIView):
             serializer = NotificationSerializer(notification_user_application, many=True)
             notification_user_application.update(is_read=True)
             return Response(serializer.data, status=status.HTTP_200_OK)
+
+
