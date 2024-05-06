@@ -96,6 +96,8 @@ class ApplicationFormRetrieveUpdateAPIView(generics.RetrieveUpdateAPIView):
     lookup_field = 'id'
     # permission_classes = [IsClientCanEditApplicationAndIsManagerUser]
 
+
+
     def get_queryset(self):
         return ApplicationForm.objects.all().select_related('main_client', 'main_manager')
 
@@ -187,6 +189,7 @@ class ApplicationsOnlyDescriptionAPIView(generics.RetrieveUpdateAPIView):
     lookup_field = 'id'
 
 
+
 class ChecklistListCreateAPIView(generics.ListCreateAPIView):
     queryset = Checklist.objects.all()
     serializer_class = ChecklistSerializer
@@ -264,6 +267,7 @@ class NotificationAPIView(generics.ListAPIView):
             return Response(serializer.data, status=status.HTTP_200_OK)
 
 
+
 class NotificationDeleteViewAPI(generics.DestroyAPIView):
     '''Deleting notifications'''
     def delete(self, request, id=None):
@@ -309,3 +313,5 @@ class NotificationTrueAPIView(generics.ListAPIView):
             serializer = NotificationSerializer(notification_user_application, many=True)
             notification_user_application.update(is_read=True)
             return Response(serializer.data, status=status.HTTP_200_OK)
+
+

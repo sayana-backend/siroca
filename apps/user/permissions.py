@@ -234,7 +234,7 @@ class IsManagerCanCreateAndEditCompanyOrIsAdminUser(permissions.BasePermission):
         if request.user.is_superuser:
             return True
         else:
-            return request.user.manager_can_create_and_edit_company
+            return request.user.manager_can_create_and_edit_company_extra
 
 
 class IsManagerCanCreateAndEditUserOrIsAdminUser(permissions.BasePermission):
