@@ -1,5 +1,5 @@
 from rest_framework import generics, status, filters
-from ..application.views import PageNumberPagination
+from ..application.views import PageNumberPagination, CustomPagination
 from rest_framework.response import Response
 from ..company.serializers import *
 from ..company.models import Company, JobTitle
@@ -13,7 +13,7 @@ class CompanyListAPIView(generics.ListAPIView):
     '''company list'''
     queryset = Company.objects.all()
     serializer_class = CompanyListSerializer
-    pagination_class = PageNumberPagination
+    pagination_class = CustomPagination
     permission_classes = [IsManagerCanCreateAndEditCompanyOrIsAdminUser]
     filter_backends = [filters.SearchFilter]
     search_fields = ['name', 'country', 'company_code']
