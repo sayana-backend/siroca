@@ -51,9 +51,8 @@ class Company(models.Model):
         return count_applications
 
     def get_users(self):
-        users = CustomUser.objects.filter(main_company=self)
-        user_names = [{'id': user.id, 'first_name': user.first_name, 'last_name': user.surname} for user in users]
-        return user_names
+        users = CustomUser.objects.filter(main_company=self).values('id', 'first_name', 'surname')
+        return list(users)
 
     def __str__(self):
         return self.name

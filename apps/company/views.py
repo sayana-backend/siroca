@@ -1,5 +1,6 @@
 from rest_framework import generics, status, filters
 from ..application.views import CustomPagination
+from ..application.models import ApplicationForm
 from rest_framework.response import Response
 from ..company.models import Company, JobTitle
 from ..company.serializers import *
@@ -8,11 +9,12 @@ from django.views.decorators.csrf import csrf_exempt
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 from apps.user.permissions import *
+from django.db.models import F, Count, Q, Subquery, OuterRef
 
 
 class CompanyListAPIView(generics.ListAPIView):
     '''company list'''
-    queryset = Company.objects.all()
+    queryset = Company.objects.annotate(main_manager_username=F('main_manager__username'))
     serializer_class = CompanyListSerializer
     pagination_class = CustomPagination
     # permission_classes = [IsAdminUser]
