@@ -120,7 +120,7 @@ class ApplicationFormRetrieveUpdateAPIView(generics.RetrieveUpdateAPIView):
             if old_value != new_value:
                 ApplicationLogs.objects.create(field=field.verbose_name,
                                                initially=old_value, new=new_value,
-                                               form=instance, user=user_name)
+                                               form=instance, user=user_name, user_id = user.id)
 
         changes = []
         if old_instance.status != instance.status:
