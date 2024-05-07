@@ -194,6 +194,16 @@ class FileDeleteAPIView(generics.DestroyAPIView):
     serializer_class = FileSerializer
     lookup_field = 'id'
 
+    def perform_destroy(self, instance):
+        user = self.request.user
+        user_id = user.id
+        user_name = f"{user.first_name} {user.surname}"
+        file_name = instance.file.name
+        ApplicationLogs.objects.create(
+            user=user_name, field="Описание", new=f"Файл удалён {file_name}",
+            form=instance.application, user_id=user_id)
+        instance.delete()
+
 
 class ApplicationsOnlyDescriptionAPIView(generics.RetrieveUpdateAPIView):
     queryset = ApplicationForm.objects.all()
@@ -246,6 +256,16 @@ class CheckListDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
                                                form=instance.application, user=user_name, user_id=user_id)
 
         return Response(serializer.data)
+
+    def perform_destroy(self, instance):
+        user = self.request.user
+        user_id = user.id
+        user_name = f"{user.first_name} {user.surname}"
+        checklist_name = instance.name
+        ApplicationLogs.objects.create(
+            user=user_name, field="Чеклист", new=f"Чеклист {checklist_name} удалён",
+            form=instance.application, user_id=user_id)
+        instance.delete()
 
 
 class SubTaskCreateAPIView(generics.ListCreateAPIView):
@@ -339,6 +359,15 @@ class CommentsDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
                                                form=instance.application, user=user_name, user_id=user_id)
 
         return Response(serializer.data)
+
+    def perform_destroy(self, instance):
+        user = self.request.user
+        user_id = user.id
+        user_name = f"{user.first_name} {user.surname}"
+        ApplicationLogs.objects.create(
+            user=user_name, field="Комментарии", new="Комментарий удалён",
+            form=instance.application, user_id=user_id)
+        instance.delete()
 
 
 class NotificationAPIView(generics.ListAPIView):
