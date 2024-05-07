@@ -1,6 +1,6 @@
 from django.contrib import admin
 from .models import Checklist, Comments, ApplicationFile
-from .models import ApplicationForm, ApplicationLogs
+from .models import ApplicationForm, ApplicationLogs, SubTask, Checklist
 
 
 
