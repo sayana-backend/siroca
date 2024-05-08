@@ -198,7 +198,7 @@ class ChecklistListCreateAPIView(generics.ListCreateAPIView, BaseLoggingCreateDe
 
     def perform_create(self, serializer):
         instans = serializer.save()
-        self.log_create(serializer, "Чеклист", f"Название чеклиста {instans.name}")
+        self.log_create(serializer, "Чеклист", f"Чеклист создан {instans.name}")
 
 
 class CheckListDetailAPIView(generics.RetrieveUpdateDestroyAPIView, BaseLoggingUpdate, BaseLoggingCreateDestroy):
