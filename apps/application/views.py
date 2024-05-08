@@ -90,7 +90,7 @@ class ApplicationFormListAPIView(generics.ListAPIView):
         return Response({'detail': 'Not found'}, status=404)
 
 
-class ApplicationFormRetrieveUpdateAPIView(generics.RetrieveUpdateAPIView, BaseLoggingUpdate):
+class ApplicationFormRetrieveUpdateAPIView(generics.RetrieveUpdateAPIView):
     '''  update API '''
     # queryset = ApplicationForm.objects.all()
     serializer_class = ApplicationFormUpdateSerializer
@@ -110,8 +110,16 @@ class ApplicationFormRetrieveUpdateAPIView(generics.RetrieveUpdateAPIView, BaseL
         self.perform_update(serializer)
 
         instance = self.get_object()
-
-        self.log_changes(old_instance, instance)
+        user = request.user
+        user_id = user.id
+        user_name = f"{user.first_name} {user.surname}"
+        for field in instance._meta.fields:
+            old_value = getattr(old_instance, field.name)
+            new_value = getattr(instance, field.name)
+            if old_value != new_value:
+                ApplicationLogs.objects.create(field=field.verbose_name,
+                                               initially=old_value, new=new_value,
+                                               form=instance, user=user_name, user_id=user_id)
 
         changes = []
         if old_instance.status != instance.status:
