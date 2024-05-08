@@ -1,3 +1,4 @@
+from apps.application.signals import BaseLoggingCreateDestroy, BaseLoggingUpdate
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated
@@ -11,7 +12,6 @@ from rest_framework import status
 from django.db.models import Q
 from .serializers import *
 from .models import *
-
 
 class CustomPagination(PageNumberPagination):
     page_size = 50
@@ -90,7 +90,7 @@ class ApplicationFormListAPIView(generics.ListAPIView):
         return Response({'detail': 'Not found'}, status=404)
 
 
-class ApplicationFormRetrieveUpdateAPIView(generics.RetrieveUpdateAPIView):
+class ApplicationFormRetrieveUpdateAPIView(generics.RetrieveUpdateAPIView, BaseLoggingUpdate):
     '''  update API '''
     # queryset = ApplicationForm.objects.all()
     serializer_class = ApplicationFormUpdateSerializer
@@ -111,16 +111,7 @@ class ApplicationFormRetrieveUpdateAPIView(generics.RetrieveUpdateAPIView):
 
         instance = self.get_object()
 
-        user = request.user
-        user_id = user.id
-        user_name = f"{user.first_name} {user.surname}"
-        for field in instance._meta.fields:
-            old_value = getattr(old_instance, field.name)
-            new_value = getattr(instance, field.name)
-            if old_value != new_value:
-                ApplicationLogs.objects.create(field=field.verbose_name,
-                                               initially=old_value, new=new_value,
-                                               form=instance, user=user_name, user_id=user_id)
+        self.log_changes(old_instance, instance)
 
         changes = []
         if old_instance.status != instance.status:
@@ -173,36 +164,24 @@ class ApplicationLogsRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroy
     lookup_field = 'id'
 
 
-class FileListCreateAPIView(generics.ListCreateAPIView):
+class FileListCreateAPIView(generics.ListCreateAPIView, BaseLoggingCreateDestroy):
     queryset = ApplicationFile.objects.all()
     serializer_class = FileSerializer
 
     def perform_create(self, serializer):
         instans = serializer.save()
-
-        user = self.request.user
-        user_id = user.id
-        user_name = f"{user.first_name} {user.surname}"
         file_name = instans.file.name
-        ApplicationLogs.objects.create(
-            user=user_name, field="Описание", new=f"добавлен файл {file_name}",
-            form=instans.application, user_id=user_id)
+        self.log_create(serializer, "Описание", f"Файл добавлен {file_name}")
 
 
-class FileDeleteAPIView(generics.DestroyAPIView):
+class FileDeleteAPIView(generics.DestroyAPIView, BaseLoggingCreateDestroy):
     queryset = ApplicationFile.objects.all()
     serializer_class = FileSerializer
     lookup_field = 'id'
 
     def perform_destroy(self, instance):
-        user = self.request.user
-        user_id = user.id
-        user_name = f"{user.first_name} {user.surname}"
         file_name = instance.file.name
-        ApplicationLogs.objects.create(
-            user=user_name, field="Описание", new=f"Файл удалён {file_name}",
-            form=instance.application, user_id=user_id)
-        instance.delete()
+        self.log_destroy(instance, "Описание", f"Файл удалён {file_name}")
 
 
 class ApplicationsOnlyDescriptionAPIView(generics.RetrieveUpdateAPIView):
@@ -211,7 +190,7 @@ class ApplicationsOnlyDescriptionAPIView(generics.RetrieveUpdateAPIView):
     lookup_field = 'id'
 
 
-class ChecklistListCreateAPIView(generics.ListCreateAPIView):
+class ChecklistListCreateAPIView(generics.ListCreateAPIView, BaseLoggingCreateDestroy):
     queryset = Checklist.objects.all()
     serializer_class = ChecklistSerializer
     lookup_field = 'id'
@@ -219,16 +198,10 @@ class ChecklistListCreateAPIView(generics.ListCreateAPIView):
 
     def perform_create(self, serializer):
         instans = serializer.save()
-
-        user = self.request.user
-        user_id = user.id
-        user_name = f"{user.first_name} {user.surname}"
-        ApplicationLogs.objects.create(
-            user=user_name, field="Чеклист", new=instans.name,
-            form=instans.application, user_id=user_id)
+        self.log_create(serializer, "Чеклист", f"Название чеклиста {instans.name}")
 
 
-class CheckListDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
+class CheckListDetailAPIView(generics.RetrieveUpdateDestroyAPIView, BaseLoggingUpdate, BaseLoggingCreateDestroy):
     queryset = Checklist.objects.all()
     serializer_class = ChecklistSerializer
     lookup_field = 'id'
@@ -243,32 +216,16 @@ class CheckListDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
         self.perform_update(serializer)
 
         instance = self.get_object()
-
-        user = request.user
-        user_id = user.id
-        user_name = f"{user.first_name} {user.surname}"
-        for field in instance._meta.fields:
-            old_value = getattr(old_instance, field.name)
-            new_value = getattr(instance, field.name)
-            if old_value != new_value:
-                ApplicationLogs.objects.create(field=field.verbose_name,
-                                               initially=old_value, new=new_value,
-                                               form=instance.application, user=user_name, user_id=user_id)
+        self.log_changes(old_instance, instance)
 
         return Response(serializer.data)
 
     def perform_destroy(self, instance):
-        user = self.request.user
-        user_id = user.id
-        user_name = f"{user.first_name} {user.surname}"
         checklist_name = instance.name
-        ApplicationLogs.objects.create(
-            user=user_name, field="Чеклист", new=f"Чеклист {checklist_name} удалён",
-            form=instance.application, user_id=user_id)
-        instance.delete()
+        self.log_destroy(instance, "Чеклист", f"Чеклист {checklist_name} удалён")
 
 
-class SubTaskCreateAPIView(generics.ListCreateAPIView):
+class SubTaskCreateAPIView(generics.ListCreateAPIView, BaseLoggingCreateDestroy):
     queryset = SubTask.objects.all()
     serializer_class = SubTaskSerializer
     lookup_field = 'id'
@@ -285,7 +242,7 @@ class SubTaskCreateAPIView(generics.ListCreateAPIView):
             check_list_id=instans.checklist, user_id=user_id)
 
 
-class SubTaskDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
+class SubTaskDetailAPIView(generics.RetrieveUpdateDestroyAPIView, BaseLoggingUpdate):
     queryset = SubTask.objects.all()
     serializer_class = SubTaskSerializer
     lookup_field = 'id'
@@ -300,21 +257,12 @@ class SubTaskDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
         self.perform_update(serializer)
 
         instance = self.get_object()
-
-        user = request.user
-        user_id = user.id
-        user_name = f"{user.first_name} {user.surname}"
-        for field in instance._meta.fields:
-            old_value = getattr(old_instance, field.name)
-            new_value = getattr(instance, field.name)
-            if old_value != new_value:
-                ApplicationLogs.objects.create(field=field.verbose_name,
-                                               initially=old_value, new=new_value,
-                                               check_list_id=instance, user=user_name, user_id=user_id)
+        self.log_changes(old_instance, instance)
 
         return Response(serializer.data)
 
-class CommentsAPIView(generics.ListCreateAPIView):
+
+class CommentsAPIView(generics.ListCreateAPIView, BaseLoggingCreateDestroy):
     queryset = Comments.objects.all()
     serializer_class = CommentsSerializer
     permission_classes = [IsAuthenticated]
@@ -322,16 +270,10 @@ class CommentsAPIView(generics.ListCreateAPIView):
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
         instans = serializer.save()
-
-        user = self.request.user
-        user_id = user.id
-        user_name = f"{user.first_name} {user.surname}"
-        ApplicationLogs.objects.create(
-            user=user_name, field="Комментарии", new=instans.text,
-            form=instans.application, user_id=user_id)
+        self.log_create(serializer, "Комментарии", f"{instans.text}")
 
 
-class CommentsDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
+class CommentsDetailAPIView(generics.RetrieveUpdateDestroyAPIView, BaseLoggingUpdate, BaseLoggingCreateDestroy):
     queryset = Comments.objects.all()
     serializer_class = CommentsSerializer
     lookup_field = 'id'
@@ -346,28 +288,12 @@ class CommentsDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
         self.perform_update(serializer)
 
         instance = self.get_object()
-
-        user = request.user
-        user_id = user.id
-        user_name = f"{user.first_name} {user.surname}"
-        for field in instance._meta.fields:
-            old_value = getattr(old_instance, field.name)
-            new_value = getattr(instance, field.name)
-            if old_value != new_value:
-                ApplicationLogs.objects.create(field=field.verbose_name,
-                                               initially=old_value, new=new_value,
-                                               form=instance.application, user=user_name, user_id=user_id)
+        self.log_changes(old_instance, instance)
 
         return Response(serializer.data)
 
     def perform_destroy(self, instance):
-        user = self.request.user
-        user_id = user.id
-        user_name = f"{user.first_name} {user.surname}"
-        ApplicationLogs.objects.create(
-            user=user_name, field="Комментарии", new="Комментарий удалён",
-            form=instance.application, user_id=user_id)
-        instance.delete()
+        self.log_destroy(instance, "Комментарий", "Комментарий удалён")
 
 
 class NotificationAPIView(generics.ListAPIView):
@@ -405,7 +331,6 @@ class NotificationAPIView(generics.ListAPIView):
 
 class NotificationDeleteViewAPI(generics.DestroyAPIView):
     '''Deleting notifications'''
-
     def delete(self, request, id=None):
         admin_id = request.user.id
         if id is None or id == 'all':
