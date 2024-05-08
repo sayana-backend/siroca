@@ -38,7 +38,7 @@ class BaseLoggingUpdate:
             if old_value != new_value:
                 ApplicationLogs.objects.create(field=field.verbose_name,
                                                initially=old_value, new=new_value,
-                                               form=new_instance.application,
+                                               form=new_instance,
                                                user=user_name, user_id=user_id)
 
 
