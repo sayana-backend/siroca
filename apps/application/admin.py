@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Checklist, Comments
+from .models import Checklist, Comments, ApplicationFile
 from .models import ApplicationForm, ApplicationLogs
 
 
@@ -18,20 +18,17 @@ class ApplicationFormAdmin(admin.ModelAdmin):
     #           'start_date', 'finish_date', 'priority',
     #           'status']
 
-@admin.register(Checklist)
-class ChecklistAdmin(admin.ModelAdmin):
-    list_display = ['text', 'completed']
-    search_fields = ['text']
-
 
 @admin.register(Comments)
 class CommentsAdmin(admin.ModelAdmin):
     list_display = ['text',  'application']
     search_fields = ['text',  'application', 'date_added']
+    
 
-# admin.site.register(ApplicationLogs)
+
+admin.site.register(ApplicationLogs)
 # admin.site.register(Checklist)
 # admin.site.register(Comments)
-# admin.site.register(ApplicationForm)
+admin.site.register(ApplicationFile)
 
 

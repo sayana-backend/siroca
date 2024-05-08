@@ -2,12 +2,11 @@ from rest_framework import generics, status, filters
 from ..application.views import CustomPagination
 from ..application.models import ApplicationForm
 from rest_framework.response import Response
-from ..company.models import Company, JobTitle
 from ..company.serializers import *
+from ..company.models import Company, JobTitle
 from django.http import JsonResponse, HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.views import APIView
-from rest_framework.permissions import IsAuthenticated
 from apps.user.permissions import *
 from django.db.models import F, Count, Q, Subquery, OuterRef
 
@@ -17,16 +16,16 @@ class CompanyListAPIView(generics.ListAPIView):
     queryset = Company.objects.annotate(main_manager_username=F('main_manager__username'))
     serializer_class = CompanyListSerializer
     pagination_class = CustomPagination
-    # permission_classes = [IsAdminUser]
+    permission_classes = [IsManagerCanCreateAndEditCompanyOrIsAdminUser]
     filter_backends = [filters.SearchFilter]
     search_fields = ['name', 'country', 'company_code']
-
 
 
 class CompanyDetailAPIView(generics.RetrieveAPIView):
     '''company detail only view'''
     queryset = Company.objects.all()
     serializer_class = CompanyDetailSerializer
+    permission_classes = [IsManagerCanCreateAndEditCompanyOrIsAdminUser]  # неправильный пермишн
     lookup_field = 'id'
     # permission_classes = [IsAdminUser]
 
@@ -35,7 +34,7 @@ class CompanyCreateAPIView(generics.CreateAPIView):
     '''company create'''
     queryset = Company.objects.all()
     serializer_class = CompanyCreateSerializer
-    # permission_classes = [IsAdminUser]
+    # permission_classes = [IsManagerCanCreateAndEditCompanyOrIsAdminUser]
 
 
 class CompanyRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
@@ -43,9 +42,17 @@ class CompanyRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView)
     queryset = Company.objects.all()
     serializer_class = CompanyRetrieveUpdateSerializer
     lookup_field = 'id'
-    # permission_classes = [IsAdminUser]
 
 
+class CompanyOnlyNameListAPIView(generics.ListAPIView):
+    '''company list, only with name, for frontend developers'''
+    queryset = Company.objects.all()
+    serializer_class = CompanyOnlyNameListSerializer
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['name']
+
+
+'''Job Title'''
 
 
 class JobTitleListAPIView(generics.ListAPIView):
@@ -67,7 +74,6 @@ class JobTitleCreateAPIView(generics.CreateAPIView):
     serializer_class = JobTitleSerializer
 
 
-
 @csrf_exempt
 def generate_codes_view(request):
     if request.method == 'GET':
@@ -79,12 +85,9 @@ def generate_codes_view(request):
         return JsonResponse({'error': 'Method not allowed'}, status=405)
 
 
-
-
 class LogoAPIView(APIView):
     def get(self, request):
         logo_path = 'back_static/logo.svg'
-
         try:
             with open(logo_path, 'rb') as file:
                 response = HttpResponse(file.read(), content_type='image/svg+xml')

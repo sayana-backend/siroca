@@ -33,15 +33,12 @@ ALLOWED_HOSTS = ['*']
 CORS_ALLOW_ALL_ORIGINS = True
 CSRF_TRUSTED_ORIGINS = ['http://localhost',
                         'http://127.0.0.1:8000/',
-                        'http://13.51.161.14',
-                        'http://13.51.161.14:80',
+                        'http://51.20.187.167',
+                        'http://51.20.187.167:80',
                         'https://clients.siroca.com',
                         'http://clients.siroca.com'
                         ]
 
-
-
-# Application definition
 
 INSTALLED_APPS = [
     'jazzmin',
@@ -61,6 +58,7 @@ INSTALLED_APPS = [
     'apps.application',
     'drf_yasg',
     'rest_framework_simplejwt',
+    'rest_framework_simplejwt.token_blacklist'
 ]
 
 
@@ -75,6 +73,7 @@ SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(days=5),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=10),
     "AUTH_HEADER_TYPES": ("JWT",),
+    'TOKEN_BLACKLIST_ENABLE': True,
 }
 
 

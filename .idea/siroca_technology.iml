@@ -1,13 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<module version="4">
+<module type="PYTHON_MODULE" version="4">
+  <component name="NewModuleRootManager">
+    <content url="file://$MODULE_DIR$">
+      <excludeFolder url="file://$MODULE_DIR$/venv" />
+    </content>
+    <orderEntry type="inheritedJdk" />
+    <orderEntry type="sourceFolder" forTests="false" />
+  </component>
   <component name="PyDocumentationSettings">
     <option name="format" value="PLAIN" />
     <option name="myDocStringFormat" value="Plain" />
   </component>
   <component name="SonarLintModuleSettings">
-    <option name="uniqueId" value="eb2e407a-07c2-46de-ac07-c7b32fc62a89" />
-  </component>
-  <component name="TemplatesService">
-    <option name="TEMPLATE_CONFIGURATION" value="Django" />
+    <option name="uniqueId" value="39b2f3ad-83e4-440e-8250-525e16e0be21" />
   </component>
 </module>

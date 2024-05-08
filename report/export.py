@@ -6,37 +6,40 @@ from report.filters import ApplicationFormFilter
 from rest_framework.filters import SearchFilter
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from apps.company.models import Company
 from openpyxl.workbook import Workbook
 from django.utils.http import unquote
 from openpyxl.styles import Alignment
 from django.http import HttpResponse
 from rest_framework import viewsets
+from apps.user.permissions import *
+from rest_framework import status
 from django.conf import settings
 from datetime import datetime
 from io import BytesIO
 import pandas as pd
 import threading
 import platform
-from rest_framework import status
 import string
 import random
 import time
 import os
-from apps.company.models import Company
+
 
 class ApplicationFormFilterAPIView(viewsets.GenericViewSet):
-    # class ApplicationFormFilterAPIView(generics.ListAPIView):
-    # class ApplicationFormFilterAPIView(viewsets.ReadOnlyModelViewSet):
     queryset = ApplicationForm.objects.all()
     serializer_class = ApplicationFormFilterSerializer
     filter_backends = [DjangoFilterBackend, SearchFilter]
     filterset_class = ApplicationFormFilter
 
+    def filter_queryset(self, queryset):
+        if self.request.user.is_client:
+            queryset = queryset.filter(company=self.request.user.main_company)
+        return super().filter_queryset(queryset)
+
     def get_filtered_data_size(self, queryset):
         df = pd.DataFrame.from_records(queryset.values('start_date', 'finish_date'))
         excel_file = BytesIO()
-        # df['start_date'] = pd.to_datetime(df['start_date']).dt.tz_localize(None)
-        # df['finish_date'] = pd.to_datetime(df['finish_date']).dt.tz_localize(None)
         df.to_excel(excel_file, index=False, na_rep="нет значения")
         return excel_file.tell()
 

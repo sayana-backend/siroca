@@ -3,7 +3,6 @@ from .models import Company, JobTitle
 from ..user.models import CustomUser
 
 
-
 class JobTitleSerializer(serializers.ModelSerializer):
     class Meta:
         model = JobTitle
@@ -45,19 +44,21 @@ class CompanyDetailSerializer(serializers.ModelSerializer):
 
     def get_count_applications(self, obj):
         return obj.get_count_applications()
-    
 
 
-class CompanyCreateSerializer(serializers.ModelSerializer):
-
+class CompanyCreateSerializer(serializers.ModelSerializer):  # не правильно но сначала нужна оптимизация
     class Meta:
         model = Company
         fields = ['id', 'name', 'country', 'company_code', 'domain', 'main_manager', 'managers']
 
-    
 
 class CompanyRetrieveUpdateSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = Company
         fields = ['id', 'name', 'country', 'company_code', 'domain', 'main_manager', 'managers']
+
+
+class CompanyOnlyNameListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Company
+        fields = ['id', 'name']
