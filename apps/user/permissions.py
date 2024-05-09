@@ -28,7 +28,7 @@ class UsersPermissions(models.Model):
     manager_can_create_and_edit_user_extra = models.BooleanField(null=True,
                                                                  verbose_name='Создание/Редактирование пользователя')
     manager_can_create_and_delete_job_title_extra = models.BooleanField(null=True,
-                                                                        verbose_name='Просмотр списка по компаниям/пользователям/должностям')
+                                                                        verbose_name='Создание/Удаление пользователя')
 
     client_can_edit_comments = models.BooleanField(default=False, verbose_name='Добавление/удаление комментария')
     client_can_edit_comments_extra = models.BooleanField(null=True, verbose_name='Добавление/удаление комментария')

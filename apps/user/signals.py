@@ -26,24 +26,22 @@ def set_superuser_for_manager(sender, instance, **kwargs):
             instance.manager_can_create_and_delete_job_title_extra
         ]
         if all(manager_permissions):
-            instance.is_superuser = True
-            instance.save()
+            CustomUser.objects.filter(id=instance.id).update(is_manager=False, is_superuser=True)
 
-# @receiver(post_save, sender=CustomUser)
-# def remove_superuser_for_manager(sender, instance, **kwargs):
-#     if not instance.is_superuser:
-#         return False
-#     elif instance.is_superuser:
-#         manager_permissions = [
-#             instance.manager_can_delete_comments_extra,
-#             instance.manager_can_get_reports_extra,
-#             instance.manager_can_delete_application_extra,
-#             instance.manager_can_create_and_edit_company_extra,
-#             instance.manager_can_create_and_edit_user_extra,
-#             instance.manager_can_create_and_delete_job_title_extra
-#         ]
-#         if not all(manager_permissions):
-#             instance.is_superuser = False
-#             instance.save()
 
+@receiver(post_save, sender=CustomUser)
+def remove_superuser_for_manager(sender, instance, **kwargs):
+    if not instance.is_superuser:
+        return False
+    elif instance.is_manager:
+        manager_permissions = [
+            instance.manager_can_delete_comments_extra,
+            instance.manager_can_get_reports_extra,
+            instance.manager_can_delete_application_extra,
+            instance.manager_can_create_and_edit_company_extra,
+            instance.manager_can_create_and_edit_user_extra,
+            instance.manager_can_create_and_delete_job_title_extra
+        ]
+        if not all(manager_permissions):
+            CustomUser.objects.filter(id=instance.id).update(is_manager=True, is_superuser=False)
 
