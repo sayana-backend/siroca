@@ -12,7 +12,7 @@ from .models import CustomUser
 
 class CreateUserView(generics.CreateAPIView):
     '''Create user'''
-    queryset = CustomUser.objects.all()
+    queryset = CustomUser.objects.select_related("main_company", "job_title").only("role_type").all()
     serializer_class = UserProfileRegisterSerializer
 
     def create(self, request, *args, **kwargs):
@@ -44,7 +44,7 @@ class CreateUserView(generics.CreateAPIView):
 
 class ListUserProfileView(generics.ListAPIView):
     '''list users'''
-    queryset = CustomUser.objects.all()
+    queryset = CustomUser.objects.select_related("main_company", "job_title").all()
     serializer_class = UserProfileSerializer
     permission_classes = [IsManagerCanCreateAndEditUserOrIsAdminUser]
     pagination_class = CustomPagination
@@ -54,7 +54,7 @@ class ListUserProfileView(generics.ListAPIView):
 
 class DetailUserProfileView(generics.RetrieveDestroyAPIView):
     '''User profile view and delete'''
-    queryset = CustomUser.objects.all()
+    queryset = CustomUser.objects.select_related("main_company", "job_title").all()
     serializer_class = UserProfileSerializer
     permission_classes = [IsAuthenticated]
     lookup_field = 'id'
@@ -62,7 +62,7 @@ class DetailUserProfileView(generics.RetrieveDestroyAPIView):
 
 class UserUpdateView(generics.RetrieveUpdateAPIView):
     '''User update'''
-    queryset = CustomUser.objects.all()
+    queryset = CustomUser.objects.select_related("main_company", "job_title").all()
     serializer_class = UserUpdateSerializer
     permission_classes = [IsAuthenticated]
     lookup_field = 'id'
@@ -70,7 +70,7 @@ class UserUpdateView(generics.RetrieveUpdateAPIView):
 
 class ListUserONlyNameView(generics.ListAPIView):
     '''list users for front'''
-    queryset = CustomUser.objects.all()
+    queryset = CustomUser.objects.select_related("main_company", "job_title").all()
     serializer_class = UserListOnlyNameSerializer
     permission_classes = [IsAuthenticated]
     filter_backends = [filters.SearchFilter]

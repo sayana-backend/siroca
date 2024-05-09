@@ -13,6 +13,7 @@ from django.db.models import Q
 from .serializers import *
 from .models import *
 
+
 class CustomPagination(PageNumberPagination):
     page_size = 50
 
@@ -46,7 +47,7 @@ class ApplicationFormCreateAPIView(generics.CreateAPIView):
 class ApplicationFormListAPIView(generics.ListAPIView):
     serializer_class = ApplicationFormListSerializer
     filter_backends = [filters.SearchFilter, DjangoFilterBackend]
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated]
     filterset_class = ApplicationFormFilter
     pagination_class = CustomPagination
     search_fields = ['task_number', 'title', 'company__name', 'short_description',
@@ -172,14 +173,20 @@ class ApplicationLogsRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroy
     lookup_field = 'id'
 
 
-class FileListCreateAPIView(generics.ListCreateAPIView, BaseLoggingCreateDestroy):
+class FileListCreateAPIView(generics.ListCreateAPIView):
     queryset = ApplicationFile.objects.all()
     serializer_class = FileSerializer
 
     def perform_create(self, serializer):
-        instans = serializer.save()
-        file_name = instans.file.name
-        self.log_create(serializer, "Описание", f"Файл добавлен {file_name}")
+        instance = serializer.save()
+
+        user = self.request.user
+        user_id = user.id
+        user_name = f"{user.first_name} {user.surname}"
+        file_name = instance.file.name
+        ApplicationLogs.objects.create(
+            user=user_name, field="Описание", new=f"добавлен файл {file_name}", file_logs=instance.file,
+            form=instance.application, user_id=user_id)
 
 
 class FileDeleteAPIView(generics.DestroyAPIView, BaseLoggingCreateDestroy):
@@ -285,6 +292,7 @@ class CommentsDetailAPIView(generics.RetrieveUpdateDestroyAPIView, BaseLoggingUp
     queryset = Comments.objects.all()
     serializer_class = CommentsSerializer
     lookup_field = 'id'
+
     # permission_classes = [IsManagerCanDeleteComments,]
 
     def update(self, request, *args, **kwargs):
@@ -339,6 +347,7 @@ class NotificationAPIView(generics.ListAPIView):
 
 class NotificationDeleteViewAPI(generics.DestroyAPIView):
     '''Deleting notifications'''
+
     def delete(self, request, id=None):
         admin_id = request.user.id
         if id is None or id == 'all':

@@ -2,6 +2,9 @@ from django.contrib.auth.models import Group
 from ..user.models import CustomUser
 from django.db import models
 from django.utils import timezone
+import datetime
+import pytz
+
 
 class ApplicationForm(models.Model):
     class Meta:
@@ -137,12 +140,14 @@ class Comments(models.Model):
 
 class ApplicationLogs(models.Model):
     user = models.CharField(max_length=100, null=True, blank=True)
-    user_id = models.IntegerField(null=True, blank=True)
     field = models.CharField(max_length=500, null=True, blank=True)
     initially = models.CharField(max_length=500, null=True, blank=True)
     new = models.CharField(max_length=500, null=True, blank=True)
-    created_at = models.DateTimeField(auto_now_add=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True, blank=True, null=True)
+
+    file_logs = models.FileField(upload_to='', blank=True, null=True)
     form = models.ForeignKey(ApplicationForm, on_delete=models.CASCADE, null=True, related_name='logs')
+    user_id = models.IntegerField(null=True, blank=True)
     check_list_id = models.ForeignKey(Checklist, on_delete=models.CASCADE, null=True, blank=True)
     objects = models.Manager()
 
