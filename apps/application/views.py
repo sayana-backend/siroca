@@ -1,3 +1,4 @@
+from apps.application.signals import BaseLoggingCreateDestroy, BaseLoggingUpdate
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated
@@ -11,7 +12,6 @@ from rest_framework import status
 from django.db.models import Q
 from .serializers import *
 from .models import *
-
 
 class CustomPagination(PageNumberPagination):
     page_size = 50
@@ -85,6 +85,7 @@ class ApplicationFormListAPIView(generics.ListAPIView):
                 'closed_count': closed_count,
                 'results': serializer.data
             }
+
             return self.get_paginated_response(data)
         return Response({'detail': 'Not found'}, status=404)
 
@@ -94,9 +95,8 @@ class ApplicationFormRetrieveUpdateAPIView(generics.RetrieveUpdateAPIView):
     # queryset = ApplicationForm.objects.all()
     serializer_class = ApplicationFormUpdateSerializer
     lookup_field = 'id'
+
     # permission_classes = [IsClientCanEditApplicationAndIsManagerUser]
-
-
 
     def get_queryset(self):
         return ApplicationForm.objects.all().select_related('main_client', 'main_manager')
@@ -110,7 +110,6 @@ class ApplicationFormRetrieveUpdateAPIView(generics.RetrieveUpdateAPIView):
         self.perform_update(serializer)
 
         instance = self.get_object()
-
         user = request.user
         user_id = user.id
         user_name = f"{user.first_name} {user.surname}"
@@ -120,7 +119,7 @@ class ApplicationFormRetrieveUpdateAPIView(generics.RetrieveUpdateAPIView):
             if old_value != new_value:
                 ApplicationLogs.objects.create(field=field.verbose_name,
                                                initially=old_value, new=new_value,
-                                               form=instance, user=user_name, user_id = user.id)
+                                               form=instance, user=user_name, user_id=user_id)
 
         changes = []
         if old_instance.status != instance.status:
@@ -173,15 +172,24 @@ class ApplicationLogsRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroy
     lookup_field = 'id'
 
 
-class FileListCreateAPIView(generics.ListCreateAPIView): # расставить пермишны
+class FileListCreateAPIView(generics.ListCreateAPIView, BaseLoggingCreateDestroy):
     queryset = ApplicationFile.objects.all()
     serializer_class = FileSerializer
 
+    def perform_create(self, serializer):
+        instans = serializer.save()
+        file_name = instans.file.name
+        self.log_create(serializer, "Описание", f"Файл добавлен {file_name}")
 
-class FileDeleteAPIView(generics.DestroyAPIView):
+
+class FileDeleteAPIView(generics.DestroyAPIView, BaseLoggingCreateDestroy):
     queryset = ApplicationFile.objects.all()
     serializer_class = FileSerializer
     lookup_field = 'id'
+
+    def perform_destroy(self, instance):
+        file_name = instance.file.name
+        self.log_destroy(instance, "Описание", f"Файл удалён {file_name}")
 
 
 class ApplicationsOnlyDescriptionAPIView(generics.RetrieveUpdateAPIView):
@@ -190,50 +198,110 @@ class ApplicationsOnlyDescriptionAPIView(generics.RetrieveUpdateAPIView):
     lookup_field = 'id'
 
 
-
-class ChecklistListCreateAPIView(generics.ListCreateAPIView):
+class ChecklistListCreateAPIView(generics.ListCreateAPIView, BaseLoggingCreateDestroy):
     queryset = Checklist.objects.all()
     serializer_class = ChecklistSerializer
     lookup_field = 'id'
     permission_classes = [IsClientCanAddChecklistOrIsAdminAndManagerUser]
 
+    def perform_create(self, serializer):
+        instans = serializer.save()
+        self.log_create(serializer, "Чеклист", f"Чеклист создан {instans.name}")
 
-class CheckListDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
+
+class CheckListDetailAPIView(generics.RetrieveUpdateDestroyAPIView, BaseLoggingUpdate, BaseLoggingCreateDestroy):
     queryset = Checklist.objects.all()
     serializer_class = ChecklistSerializer
     lookup_field = 'id'
     permission_classes = [IsClientCanAddChecklistOrIsAdminAndManagerUser]
 
+    def update(self, request, *args, **kwargs):
+        '''Change tracking for logs and notifications'''
+        instance = self.get_object()
+        old_instance = Checklist.objects.get(id=instance.id)
+        serializer = self.get_serializer(instance, data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+
+        instance = self.get_object()
+        self.log_changes(old_instance, instance)
+
+        return Response(serializer.data)
+
+    def perform_destroy(self, instance):
+        checklist_name = instance.name
+        self.log_destroy(instance, "Чеклист", f"Чеклист {checklist_name} удалён")
 
 
-class SubTaskCreateAPIView(generics.CreateAPIView):
+class SubTaskCreateAPIView(generics.ListCreateAPIView, BaseLoggingCreateDestroy):
     queryset = SubTask.objects.all()
     serializer_class = SubTaskSerializer
     lookup_field = 'id'
     permission_classes = [IsClientCanAddChecklistOrIsAdminAndManagerUser]
 
+    def perform_create(self, serializer):
+        instans = serializer.save()
 
-class SubTaskDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
+        user = self.request.user
+        user_id = user.id
+        user_name = f"{user.first_name} {user.surname}"
+        ApplicationLogs.objects.create(
+            user=user_name, field="Подзадачи", new=instans.text,
+            check_list_id=instans.checklist, user_id=user_id)
+
+
+class SubTaskDetailAPIView(generics.RetrieveUpdateDestroyAPIView, BaseLoggingUpdate):
     queryset = SubTask.objects.all()
     serializer_class = SubTaskSerializer
     lookup_field = 'id'
     permission_classes = [IsClientCanAddChecklistOrIsAdminAndManagerUser]
 
+    def update(self, request, *args, **kwargs):
+        '''Change tracking for logs and notifications'''
+        instance = self.get_object()
+        old_instance = SubTask.objects.get(id=instance.id)
+        serializer = self.get_serializer(instance, data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
 
-class CommentsAPIView(generics.ListCreateAPIView):
+        instance = self.get_object()
+        self.log_changes(old_instance, instance)
+
+        return Response(serializer.data)
+
+
+class CommentsAPIView(generics.ListCreateAPIView, BaseLoggingCreateDestroy):
     queryset = Comments.objects.all()
     serializer_class = CommentsSerializer
     permission_classes = [IsAuthenticated]
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
+        instans = serializer.save()
+        self.log_create(serializer, "Комментарии", f"{instans.text}")
 
 
-class CommentsDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
+class CommentsDetailAPIView(generics.RetrieveUpdateDestroyAPIView, BaseLoggingUpdate, BaseLoggingCreateDestroy):
     queryset = Comments.objects.all()
     serializer_class = CommentsSerializer
     lookup_field = 'id'
     # permission_classes = [IsManagerCanDeleteComments,]
+
+    def update(self, request, *args, **kwargs):
+        '''Change tracking for logs and notifications'''
+        instance = self.get_object()
+        old_instance = Comments.objects.get(id=instance.id)
+        serializer = self.get_serializer(instance, data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+
+        instance = self.get_object()
+        self.log_changes(old_instance, instance)
+
+        return Response(serializer.data)
+
+    def perform_destroy(self, instance):
+        self.log_destroy(instance, "Комментарий", "Комментарий удалён")
 
 
 class NotificationAPIView(generics.ListAPIView):
@@ -267,7 +335,6 @@ class NotificationAPIView(generics.ListAPIView):
 
             serializer = NotificationSerializer(notification_user_application, many=True)
             return Response(serializer.data, status=status.HTTP_200_OK)
-
 
 
 class NotificationDeleteViewAPI(generics.DestroyAPIView):
@@ -315,5 +382,3 @@ class NotificationTrueAPIView(generics.ListAPIView):
             serializer = NotificationSerializer(notification_user_application, many=True)
             notification_user_application.update(is_read=True)
             return Response(serializer.data, status=status.HTTP_200_OK)
-
-

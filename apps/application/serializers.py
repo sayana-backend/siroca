@@ -1,7 +1,9 @@
-from .models import ApplicationForm, Checklist, Comments, ApplicationLogs, Notification, SubTask, ApplicationFile
+from .models import (ApplicationForm, Checklist, Comments, ApplicationLogs,
+                     Notification, SubTask, ApplicationFile)
 from rest_framework import serializers
 from ..company.models import Company
 from ..user.models import CustomUser
+from django.utils import timezone
 
 
 class SubTaskSerializer(serializers.ModelSerializer):
@@ -50,7 +52,7 @@ class LogsSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ApplicationLogs
-        fields = ('id', 'user', 'formatted_created_at', 'field', 'initially', 'new', 'user_id')
+        fields = ('id', 'user', 'formatted_created_at', 'field', 'initially', 'new', 'user_id', 'check_list_id')
 
     def get_formatted_created_at(self, instance):
         return instance.created_at.strftime('%Y.%m.%d / %H:%M')

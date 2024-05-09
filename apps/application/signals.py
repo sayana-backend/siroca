@@ -1,9 +1,46 @@
-from .models import ApplicationForm, ApplicationLogs, TrackingStatus, TrackingPriority, Notification,Checklist
+from .models import (ApplicationForm, ApplicationLogs, TrackingStatus,
+                     TrackingPriority, Notification, Checklist)
 from django.db.models.signals import post_save, pre_save
 from apps.user.models import CustomUser
 from django.dispatch import receiver
 from django.utils import timezone
 from datetime import timedelta
+
+
+class BaseLoggingCreateDestroy:
+    def log_create(self, serializer, log_field_name, new_value):
+        instance = serializer.save()
+        user = self.request.user
+        user_id = user.id
+        user_name = f"{user.first_name} {user.surname}"
+        ApplicationLogs.objects.create(
+            user=user_name, field=log_field_name, new=new_value,
+            form=instance.application, user_id=user_id)
+
+    def log_destroy(self, instance, log_field_name, delete_value):
+        user = self.request.user
+        user_id = user.id
+        user_name = f"{user.first_name} {user.surname}"
+        ApplicationLogs.objects.create(
+            user=user_name, field=log_field_name, new=delete_value,
+            form=instance.application, user_id=user_id)
+        instance.delete()
+
+
+class BaseLoggingUpdate:
+    def log_changes(self, old_instance, new_instance):
+        user = self.request.user
+        user_id = user.id
+        user_name = f"{user.first_name} {user.surname}"
+        for field in new_instance._meta.fields:
+            old_value = getattr(old_instance, field.name)
+            new_value = getattr(new_instance, field.name)
+            if old_value != new_value:
+                ApplicationLogs.objects.create(field=field.verbose_name,
+                                               initially=old_value, new=new_value,
+                                               form=new_instance.application,
+                                               user=user_name, user_id=user_id)
+
 
 @receiver(post_save, sender=Checklist)
 def update_subtasks_on_checklist_completion(sender, instance, **kwargs):

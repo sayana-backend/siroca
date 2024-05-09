@@ -1,7 +1,7 @@
 from django.contrib.auth.models import Group
 from ..user.models import CustomUser
 from django.db import models
-
+from django.utils import timezone
 
 class ApplicationForm(models.Model):
     class Meta:
@@ -71,10 +71,10 @@ class ApplicationForm(models.Model):
 
 
 class ApplicationFile(models.Model):
-    file = models.FileField(upload_to='', verbose_name='file', blank=True)
+    file = models.FileField(upload_to='', verbose_name='Файл', blank=True)
     application = models.ForeignKey('ApplicationForm',
                                     on_delete=models.CASCADE,
-                                    verbose_name='application',
+                                    verbose_name='Заяка',
                                     related_name='files')
 
     def __str__(self):
@@ -141,9 +141,9 @@ class ApplicationLogs(models.Model):
     field = models.CharField(max_length=500, null=True, blank=True)
     initially = models.CharField(max_length=500, null=True, blank=True)
     new = models.CharField(max_length=500, null=True, blank=True)
-    created_at = models.DateTimeField(auto_now_add=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True, blank=True)
     form = models.ForeignKey(ApplicationForm, on_delete=models.CASCADE, null=True, related_name='logs')
-
+    check_list_id = models.ForeignKey(Checklist, on_delete=models.CASCADE, null=True, blank=True)
     objects = models.Manager()
 
     def __str__(self):
