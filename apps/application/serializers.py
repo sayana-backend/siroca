@@ -5,7 +5,7 @@ from ..user.models import CustomUser
 
 
 class SubTaskSerializer(serializers.ModelSerializer):
-    manager = serializers.SlugRelatedField(slug_field='username', queryset=CustomUser.objects.all(), required=False)
+    manager = serializers.SlugRelatedField(slug_field='username', read_only=True)
 
     class Meta:
         model = SubTask
@@ -67,7 +67,7 @@ class ApplicationFormCreateSerializer(serializers.ModelSerializer):
 
 class ApplicationFormListSerializer(serializers.ModelSerializer):
     '''Application list'''
-    company = serializers.CharField(source='company.name', read_only=True)
+    company = serializers.SlugRelatedField(slug_field='name', read_only=True)
     main_client = serializers.SlugRelatedField(slug_field='username', read_only=True)
     main_manager = serializers.SlugRelatedField(slug_field='username', read_only=True)
 

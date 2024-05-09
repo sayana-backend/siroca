@@ -44,7 +44,7 @@ class CreateUserView(generics.CreateAPIView):
 
 class ListUserProfileView(generics.ListAPIView):
     '''list users'''
-    queryset = CustomUser.objects.all()
+    queryset = CustomUser.objects.all().order_by('-created_at')
     serializer_class = UserProfileSerializer
     permission_classes = [IsManagerCanCreateAndEditUserOrIsAdminUser]
     pagination_class = CustomPagination
