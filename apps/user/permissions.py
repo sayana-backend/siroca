@@ -17,18 +17,25 @@ class UsersPermissions(models.Model):
     - Если установлено значение True или False, то право для соответствующего пользователя
     будет установлено соответственно этим значениям.
     '''
+
     manager_can_delete_comments = models.BooleanField(default=False, verbose_name='Удаление комментариев')
     manager_can_delete_comments_extra = models.BooleanField(null=True, verbose_name='Удаление комментариев')
     manager_can_get_reports = models.BooleanField(default=False, verbose_name='Отчет по заявкам(Менеджер)')
     manager_can_get_reports_extra = models.BooleanField(null=True, verbose_name='Отчет по заявкам(Менеджер)')
     manager_can_delete_application = models.BooleanField(default=False, verbose_name='Удаление заявки')
     manager_can_delete_application_extra = models.BooleanField(null=True, verbose_name='Удаление заявки')
+
+    '''
+    При присвоении трех рашсиренных прав ниже менеджер становится полноценным админом с полями
+    из_суперюзер Тру из_менеджер Фолс(см. сигналс)
+    '''
+
     manager_can_create_and_edit_company_extra = models.BooleanField(null=True,
-                                                                    verbose_name='Создание/Редактирование заявки')
+                                                                    verbose_name='Создание/Редактирование/Удаление компании')
     manager_can_create_and_edit_user_extra = models.BooleanField(null=True,
-                                                                 verbose_name='Создание/Редактирование пользователя')
+                                                                 verbose_name='Создание/Редактирование/Удаление пользователя')
     manager_can_create_and_delete_job_title_extra = models.BooleanField(null=True,
-                                                                        verbose_name='Просмотр списка по компаниям/пользователям/должностям')
+                                                                        verbose_name='Создание/Редактирование/Удаление должности')
 
     client_can_edit_comments = models.BooleanField(default=False, verbose_name='Добавление/удаление комментария')
     client_can_edit_comments_extra = models.BooleanField(null=True, verbose_name='Добавление/удаление комментария')
@@ -66,15 +73,6 @@ class IsAdminUserAndManagerUser(permissions.BasePermission):
 
 
 '''Client's permissions'''
-
-
-class IsClientUser(permissions.BasePermission):
-    '''
-    ONLY CLIENT
-    '''
-
-    def has_permission(self, request, view):
-        return request.user.is_authenticated and request.user.is_client
 
 
 class IsClientCanCreateCommentsOrIsAdminAndManagerUser(permissions.BasePermission):
@@ -223,7 +221,7 @@ class IsManagerCanDeleteApplicationOrIsAdminUser(permissions.BasePermission):
 
 class IsManagerCanCreateAndEditCompanyOrIsAdminUser(permissions.BasePermission):
     '''
-    MANAGER CAN CREATE AND EDIT COMPANY
+    MANAGER CAN CRUD COMPANY
     '''
 
     def has_permission(self, request, view):
@@ -235,7 +233,7 @@ class IsManagerCanCreateAndEditCompanyOrIsAdminUser(permissions.BasePermission):
 
 class IsManagerCanCreateAndEditUserOrIsAdminUser(permissions.BasePermission):
     '''
-    MANAGER CAN CREATE USER
+    MANAGER CAN CRUD USER
     '''
 
     def has_permission(self, request, view):
@@ -247,7 +245,7 @@ class IsManagerCanCreateAndEditUserOrIsAdminUser(permissions.BasePermission):
 
 class IsManagerCanCreateAndDeleteJobTitleOrIsAdminUser(permissions.BasePermission):
     '''
-    MANAGER CAN CREATE AND DELETE JOB TITLES
+    MANAGER CAN CRUD JOB TITLES
     '''
 
     def has_permission(self, request, view):
