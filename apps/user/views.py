@@ -12,9 +12,9 @@ from .models import CustomUser
 
 class CreateUserView(generics.CreateAPIView):
     '''Create user'''
-    queryset = CustomUser.objects.select_related("main_company", "job_title").only("role_type").all()
+    queryset = CustomUser.objects.all()
     serializer_class = UserProfileRegisterSerializer
-    permission_classes = [IsManagerCanCreateAndEditUserOrIsAdminUser]
+    # permission_classes = [IsManagerCanCreateAndEditUserOrIsAdminUser]
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
@@ -78,10 +78,8 @@ class ListUserONlyNameView(generics.ListAPIView):
     search_fields = ['first_name', 'surname', 'username', 'full_name']
 
 
-
-
 class UserLoginView(generics.CreateAPIView):
-    queryset = CustomUser.objects.all()
+    queryset = CustomUser.objects.select_related("main_company", "job_title").all()
     serializer_class = UserAuthSerializer
 
     def post(self, request, *args, **kwargs):
@@ -127,7 +125,7 @@ class AdminContactDetailView(generics.RetrieveUpdateAPIView):
 
     def get_queryset(self):
         if self.request.user.is_superuser:
-            return AdminContact.objects.all()
+            return AdminContact.objects.prefetch_related("user").all()
         return AdminContact.objects.filter(user=self.request.user)
 
     def get_object(self):
@@ -141,14 +139,15 @@ class AdminContactDetailView(generics.RetrieveUpdateAPIView):
 
 class AdminContactListView(generics.ListAPIView):
     '''Контакты админа при авторизации'''
-    queryset = AdminContact.objects.all()
+    queryset = AdminContact.objects.prefetch_related("user").all()
     serializer_class = AdminContactSerializer
 
 
 class ChangePasswordView(generics.UpdateAPIView):
     '''смена пароля в профиле у каждого пользователя'''
-    queryset = CustomUser.objects.all()
+    queryset = CustomUser.objects.select_related().all()
     serializer_class = ChangePasswordSerializer
+
     permission_classes = [IsAuthenticated]
 
     def update(self, request, *args, **kwargs):
@@ -185,9 +184,10 @@ class AdminResetPasswordView(generics.UpdateAPIView):
         confirm_password = request.data.get('confirm_password')
 
         if new_password != confirm_password:
-            return Response({'detail': 'Новый пароль и его подтверждение не совпадают.'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'detail': 'Новый пароль и его подтверждение не совпадают.'},
+                            status=status.HTTP_400_BAD_REQUEST)
 
         user.set_password(new_password)
         user.save()
-        return Response({'detail': 'Пароль пользователя успешно сброшен.', 'new_password': new_password}, status=status.HTTP_200_OK)
-
+        return Response({'detail': 'Пароль пользователя успешно сброшен.', 'new_password': new_password},
+                        status=status.HTTP_200_OK)

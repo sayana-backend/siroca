@@ -114,13 +114,14 @@ class ApplicationFormRetrieveUpdateAPIView(generics.RetrieveUpdateAPIView):
         user = request.user
         user_id = user.id
         user_name = f"{user.first_name} {user.surname}"
+        user_image = user.image
         for field in instance._meta.fields:
             old_value = getattr(old_instance, field.name)
             new_value = getattr(instance, field.name)
             if old_value != new_value:
                 ApplicationLogs.objects.create(field=field.verbose_name,
                                                initially=old_value, new=new_value,
-                                               form=instance, user=user_name, user_id=user_id)
+                                               form=instance, user=user_name, user_id=user_id, user_image=user_image)
 
         changes = []
         if old_instance.status != instance.status:

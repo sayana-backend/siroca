@@ -139,16 +139,17 @@ class Comments(models.Model):
 
 
 class ApplicationLogs(models.Model):
-    user = models.CharField(max_length=100, null=True, blank=True)
-    field = models.CharField(max_length=500, null=True, blank=True)
-    initially = models.CharField(max_length=500, null=True, blank=True)
-    new = models.CharField(max_length=500, null=True, blank=True)
-    created_at = models.DateTimeField(auto_now_add=True, blank=True, null=True)
+    user = models.CharField(max_length=100, null=True, blank=True, verbose_name="Пользователь")
+    field = models.CharField(max_length=500, null=True, blank=True, verbose_name="Название поля")
+    initially = models.CharField(max_length=500, null=True, blank=True, verbose_name="Старое значение")
+    new = models.CharField(max_length=500, null=True, blank=True, verbose_name="Новое значение")
+    created_at = models.DateTimeField(auto_now_add=True, blank=True, null=True, verbose_name="Дата и время создания")
+    file_logs = models.FileField(upload_to='', blank=True, null=True, verbose_name="Файл картинки")
+    user_image = models.FileField(upload_to='', blank=True, null=True, verbose_name="Аватар пользователя")
 
-    file_logs = models.FileField(upload_to='', blank=True, null=True)
-    form = models.ForeignKey(ApplicationForm, on_delete=models.CASCADE, null=True, related_name='logs')
-    user_id = models.IntegerField(null=True, blank=True)
-    check_list_id = models.ForeignKey(Checklist, on_delete=models.CASCADE, null=True, blank=True)
+    form = models.ForeignKey(ApplicationForm, on_delete=models.CASCADE, null=True, related_name='logs', verbose_name="Заявка")
+    user_id = models.IntegerField(null=True, blank=True, verbose_name="id пользователя")
+    check_list_id = models.ForeignKey(Checklist, on_delete=models.CASCADE, null=True, blank=True, verbose_name="id чеклиста")
     objects = models.Manager()
 
     def __str__(self):
