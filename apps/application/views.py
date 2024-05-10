@@ -4,13 +4,16 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import generics, filters
 from .filters import ApplicationFormFilter
+from django.db.models import Prefetch
 from collections import OrderedDict
 from django.core.cache import cache
+from django.db import transaction
 from apps.user.permissions import *
 from rest_framework import status
 from django.db.models import Q, Case, When, Value, CharField
 from .serializers import *
 from .models import *
+
 
 
 class CustomPagination(PageNumberPagination):
@@ -28,6 +31,7 @@ class ApplicationFormCreateAPIView(generics.CreateAPIView):
     queryset = ApplicationForm.objects.all().select_related('main_client', 'main_manager', 'company')
     serializer_class = ApplicationFormCreateSerializer
 
+    @transaction.atomic
     def perform_create(self, serializer):
         '''Tracking the creation of an application for notifications'''
         instance = serializer.save()
@@ -35,12 +39,17 @@ class ApplicationFormCreateAPIView(generics.CreateAPIView):
         admin_notification = CustomUser.objects.filter(is_superuser=True)
         user = self.request.user
         user_name = f"{user.first_name}. {user.surname}"
-        for admin in admin_notification:
-            Notification.objects.create(
+
+        notifications = [
+            Notification(
                 task_number=f'Номер заявки: {instance.task_number}',
-                text=f'Создана новая заявка', title=instance.title,
+                text='Создана новая заявка', title=instance.title,
                 made_change=user_name, is_admin=True, admin_id=admin.id
             )
+            for admin in admin_notification
+        ]
+
+        Notification.objects.bulk_create(notifications)
 
 
 class ApplicationFormListAPIView(generics.ListAPIView):
@@ -58,7 +67,7 @@ class ApplicationFormListAPIView(generics.ListAPIView):
         queryset = ApplicationForm.objects.none()
 
         if user.is_superuser:
-            queryset = ApplicationForm.objects.all().select_related('main_client', 'main_manager', 'company')
+            queryset = ApplicationForm.objects.all()
         elif user.is_client:
             queryset = ApplicationForm.objects.filter(Q(main_client=user) |
                                                       Q(company=user.main_company))
@@ -107,7 +116,10 @@ class ApplicationFormRetrieveUpdateAPIView(generics.RetrieveUpdateAPIView):
     lookup_field = 'id'
     # permission_classes = [IsClientCanEditApplicationAndIsManagerUser]
 
+    checklist_prefetch = Prefetch('checklists', queryset=Checklist.objects.all())
+    file_prefetch = Prefetch('files', queryset=ApplicationFile.objects.all())
 
+    queryset = queryset.prefetch_related(checklist_prefetch, file_prefetch)
 
     def update(self, request, *args, **kwargs):
         '''Change tracking for logs and notifications'''
@@ -169,45 +181,40 @@ class ApplicationFormRetrieveDestroyAPIView(generics.RetrieveDestroyAPIView):
 
 
 class ApplicationLogsListCreateAPIView(generics.ListCreateAPIView):
-    queryset = ApplicationLogs.objects.all().select_related('main_client', 'main_manager', 'company')
+    queryset = ApplicationLogs.objects.all()
     serializer_class = LogsSerializer
     lookup_field = 'id'
-    permission_classes = [IsClientCanViewLogsOrIsAdminAndManagerUser]
+    # permission_classes = [IsClientCanViewLogsOrIsAdminAndManagerUser]
 
-
-class ApplicationLogsRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
-    queryset = ApplicationLogs.objects.all().select_related('main_client', 'main_manager', 'company')
-    serializer_class = LogsSerializer
-    lookup_field = 'id'
 
 
 class FileListCreateAPIView(generics.ListCreateAPIView): # расставить пермишны
-    queryset = ApplicationFile.objects.all().select_related('main_client', 'main_manager', 'company')
+    queryset = ApplicationFile.objects.all()
     serializer_class = FileSerializer
 
 
 class FileDeleteAPIView(generics.DestroyAPIView):
-    queryset = ApplicationFile.objects.all().select_related('main_client', 'main_manager', 'company')
+    queryset = ApplicationFile.objects.all()
     serializer_class = FileSerializer
     lookup_field = 'id'
 
 
 class ApplicationsOnlyDescriptionAPIView(generics.RetrieveUpdateAPIView):
-    queryset = ApplicationForm.objects.all().select_related('main_client', 'main_manager', 'company')
+    queryset = ApplicationForm.objects.all()
     serializer_class = ApplicationsOnlyDescriptionSerializer
     lookup_field = 'id'
 
 
 
 class ChecklistListCreateAPIView(generics.ListCreateAPIView):
-    queryset = Checklist.objects.all().select_related('application')
+    queryset = Checklist.objects.all()
     serializer_class = ChecklistSerializer
     lookup_field = 'id'
     permission_classes = [IsClientCanAddChecklistOrIsAdminAndManagerUser]
 
 
 class CheckListDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
-    queryset = Checklist.objects.all().select_related('application')
+    queryset = Checklist.objects.all()
     serializer_class = ChecklistSerializer
     lookup_field = 'id'
     permission_classes = [IsClientCanAddChecklistOrIsAdminAndManagerUser]
@@ -215,21 +222,21 @@ class CheckListDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
 
 
 class SubTaskCreateAPIView(generics.CreateAPIView):
-    queryset = SubTask.objects.all().select_related('checklist', 'manager')
+    queryset = SubTask.objects.all()
     serializer_class = SubTaskSerializer
     lookup_field = 'id'
     permission_classes = [IsClientCanAddChecklistOrIsAdminAndManagerUser]
 
 
 class SubTaskDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
-    queryset = SubTask.objects.all().select_related('checklist', 'manager')
+    queryset = SubTask.objects.all()
     serializer_class = SubTaskSerializer
     lookup_field = 'id'
     permission_classes = [IsClientCanAddChecklistOrIsAdminAndManagerUser]
 
 
 class CommentsAPIView(generics.ListCreateAPIView):
-    queryset = Comments.objects.all().select_related('application', 'user')
+    queryset = Comments.objects.all()
     serializer_class = CommentsSerializer
     permission_classes = [IsAuthenticated]
 
@@ -238,7 +245,7 @@ class CommentsAPIView(generics.ListCreateAPIView):
 
 
 class CommentsDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
-    queryset = Comments.objects.all().select_related('application', 'user')
+    queryset = Comments.objects.all()
     serializer_class = CommentsSerializer
     lookup_field = 'id'
     # permission_classes = [IsManagerCanDeleteComments,]
@@ -246,7 +253,7 @@ class CommentsDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
 
 class NotificationAPIView(generics.ListAPIView):
     '''Sending notifications'''
-    queryset = Notification.objects.all().select_related('form')
+    queryset = Notification.objects.all()
     serializer_class = NotificationSerializer
     permission_classes = [IsAuthenticated]
     lookup_field = 'id'

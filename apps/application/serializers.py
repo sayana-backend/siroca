@@ -58,7 +58,7 @@ class LogsSerializer(serializers.ModelSerializer):
 
 class ApplicationFormCreateSerializer(serializers.ModelSerializer):
     '''Application create'''
-    company = serializers.SlugRelatedField(slug_field='name', queryset=Company.objects.all())
+    company = serializers.SlugRelatedField(slug_field='name', read_only=True)
 
     class Meta:
         model = ApplicationForm
@@ -80,9 +80,9 @@ class ApplicationFormListSerializer(serializers.ModelSerializer):
 
 class ApplicationFormUpdateSerializer(serializers.ModelSerializer):
     '''Application ypdate'''
-    company = serializers.CharField(source='company.name', read_only=True)
-    main_client = serializers.SlugRelatedField(slug_field='username', queryset=CustomUser.objects.all(), required=False)
-    main_manager = serializers.SlugRelatedField(slug_field='username', queryset=CustomUser.objects.all(), required=False)
+    company = serializers.SlugRelatedField(slug_field='name', read_only=True, required=False)
+    main_client = serializers.SlugRelatedField(slug_field='username', read_only=True, required=False)
+    main_manager = serializers.SlugRelatedField(slug_field='username', read_only=True, required=False)
     checklists = ChecklistSerializer(many=True, read_only=True)
     files = FileSerializer(many=True, read_only=True)
 
@@ -94,9 +94,9 @@ class ApplicationFormUpdateSerializer(serializers.ModelSerializer):
 class ApplicationFormDetailViewSerializer(serializers.ModelSerializer):
     '''Application detail view'''
     logs = LogsSerializer(many=True, read_only=True)
-    company = serializers.CharField(source='company.name', read_only=True)
-    main_client = serializers.SlugRelatedField(slug_field='username', queryset=CustomUser.objects.all())
-    main_manager = serializers.SlugRelatedField(slug_field='username', queryset=CustomUser.objects.all())
+    company = serializers.SlugRelatedField(slug_field='name', read_only=True)
+    main_client = serializers.SlugRelatedField(slug_field='username', read_only=True)
+    main_manager = serializers.SlugRelatedField(slug_field='username', read_only=True)
     checklists = ChecklistSerializer(many=True, read_only=True)
     comments = CommentsSerializer(many=True, read_only=True)
     files = FileSerializer(many=True, read_only=True)
