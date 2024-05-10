@@ -1,4 +1,5 @@
 from apps.application.signals import BaseLoggingCreateDestroy, BaseLoggingUpdate
+from django.utils.datastructures import MultiValueDictKeyError
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated
@@ -47,7 +48,7 @@ class ApplicationFormCreateAPIView(generics.CreateAPIView):
 class ApplicationFormListAPIView(generics.ListAPIView):
     serializer_class = ApplicationFormListSerializer
     filter_backends = [filters.SearchFilter, DjangoFilterBackend]
-    # permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
     filterset_class = ApplicationFormFilter
     pagination_class = CustomPagination
     search_fields = ['task_number', 'title', 'company__name', 'short_description',
@@ -158,7 +159,8 @@ class ApplicationFormRetrieveDestroyAPIView(generics.RetrieveDestroyAPIView):
     queryset = ApplicationForm.objects.all()
     serializer_class = ApplicationFormDetailViewSerializer
     lookup_field = 'id'
-    # permission_classes = [IsAdminUserAndManagerUser]
+    permission_classes = [IsAdminUserAndManagerUser]
+
 
 
 class ApplicationLogsListCreateAPIView(generics.ListCreateAPIView):

@@ -107,6 +107,11 @@ class ApplicationFormDetailViewSerializer(serializers.ModelSerializer):
         model = ApplicationForm
         fields = '__all__'
 
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        data['logs'] = LogsSerializer(instance.logs.order_by('-created_at'), many=True).data
+        return data
+
 
 class ApplicationsOnlyDescriptionSerializer(serializers.ModelSerializer):
     class Meta:
