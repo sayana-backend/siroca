@@ -13,6 +13,7 @@ from django.db.models import Q
 from .serializers import *
 from .models import *
 
+
 class CustomPagination(PageNumberPagination):
     page_size = 50
 
@@ -95,8 +96,7 @@ class ApplicationFormRetrieveUpdateAPIView(generics.RetrieveUpdateAPIView):
     # queryset = ApplicationForm.objects.all()
     serializer_class = ApplicationFormUpdateSerializer
     lookup_field = 'id'
-
-    # permission_classes = [IsClientCanEditApplicationAndIsManagerUser]
+    permission_classes = [IsClientCanEditApplicationAndIsManagerUser]
 
     def get_queryset(self):
         return ApplicationForm.objects.all().select_related('main_client', 'main_manager')
@@ -113,13 +113,14 @@ class ApplicationFormRetrieveUpdateAPIView(generics.RetrieveUpdateAPIView):
         user = request.user
         user_id = user.id
         user_name = f"{user.first_name} {user.surname}"
+        user_image = user.image
         for field in instance._meta.fields:
             old_value = getattr(old_instance, field.name)
             new_value = getattr(instance, field.name)
             if old_value != new_value:
                 ApplicationLogs.objects.create(field=field.verbose_name,
                                                initially=old_value, new=new_value,
-                                               form=instance, user=user_name, user_id=user_id)
+                                               form=instance, user=user_name, user_id=user_id, user_image=user_image)
 
         changes = []
         if old_instance.status != instance.status:
@@ -172,14 +173,20 @@ class ApplicationLogsRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroy
     lookup_field = 'id'
 
 
-class FileListCreateAPIView(generics.ListCreateAPIView, BaseLoggingCreateDestroy):
+class FileListCreateAPIView(generics.ListCreateAPIView):
     queryset = ApplicationFile.objects.all()
     serializer_class = FileSerializer
 
     def perform_create(self, serializer):
-        instans = serializer.save()
-        file_name = instans.file.name
-        self.log_create(serializer, "Описание", f"Файл добавлен {file_name}")
+        instance = serializer.save()
+
+        user = self.request.user
+        user_id = user.id
+        user_name = f"{user.first_name} {user.surname}"
+        file_name = instance.file.name
+        ApplicationLogs.objects.create(
+            user=user_name, field="Описание", new=f"добавлен файл {file_name}", file_logs=instance.file,
+            form=instance.application, user_id=user_id)
 
 
 class FileDeleteAPIView(generics.DestroyAPIView, BaseLoggingCreateDestroy):
@@ -216,7 +223,9 @@ class CheckListDetailAPIView(generics.RetrieveUpdateDestroyAPIView, BaseLoggingU
     permission_classes = [IsClientCanAddChecklistOrIsAdminAndManagerUser]
 
     def update(self, request, *args, **kwargs):
-        '''Change tracking for logs and notifications'''
+        '''
+        Change tracking for logs and notifications
+        '''
         instance = self.get_object()
         old_instance = Checklist.objects.get(id=instance.id)
         serializer = self.get_serializer(instance, data=request.data)
@@ -285,7 +294,7 @@ class CommentsDetailAPIView(generics.RetrieveUpdateDestroyAPIView, BaseLoggingUp
     queryset = Comments.objects.all()
     serializer_class = CommentsSerializer
     lookup_field = 'id'
-    # permission_classes = [IsManagerCanDeleteComments,]
+    permission_classes = [IsAdminOrManagerOrClientUsersCanEditComments]
 
     def update(self, request, *args, **kwargs):
         '''Change tracking for logs and notifications'''
@@ -339,6 +348,7 @@ class NotificationAPIView(generics.ListAPIView):
 
 class NotificationDeleteViewAPI(generics.DestroyAPIView):
     '''Deleting notifications'''
+
     def delete(self, request, id=None):
         admin_id = request.user.id
         if id is None or id == 'all':

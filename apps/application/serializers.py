@@ -52,7 +52,7 @@ class LogsSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ApplicationLogs
-        fields = ('id', 'user', 'formatted_created_at', 'field', 'initially', 'new', 'user_id', 'check_list_id')
+        fields = ('id', 'user', 'formatted_created_at', 'field', 'initially', 'new', 'user_id', 'file_logs', 'user_image')
 
     def get_formatted_created_at(self, instance):
         return instance.created_at.strftime('%Y.%m.%d / %H:%M')

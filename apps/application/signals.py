@@ -13,17 +13,19 @@ class BaseLoggingCreateDestroy:
         user = self.request.user
         user_id = user.id
         user_name = f"{user.first_name} {user.surname}"
+        user_image = user.image
         ApplicationLogs.objects.create(
             user=user_name, field=log_field_name, new=new_value,
-            form=instance.application, user_id=user_id)
+            form=instance.application, user_id=user_id, user_image=user_image)
 
     def log_destroy(self, instance, log_field_name, delete_value):
         user = self.request.user
         user_id = user.id
         user_name = f"{user.first_name} {user.surname}"
+        user_image = user.image
         ApplicationLogs.objects.create(
             user=user_name, field=log_field_name, new=delete_value,
-            form=instance.application, user_id=user_id)
+            form=instance.application, user_id=user_id, user_image=user_image)
         instance.delete()
 
 
@@ -32,6 +34,7 @@ class BaseLoggingUpdate:
         user = self.request.user
         user_id = user.id
         user_name = f"{user.first_name} {user.surname}"
+        user_image = user.image
         for field in new_instance._meta.fields:
             old_value = getattr(old_instance, field.name)
             new_value = getattr(new_instance, field.name)
@@ -39,7 +42,7 @@ class BaseLoggingUpdate:
                 ApplicationLogs.objects.create(field=field.verbose_name,
                                                initially=old_value, new=new_value,
                                                form=new_instance.application,
-                                               user=user_name, user_id=user_id)
+                                               user=user_name, user_id=user_id, user_image=user_image)
 
 
 # @receiver(post_save, sender=Checklist)
