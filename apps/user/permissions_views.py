@@ -5,6 +5,7 @@ from rest_framework import filters
 from .serializers import *
 from .permissions import *
 from .models import CustomUser
+from rest_framework.permissions import IsAuthenticated
 
 
 class ManagerPermissionsGeneralView(generics.UpdateAPIView, generics.ListAPIView):
@@ -122,7 +123,7 @@ class ClientPermissionsDetailAPIView(generics.ListAPIView):
 class UserPermissionsDetailAPIView(generics.RetrieveUpdateAPIView):
     queryset = CustomUser.objects.all()
     lookup_field = 'id'
-    permission_classes = [IsAdminUser]
+    permission_classes = [IsAuthenticated]
 
     def get_serializer_class(self):
         user = self.get_object()

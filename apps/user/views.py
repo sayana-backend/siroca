@@ -14,6 +14,7 @@ class CreateUserView(generics.CreateAPIView):
     '''Create user'''
     queryset = CustomUser.objects.select_related("main_company", "job_title").only("role_type").all()
     serializer_class = UserProfileRegisterSerializer
+    permission_classes = [IsManagerCanCreateAndEditUserOrIsAdminUser]
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
@@ -106,7 +107,7 @@ class UserLoginView(generics.CreateAPIView):
 
 
 class UserLogoutView(generics.GenericAPIView):
-    permission_classes = (IsAuthenticated,)
+    permission_classes = [IsAuthenticated]
 
     def post(self, request, *args, **kwargs):
         try:
@@ -122,7 +123,7 @@ class UserLogoutView(generics.GenericAPIView):
 class AdminContactDetailView(generics.RetrieveUpdateAPIView):
     '''Редактирование контактов админа в профиле админа'''
     serializer_class = AdminContactSerializer
-    # permission_classes = [IsAuthenticated]
+    permission_classes = [IsAdminUser]
 
     def get_queryset(self):
         if self.request.user.is_superuser:
@@ -148,7 +149,6 @@ class ChangePasswordView(generics.UpdateAPIView):
     '''смена пароля в профиле у каждого пользователя'''
     queryset = CustomUser.objects.all()
     serializer_class = ChangePasswordSerializer
-    permission_classes = [IsAuthenticated]
     permission_classes = [IsAuthenticated]
 
     def update(self, request, *args, **kwargs):
@@ -176,7 +176,7 @@ class AdminResetPasswordView(generics.UpdateAPIView):
     '''Сброс пароля админом в случае если пароль забыли'''
     queryset = CustomUser.objects.all()
     serializer_class = AdminResetPasswordSerializer
-    permission_classes = [IsAdminUser]
+    permission_classes = [IsManagerCanCreateAndEditUserOrIsAdminUser]
     lookup_field = 'id'
 
     def update(self, request, *args, **kwargs):
