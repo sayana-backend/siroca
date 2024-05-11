@@ -97,8 +97,7 @@ class ApplicationFormRetrieveUpdateAPIView(generics.RetrieveUpdateAPIView):
     # queryset = ApplicationForm.objects.all()
     serializer_class = ApplicationFormUpdateSerializer
     lookup_field = 'id'
-
-    # permission_classes = [IsClientCanEditApplicationAndIsManagerUser]
+    permission_classes = [IsClientCanEditApplicationAndIsManagerUser]
 
     def get_queryset(self):
         return ApplicationForm.objects.all().select_related('main_client', 'main_manager')
@@ -226,7 +225,9 @@ class CheckListDetailAPIView(generics.RetrieveUpdateDestroyAPIView, BaseLoggingU
     permission_classes = [IsClientCanAddChecklistOrIsAdminAndManagerUser]
 
     def update(self, request, *args, **kwargs):
-        '''Change tracking for logs and notifications'''
+        '''
+        Change tracking for logs and notifications
+        '''
         instance = self.get_object()
         old_instance = Checklist.objects.get(id=instance.id)
         serializer = self.get_serializer(instance, data=request.data)
@@ -295,8 +296,7 @@ class CommentsDetailAPIView(generics.RetrieveUpdateDestroyAPIView, BaseLoggingUp
     queryset = Comments.objects.all()
     serializer_class = CommentsSerializer
     lookup_field = 'id'
-
-    # permission_classes = [IsManagerCanDeleteComments,]
+    permission_classes = [IsAdminOrManagerOrClientUsersCanEditComments]
 
     def update(self, request, *args, **kwargs):
         '''Change tracking for logs and notifications'''
