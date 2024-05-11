@@ -161,7 +161,6 @@ class ApplicationFormRetrieveDestroyAPIView(generics.RetrieveDestroyAPIView):
     permission_classes = [IsAdminUserAndManagerUser]
 
 
-
 class ApplicationLogsListCreateAPIView(generics.ListCreateAPIView):
     queryset = ApplicationLogs.objects.all()
     serializer_class = LogsSerializer
@@ -257,11 +256,11 @@ class SubTaskCreateAPIView(generics.ListCreateAPIView, BaseLoggingCreateDestroy)
         user_id = user.id
         user_name = f"{user.first_name} {user.surname}"
         ApplicationLogs.objects.create(
-            user=user_name, field="Подзадачи", new=instans.text,
+            user=user_name, field="Подзадача", new=instans.text,
             check_list_id=instans.checklist, user_id=user_id)
 
 
-class SubTaskDetailAPIView(generics.RetrieveUpdateDestroyAPIView, BaseLoggingUpdate):
+class SubTaskDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
     queryset = SubTask.objects.all()
     serializer_class = SubTaskSerializer
     lookup_field = 'id'
@@ -276,7 +275,19 @@ class SubTaskDetailAPIView(generics.RetrieveUpdateDestroyAPIView, BaseLoggingUpd
         self.perform_update(serializer)
 
         instance = self.get_object()
-        self.log_changes(old_instance, instance)
+
+        user = request.user
+        user_id = user.id
+        user_image = user.image
+        user_name = f"{user.first_name} {user.surname}"
+        for field in instance._meta.fields:
+            old_value = getattr(old_instance, field.name)
+            new_value = getattr(instance, field.name)
+            if old_value != new_value:
+                ApplicationLogs.objects.create(field=field.verbose_name,
+                                               initially=old_value, new=new_value,
+                                               check_list_id=instance.checklist, user=user_name,
+                                               user_id=user_id, user_image=user_image)
 
         return Response(serializer.data)
 

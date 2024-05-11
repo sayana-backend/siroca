@@ -27,7 +27,8 @@ class CommentsAdmin(admin.ModelAdmin):
 
 
 admin.site.register(ApplicationLogs)
-# admin.site.register(Checklist)
+admin.site.register(Checklist)
+admin.site.register(SubTask)
 # admin.site.register(Comments)
 admin.site.register(ApplicationFile)
 
