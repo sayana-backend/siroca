@@ -1,6 +1,7 @@
 from ..application.views import CustomPagination
 from rest_framework.response import Response
 from rest_framework import generics, status
+from rest_framework.permissions import IsAuthenticated
 from rest_framework import filters
 from .serializers import *
 from .permissions import *
@@ -122,7 +123,7 @@ class ClientPermissionsDetailAPIView(generics.ListAPIView):
 class UserPermissionsDetailAPIView(generics.RetrieveUpdateAPIView):
     queryset = CustomUser.objects.all()
     lookup_field = 'id'
-    permission_classes = [IsAdminUser]
+    permission_classes = [IsAuthenticated]
 
     def get_serializer_class(self):
         user = self.get_object()

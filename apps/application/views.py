@@ -27,6 +27,7 @@ class ApplicationFormCreateAPIView(generics.CreateAPIView):
     '''Create new application'''
     queryset = ApplicationForm.objects.all()
     serializer_class = ApplicationFormCreateSerializer
+    # permission_classes = [IsClientCanCreateApplicationOrIsAdminAndManagerUser]
 
     def perform_create(self, serializer):
         '''Tracking the creation of an application for notifications'''
@@ -46,7 +47,7 @@ class ApplicationFormCreateAPIView(generics.CreateAPIView):
 class ApplicationFormListAPIView(generics.ListAPIView):
     serializer_class = ApplicationFormListSerializer
     filter_backends = [filters.SearchFilter, DjangoFilterBackend]
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsClientCanCreateApplicationOrIsAdminAndManagerUser]
     filterset_class = ApplicationFormFilter
     pagination_class = CustomPagination
     search_fields = ['task_number', 'title', 'company__name', 'short_description',
@@ -157,14 +158,14 @@ class ApplicationFormRetrieveDestroyAPIView(generics.RetrieveDestroyAPIView):
     queryset = ApplicationForm.objects.all()
     serializer_class = ApplicationFormDetailViewSerializer
     lookup_field = 'id'
-    # permission_classes = [IsAdminUserAndManagerUser]
+    # permission_classes = [IsManagerCanDeleteApplicationOrIsAdminUser]
 
 
 class ApplicationLogsListCreateAPIView(generics.ListCreateAPIView):
     queryset = ApplicationLogs.objects.all()
     serializer_class = LogsSerializer
     lookup_field = 'id'
-    permission_classes = [IsClientCanViewLogsOrIsAdminAndManagerUser]
+    # permission_classes = [IsClientCanViewLogsOrIsAdminAndManagerUser]
 
 
 class ApplicationLogsRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
@@ -176,18 +177,21 @@ class ApplicationLogsRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroy
 class FileListCreateAPIView(generics.ListCreateAPIView): # расставить пермишны
     queryset = ApplicationFile.objects.all()
     serializer_class = FileSerializer
+    # permission_classes = [IsClientCanAddFilesOrIsAdminAndManagerUser]
 
 
 class FileDeleteAPIView(generics.DestroyAPIView):
     queryset = ApplicationFile.objects.all()
     serializer_class = FileSerializer
     lookup_field = 'id'
+    # permission_classes = [IsAdminUserAndManagerUser]
 
 
 class ApplicationsOnlyDescriptionAPIView(generics.RetrieveUpdateAPIView):
     queryset = ApplicationForm.objects.all()
     serializer_class = ApplicationsOnlyDescriptionSerializer
     lookup_field = 'id'
+    # permission_classes = [IsAuthenticated]
 
 
 
@@ -195,14 +199,14 @@ class ChecklistListCreateAPIView(generics.ListCreateAPIView):
     queryset = Checklist.objects.all()
     serializer_class = ChecklistSerializer
     lookup_field = 'id'
-    permission_classes = [IsClientCanAddChecklistOrIsAdminAndManagerUser]
+    # permission_classes = [IsClientCanAddChecklistOrIsAdminAndManagerUser]
 
 
 class CheckListDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Checklist.objects.all()
     serializer_class = ChecklistSerializer
     lookup_field = 'id'
-    permission_classes = [IsClientCanAddChecklistOrIsAdminAndManagerUser]
+    # permission_classes = [IsClientCanAddChecklistOrIsAdminAndManagerUser]
 
 
 
@@ -210,20 +214,20 @@ class SubTaskCreateAPIView(generics.CreateAPIView):
     queryset = SubTask.objects.all()
     serializer_class = SubTaskSerializer
     lookup_field = 'id'
-    permission_classes = [IsClientCanAddChecklistOrIsAdminAndManagerUser]
+    # permission_classes = [IsClientCanAddChecklistOrIsAdminAndManagerUser]
 
 
 class SubTaskDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
     queryset = SubTask.objects.all()
     serializer_class = SubTaskSerializer
     lookup_field = 'id'
-    permission_classes = [IsClientCanAddChecklistOrIsAdminAndManagerUser]
+    # permission_classes = [IsClientCanAddChecklistOrIsAdminAndManagerUser]
 
 
 class CommentsAPIView(generics.ListCreateAPIView):
     queryset = Comments.objects.all()
     serializer_class = CommentsSerializer
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsClientCanCreateCommentsOrIsAdminAndManagerUser]
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
@@ -233,7 +237,7 @@ class CommentsDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Comments.objects.all()
     serializer_class = CommentsSerializer
     lookup_field = 'id'
-    # permission_classes = [IsManagerCanDeleteComments,]
+    # permission_classes = [IsAdminOrManagerOrClientUsersCanEditComments]
 
 
 class NotificationAPIView(generics.ListAPIView):
