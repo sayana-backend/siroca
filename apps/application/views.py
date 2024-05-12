@@ -1,6 +1,8 @@
+from django.db.models import Count, Q, Case, When, Value, CharField
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated
+from django.db.models.functions import Coalesce
 from rest_framework.response import Response
 from rest_framework import generics, filters
 from .filters import ApplicationFormFilter
@@ -10,7 +12,6 @@ from django.core.cache import cache
 from django.db import transaction
 from apps.user.permissions import *
 from rest_framework import status
-from django.db.models import Q, Case, When, Value, CharField
 from .serializers import *
 from .models import *
 
@@ -92,17 +93,20 @@ class ApplicationFormListAPIView(generics.ListAPIView):
 
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
-        page = self.paginate_queryset(queryset)
+        count_queryset = queryset.annotate(
+            status_count=Count('id', distinct=True)
+        )
+        created_count = count_queryset.aggregate(created_count=Count('id'))
+        in_progress_count = count_queryset.filter(status='В работе').aggregate(in_progress_count=Coalesce(Count('id', distinct=True), 0))
+        closed_count = count_queryset.filter(status='Проверено').aggregate(closed_count=Coalesce(Count('id', distinct=True), 0))
 
+        page = self.paginate_queryset(queryset)
         if page is not None:
             serializer = self.get_serializer(page, many=True)
-            created_count = queryset.count()
-            in_progress_count = queryset.filter(status='В работе').count()
-            closed_count = queryset.filter(status='Проверено').count()
             data = {
-                'created_count': created_count,
-                'in_progress_count': in_progress_count,
-                'closed_count': closed_count,
+                'created_count': created_count['created_count'],
+                'in_progress_count': in_progress_count['in_progress_count'],
+                'closed_count': closed_count['closed_count'],
                 'results': serializer.data
             }
             return self.get_paginated_response(data)
@@ -307,7 +311,6 @@ class NotificationDeleteViewAPI(generics.DestroyAPIView):
             except Notification.DoesNotExist:
                 return Response(status=status.HTTP_404_NOT_FOUND)
 
-        return Response(status=status.HTTP_400_BAD_REQUEST)
 
 
 class NotificationTrueAPIView(generics.ListAPIView):
