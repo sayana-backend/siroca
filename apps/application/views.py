@@ -1,18 +1,21 @@
 from apps.application.signals import BaseLoggingCreateDestroy, BaseLoggingUpdate
-from django.utils.datastructures import MultiValueDictKeyError
+from django.db.models import Count, Q, Case, When, Value, CharField
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated
+from django.db.models.functions import Coalesce
 from rest_framework.response import Response
 from rest_framework import generics, filters
 from .filters import ApplicationFormFilter
+from django.db.models import Prefetch
 from collections import OrderedDict
 from django.core.cache import cache
+from django.db import transaction
 from apps.user.permissions import *
 from rest_framework import status
-from django.db.models import Q
 from .serializers import *
 from .models import *
+
 
 
 class CustomPagination(PageNumberPagination):
@@ -27,10 +30,11 @@ class CustomPagination(PageNumberPagination):
 
 class ApplicationFormCreateAPIView(generics.CreateAPIView):
     '''Create new application'''
-    queryset = ApplicationForm.objects.all()
+    queryset = ApplicationForm.objects.all().select_related('main_client', 'main_manager', 'company')
     serializer_class = ApplicationFormCreateSerializer
     permission_classes = [IsClientCanCreateApplicationOrIsAdminAndManagerUser]
 
+    @transaction.atomic
     def perform_create(self, serializer):
         '''Tracking the creation of an application for notifications'''
         instance = serializer.save()
@@ -38,12 +42,17 @@ class ApplicationFormCreateAPIView(generics.CreateAPIView):
         admin_notification = CustomUser.objects.filter(is_superuser=True)
         user = self.request.user
         user_name = f"{user.first_name}. {user.surname}"
-        for admin in admin_notification:
-            Notification.objects.create(
+
+        notifications = [
+            Notification(
                 task_number=f'Номер заявки: {instance.task_number}',
-                text=f'Создана новая заявка', title=instance.title,
+                text='Создана новая заявка', title=instance.title,
                 made_change=user_name, is_admin=True, admin_id=admin.id
             )
+            for admin in admin_notification
+        ]
+
+        Notification.objects.bulk_create(notifications)
 
 
 class ApplicationFormListAPIView(generics.ListAPIView):
@@ -70,22 +79,36 @@ class ApplicationFormListAPIView(generics.ListAPIView):
                                                       Q(checklists__manager=user) |
                                                       Q(company=user.main_company))
 
-        queryset = queryset.order_by('-application_date')
+        queryset = queryset.select_related('main_client', 'main_manager', 'company').annotate(
+            priority_order=Case(
+                When(priority='Самый высокий', then=Value(1)),
+                When(priority='Высокий', then=Value(2)),
+                When(priority='Средний', then=Value(3)),
+                When(priority='Низкий', then=Value(4)),
+                When(priority='Самый низкий', then=Value(5)),
+                default=Value(6),
+                output_field=CharField(),
+            )
+        ).order_by('priority_order', '-application_date')
+
         return queryset
 
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
-        page = self.paginate_queryset(queryset)
+        count_queryset = queryset.annotate(
+            status_count=Count('id', distinct=True)
+        )
+        created_count = count_queryset.aggregate(created_count=Count('id'))
+        in_progress_count = count_queryset.filter(status='В работе').aggregate(in_progress_count=Coalesce(Count('id', distinct=True), 0))
+        closed_count = count_queryset.filter(status='Проверено').aggregate(closed_count=Coalesce(Count('id', distinct=True), 0))
 
+        page = self.paginate_queryset(queryset)
         if page is not None:
             serializer = self.get_serializer(page, many=True)
-            created_count = queryset.count()
-            in_progress_count = queryset.filter(status='В работе').count()
-            closed_count = queryset.filter(status='Проверено').count()
             data = {
-                'created_count': created_count,
-                'in_progress_count': in_progress_count,
-                'closed_count': closed_count,
+                'created_count': created_count['created_count'],
+                'in_progress_count': in_progress_count['in_progress_count'],
+                'closed_count': closed_count['closed_count'],
                 'results': serializer.data
             }
 
@@ -95,13 +118,13 @@ class ApplicationFormListAPIView(generics.ListAPIView):
 
 class ApplicationFormRetrieveUpdateAPIView(generics.RetrieveUpdateAPIView):
     '''  update API '''
-    # queryset = ApplicationForm.objects.all()
+    queryset = ApplicationForm.objects.all().select_related('main_client', 'main_manager', 'company')
     serializer_class = ApplicationFormUpdateSerializer
     lookup_field = 'id'
     permission_classes = [IsClientCanEditApplicationAndIsManagerUser]
-
-    def get_queryset(self):
-        return ApplicationForm.objects.all().select_related('main_client', 'main_manager')
+    checklist_prefetch = Prefetch('checklists', queryset=Checklist.objects.all())
+    file_prefetch = Prefetch('files', queryset=ApplicationFile.objects.all())
+    queryset = queryset.prefetch_related(checklist_prefetch, file_prefetch)
 
     def update(self, request, *args, **kwargs):
         '''Change tracking for logs and notifications'''
@@ -156,7 +179,7 @@ class ApplicationFormRetrieveUpdateAPIView(generics.RetrieveUpdateAPIView):
 
 
 class ApplicationFormRetrieveDestroyAPIView(generics.RetrieveDestroyAPIView):
-    queryset = ApplicationForm.objects.all()
+    queryset = ApplicationForm.objects.all().select_related('main_client', 'main_manager', 'company')
     serializer_class = ApplicationFormDetailViewSerializer
     lookup_field = 'id'
     permission_classes = [IsManagerCanDeleteApplicationOrIsAdminUser]
@@ -166,13 +189,8 @@ class ApplicationLogsListCreateAPIView(generics.ListCreateAPIView):
     queryset = ApplicationLogs.objects.all()
     serializer_class = LogsSerializer
     lookup_field = 'id'
-    permission_classes = [IsClientCanViewLogsOrIsAdminAndManagerUser]
+    # permission_classes = [IsClientCanViewLogsOrIsAdminAndManagerUser]
 
-
-class ApplicationLogsRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
-    queryset = ApplicationLogs.objects.all()
-    serializer_class = LogsSerializer
-    lookup_field = 'id'
 
 
 class FileListCreateAPIView(generics.ListCreateAPIView):
@@ -386,12 +404,10 @@ class NotificationDeleteViewAPI(generics.DestroyAPIView):
             except Notification.DoesNotExist:
                 return Response(status=status.HTTP_404_NOT_FOUND)
 
-        return Response(status=status.HTTP_400_BAD_REQUEST)
-
 
 class NotificationTrueAPIView(generics.ListAPIView):
     '''API for separating notifications into read and unread'''
-    queryset = Notification.objects.all()
+    queryset = Notification.objects.all().select_related('form')
     serializer_class = NotificationSerializer
     permission_classes = [IsAuthenticated]
 

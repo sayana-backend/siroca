@@ -39,19 +39,10 @@ class Company(models.Model):
         if not Company.objects.filter(company_code=code).exists():
             return code
 
-    def get_count_users(self):
-        count_users = CustomUser.objects.filter(main_company=self).count()
-        return count_users
-
-    def get_count_applications(self):
-        count_applications = ApplicationForm.objects.filter(company=self).count()
-        return count_applications
-
     def get_users(self):
-        users = CustomUser.objects.filter(main_company=self)
-        user_names = [{'id': user.id, 'role_type': user.role_type, 'first_name': user.first_name, 'last_name': user.surname} for user in users]
-        return user_names
-
+        users = CustomUser.objects.filter(main_company=self).values('id', 'first_name', 'surname')
+        return list(users)
+    
     def __str__(self):
         return self.name
 

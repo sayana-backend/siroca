@@ -45,8 +45,7 @@ class ApplicationForm(models.Model):
     priority = models.CharField(max_length=100, choices=PRIORITY, verbose_name='Приоритет заявки',
                                 blank=True, default='Средний')
 
-    company = models.ForeignKey('company.Company', on_delete=models.CASCADE, verbose_name='Компания', blank=False,
-                                null=True)
+    company = models.ForeignKey('company.Company', on_delete=models.CASCADE, verbose_name='Компания')
     main_client = models.ForeignKey('user.CustomUser',
                                     on_delete=models.SET_NULL,
                                     null=True,
@@ -94,11 +93,6 @@ class Checklist(models.Model):
 
     def __str__(self):
         return self.name
-
-    # def get_users(self):   добавить ткаую функцию в модель и сериализатор заявки которая выводете список связанных чеклистов по айдишка
-    #     users = CustomUser.objects.filter(main_company=self)
-    #     user_names = [{'id': user.id, 'first_name': user.first_name, 'last_name': user.surname} for user in users]
-    #     return user_names
 
     class Meta:
         verbose_name = 'Чеклист'
