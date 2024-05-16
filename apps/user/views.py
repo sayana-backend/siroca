@@ -14,7 +14,7 @@ class CreateUserView(generics.CreateAPIView):
     '''Create user'''
     queryset = CustomUser.objects.all()
     serializer_class = UserProfileRegisterSerializer
-    # permission_classes = [IsManagerCanCreateAndEditUserOrIsAdminUser]
+    permission_classes = [IsManagerCanCreateAndEditUserOrIsAdminUser]
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)

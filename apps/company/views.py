@@ -7,6 +7,7 @@ from django.http import JsonResponse, HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.views import APIView
 from apps.user.permissions import *
+from rest_framework.permissions import IsAuthenticated
 
 
 class CompanyListAPIView(generics.ListAPIView):
@@ -23,9 +24,8 @@ class CompanyDetailAPIView(generics.RetrieveAPIView):
     '''company detail only view'''
     queryset = Company.objects.all()
     serializer_class = CompanyDetailSerializer
-    permission_classes = [IsManagerCanCreateAndEditCompanyOrIsAdminUser]  # неправильный пермишн
+    permission_classes = [IsManagerCanCreateAndEditCompanyOrIsAdminUser]
     lookup_field = 'id'
-    # permission_classes = [IsAdminUser]
 
 
 class CompanyCreateAPIView(generics.CreateAPIView):
@@ -40,12 +40,14 @@ class CompanyRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView)
     queryset = Company.objects.all()
     serializer_class = CompanyRetrieveUpdateSerializer
     lookup_field = 'id'
+    permission_classes = [IsManagerCanCreateAndEditCompanyOrIsAdminUser]
 
 
 class CompanyOnlyNameListAPIView(generics.ListAPIView):
     '''company list, only with name, for frontend developers'''
     queryset = Company.objects.all()
     serializer_class = CompanyOnlyNameListSerializer
+    permission_classes = [IsAuthenticated]
     filter_backends = [filters.SearchFilter]
     search_fields = ['name']
 
@@ -56,7 +58,7 @@ class CompanyOnlyNameListAPIView(generics.ListAPIView):
 class JobTitleListAPIView(generics.ListAPIView):
     queryset = JobTitle.objects.all()
     serializer_class = JobTitleSerializer
-    # permission_classes = [IsAdminUser]
+    permission_classes = [IsManagerCanCreateAndDeleteJobTitleOrIsAdminUser]
     filter_backends = [filters.SearchFilter]
     search_fields = ['title']
 
@@ -64,12 +66,14 @@ class JobTitleListAPIView(generics.ListAPIView):
 class JobTitleDestroyAPIView(generics.DestroyAPIView):
     queryset = JobTitle.objects.all()
     serializer_class = JobTitleSerializer
+    permission_classes = [IsManagerCanCreateAndDeleteJobTitleOrIsAdminUser]
     lookup_field = 'id'
 
 
 class JobTitleCreateAPIView(generics.CreateAPIView):
     queryset = JobTitle.objects.all()
     serializer_class = JobTitleSerializer
+    permission_classes = [IsManagerCanCreateAndDeleteJobTitleOrIsAdminUser]
 
 
 @csrf_exempt

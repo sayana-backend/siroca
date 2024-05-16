@@ -29,6 +29,7 @@ class ApplicationFormCreateAPIView(generics.CreateAPIView):
     '''Create new application'''
     queryset = ApplicationForm.objects.all()
     serializer_class = ApplicationFormCreateSerializer
+    permission_classes = [IsClientCanCreateApplicationOrIsAdminAndManagerUser]
 
     def perform_create(self, serializer):
         '''Tracking the creation of an application for notifications'''
@@ -48,7 +49,7 @@ class ApplicationFormCreateAPIView(generics.CreateAPIView):
 class ApplicationFormListAPIView(generics.ListAPIView):
     serializer_class = ApplicationFormListSerializer
     filter_backends = [filters.SearchFilter, DjangoFilterBackend]
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsClientCanCreateApplicationOrIsAdminAndManagerUser]
     filterset_class = ApplicationFormFilter
     pagination_class = CustomPagination
     search_fields = ['task_number', 'title', 'company__name', 'short_description',
@@ -158,7 +159,7 @@ class ApplicationFormRetrieveDestroyAPIView(generics.RetrieveDestroyAPIView):
     queryset = ApplicationForm.objects.all()
     serializer_class = ApplicationFormDetailViewSerializer
     lookup_field = 'id'
-    permission_classes = [IsAdminUserAndManagerUser]
+    permission_classes = [IsManagerCanDeleteApplicationOrIsAdminUser]
 
 
 class ApplicationLogsListCreateAPIView(generics.ListCreateAPIView):
@@ -177,6 +178,7 @@ class ApplicationLogsRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroy
 class FileListCreateAPIView(generics.ListCreateAPIView):
     queryset = ApplicationFile.objects.all()
     serializer_class = FileSerializer
+    permission_classes = [IsClientCanAddFilesOrIsAdminAndManagerUser]
 
     def perform_create(self, serializer):
         instance = serializer.save()
@@ -194,6 +196,7 @@ class FileDeleteAPIView(generics.DestroyAPIView, BaseLoggingCreateDestroy):
     queryset = ApplicationFile.objects.all()
     serializer_class = FileSerializer
     lookup_field = 'id'
+    permission_classes = [IsAdminUserAndManagerUser]
 
     def perform_destroy(self, instance):
         file_name = instance.file.name
@@ -204,6 +207,7 @@ class ApplicationsOnlyDescriptionAPIView(generics.RetrieveUpdateAPIView):
     queryset = ApplicationForm.objects.all()
     serializer_class = ApplicationsOnlyDescriptionSerializer
     lookup_field = 'id'
+    permission_classes = [IsAuthenticated]
 
 
 class ChecklistListCreateAPIView(generics.ListCreateAPIView, BaseLoggingCreateDestroy):
@@ -295,7 +299,7 @@ class SubTaskDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
 class CommentsAPIView(generics.ListCreateAPIView, BaseLoggingCreateDestroy):
     queryset = Comments.objects.all()
     serializer_class = CommentsSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsClientCanCreateCommentsOrIsAdminAndManagerUser]
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
