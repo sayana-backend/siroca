@@ -1,31 +1,18 @@
 from apps.application.signals import BaseLoggingCreateDestroy, BaseLoggingUpdate
 from django.db.models import Count, Q, Case, When, Value, CharField
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework.pagination import PageNumberPagination
+from .filters import ApplicationFormFilter, CustomPagination
 from rest_framework.permissions import IsAuthenticated
 from django.db.models.functions import Coalesce
 from rest_framework.response import Response
 from rest_framework import generics, filters
-from .filters import ApplicationFormFilter
 from django.db.models import Prefetch
-from collections import OrderedDict
 from django.core.cache import cache
 from django.db import transaction
 from apps.user.permissions import *
 from rest_framework import status
 from .serializers import *
 from .models import *
-
-
-
-class CustomPagination(PageNumberPagination):
-    page_size = 50
-
-    def get_paginated_response(self, data):
-        return Response(OrderedDict([
-            ('count', self.page.paginator.count),
-            ('data', data)
-        ]))
 
 
 class ApplicationFormCreateAPIView(generics.CreateAPIView):

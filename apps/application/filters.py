@@ -1,4 +1,7 @@
+from collections import OrderedDict
 import django_filters
+from rest_framework.pagination import PageNumberPagination
+from rest_framework.response import Response
 from .models import ApplicationForm
 from django.utils import timezone
 from datetime import timedelta
@@ -37,3 +40,13 @@ class ApplicationFormFilter(django_filters.FilterSet):
         model = ApplicationForm
         fields = ['interval', 'task_number', 'company', 'title', 'short_description', 'main_client', 
                   'main_manager', 'start_date', 'finish_date', 'priority', 'payment_state']
+
+
+class CustomPagination(PageNumberPagination):
+    page_size = 50
+
+    def get_paginated_response(self, data):
+        return Response(OrderedDict([
+            ('count', self.page.paginator.count),
+            ('data', data)
+        ]))

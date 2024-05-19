@@ -27,11 +27,18 @@ class UserProfileSerializer(serializers.ModelSerializer):
     '''User only view'''
     main_company = serializers.CharField(source='main_company.name', read_only=True)
     job_title = serializers.CharField(source='job_title.title', read_only=True)
+    main_manager = serializers.CharField(source='main_company.main_manager.full_name', read_only=True)
 
     class Meta:
         model = CustomUser
-        fields = ['id', 'username', 'role_type',  'surname',
+        fields = ['id', 'username', 'role_type',  'surname', 'main_manager',
                   'first_name', 'image', 'created_at', 'job_title', 'main_company']
+
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        if instance.role_type != 'client':
+            representation.pop('main_manager')
+        return representation
 
 
 class UserUpdateSerializer(serializers.ModelSerializer):

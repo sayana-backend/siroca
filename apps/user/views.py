@@ -1,4 +1,3 @@
-from ..application.views import CustomPagination
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.response import Response
 from django.contrib.auth import authenticate
@@ -8,6 +7,7 @@ from .serializers import *
 from .permissions import *
 from rest_framework import filters
 from .models import CustomUser
+from ..application.filters import CustomPagination
 
 
 class CreateUserView(generics.CreateAPIView):

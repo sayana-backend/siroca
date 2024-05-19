@@ -1,6 +1,7 @@
 from rest_framework import generics, status, filters
-from ..application.views import CustomPagination
 from rest_framework.response import Response
+
+from ..application.filters import CustomPagination
 from ..company.serializers import *
 from ..company.models import Company, JobTitle
 from django.http import JsonResponse, HttpResponse

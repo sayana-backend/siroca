@@ -11,9 +11,10 @@ class CustomUser(AbstractBaseUser, PermissionsMixin, UsersPermissions):
         'manager': 'Менеджер',
     }
     role_type = models.CharField(max_length=20, choices=RoleType.items(), blank=True, verbose_name='Тип роли')
-    username = models.CharField(max_length=30, verbose_name="Логин", unique=True)
+    username = models.CharField(max_length=100, verbose_name="Логин", unique=True)
     first_name = models.CharField(max_length=30, verbose_name="Имя")
     surname = models.CharField(max_length=30, verbose_name="Фамилия")
+    full_name = models.CharField(max_length=61, verbose_name="Полное имя")
     image = models.FileField(verbose_name="Изображение", upload_to='', null=True, blank=True)
     created_at = models.DateField(auto_now_add=True, verbose_name="Дата создания")
 
@@ -35,6 +36,8 @@ class CustomUser(AbstractBaseUser, PermissionsMixin, UsersPermissions):
     objects = CustomUserManager()
 
     def save(self, *args, **kwargs):
+        self.full_name = f"{self.first_name} {self.surname}"
+
         if self.main_company:
             company_domain = self.main_company.domain
             if not self.username.endswith(f"@{company_domain}.com"):
