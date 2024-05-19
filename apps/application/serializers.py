@@ -61,7 +61,7 @@ class LogsSerializer(serializers.ModelSerializer):
 
 class ApplicationFormCreateSerializer(serializers.ModelSerializer):
     '''Application create'''
-    company = serializers.SlugRelatedField(slug_field='name', read_only=True)
+    company = serializers.SlugRelatedField(slug_field='name', queryset=Company.objects.all())
 
     class Meta:
         model = ApplicationForm
@@ -84,8 +84,12 @@ class ApplicationFormListSerializer(serializers.ModelSerializer):
 class ApplicationFormUpdateSerializer(serializers.ModelSerializer):
     '''Application ypdate'''
     company = serializers.SlugRelatedField(slug_field='name', read_only=True, required=False)
-    main_client = serializers.SlugRelatedField(slug_field='full_name', read_only=True, required=False)
-    main_manager = serializers.SlugRelatedField(slug_field='full_name', read_only=True, required=False)
+    main_client = serializers.SlugRelatedField(slug_field='full_name',
+                                               queryset=CustomUser.objects.filter(role_type='client'),
+                                               required=False)
+    main_manager = serializers.SlugRelatedField(slug_field='full_name',
+                                                queryset=CustomUser.objects.filter(role_type='manager'),
+                                                required=False)
     checklists = ChecklistSerializer(many=True, read_only=True)
     files = FileSerializer(many=True, read_only=True)
 

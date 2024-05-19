@@ -16,7 +16,7 @@ class UserAuthSerializer(serializers.ModelSerializer):
 class UserProfileRegisterSerializer(serializers.ModelSerializer):
     '''Create user'''
     main_company = serializers.SlugRelatedField(slug_field='name', queryset=Company.objects.all())
-    job_title = serializers.SlugRelatedField(slug_field='title', queryset=JobTitle.objects.all())
+    job_title = serializers.SlugRelatedField(slug_field='title', queryset=JobTitle.objects.all(), required=False)
 
     class Meta:
         model = CustomUser

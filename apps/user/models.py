@@ -10,12 +10,12 @@ class CustomUser(AbstractBaseUser, PermissionsMixin, UsersPermissions):
         'client': 'Клиент',
         'manager': 'Менеджер',
     }
-    role_type = models.CharField(max_length=20, choices=RoleType.items(), blank=True, verbose_name='Тип роли')
+    role_type = models.CharField(max_length=20, choices=RoleType.items(), verbose_name='Тип роли')
     username = models.CharField(max_length=100, verbose_name="Логин", unique=True)
     first_name = models.CharField(max_length=30, verbose_name="Имя")
     surname = models.CharField(max_length=30, verbose_name="Фамилия")
     full_name = models.CharField(max_length=61, verbose_name="Полное имя")
-    image = models.FileField(verbose_name="Изображение", upload_to='', null=True, blank=True)
+    image = models.FileField(verbose_name="Изображение", upload_to='', null=True)
     created_at = models.DateField(auto_now_add=True, verbose_name="Дата создания")
 
     is_staff = models.BooleanField(default=False)
@@ -26,7 +26,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin, UsersPermissions):
     main_company = models.ForeignKey('company.Company', verbose_name="Компания", related_name='company_users',
                                      on_delete=models.CASCADE, default=1)
     managers_company = models.ManyToManyField('company.Company', verbose_name="Компании менеджеров",
-                                              related_name='managers_company', blank=True)
+                                              related_name='managers_company')
     job_title = models.ForeignKey('company.JobTitle',
                                   verbose_name="Должность",
                                   null=True,
