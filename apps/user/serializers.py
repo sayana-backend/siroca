@@ -53,10 +53,6 @@ class UserUpdateSerializer(serializers.ModelSerializer):
 
 class UserListOnlyNameSerializer(serializers.ModelSerializer):
     '''User list for frontenders'''
-    full_name = serializers.SerializerMethodField()
-
-    def get_full_name(self, obj):
-        return f'{obj.first_name} {obj.surname}'
 
     class Meta:
         model = CustomUser
@@ -99,6 +95,7 @@ class ManagerPermissionsGeneralSerializer(serializers.ModelSerializer):
         model = CustomUser
         fields = ['id',
                   'username',
+                  'full_name',
                   'role_type',
                   'manager_can_delete_comments',
                   'manager_can_get_reports',
@@ -110,6 +107,7 @@ class ManagerPermissionsDetailSerializer(serializers.ModelSerializer):
         model = CustomUser
         fields = ['id',
                   'username',
+                  'full_name',
                   'role_type',
                   'manager_can_delete_comments_extra',
                   'manager_can_get_reports_extra',
@@ -131,6 +129,7 @@ class ClientPermissionsGeneralSerializer(serializers.ModelSerializer):
         model = CustomUser
         fields = ['id',
                   'username',
+                  'full_name',
                   'role_type',
                   'client_can_edit_comments',
                   'client_can_get_reports',
@@ -151,6 +150,7 @@ class ClientPermissionsDetailSerializer(serializers.ModelSerializer):
         model = CustomUser
         fields = ['id',
                   'username',
+                  'full_name',
                   'role_type',
                   'client_can_edit_comments_extra',
                   'client_can_get_reports_extra',

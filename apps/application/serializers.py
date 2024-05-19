@@ -7,7 +7,7 @@ from django.utils import timezone
 
 
 class SubTaskSerializer(serializers.ModelSerializer):
-    manager = serializers.SlugRelatedField(slug_field='username', read_only=True)
+    manager = serializers.SlugRelatedField(slug_field='full_name', read_only=True)
 
     class Meta:
         model = SubTask
@@ -23,7 +23,7 @@ class ChecklistSerializer(serializers.ModelSerializer):
 
 
 class CommentsSerializer(serializers.ModelSerializer):
-    user = serializers.CharField(source='user.username', read_only=True)
+    user = serializers.CharField(source='user.full_name', read_only=True)
     user_id = serializers.IntegerField(source='user.id', read_only=True)
     user_image = serializers.ImageField(source='user.image', read_only=True)
     formatted_date_added = serializers.SerializerMethodField()
@@ -71,8 +71,8 @@ class ApplicationFormCreateSerializer(serializers.ModelSerializer):
 class ApplicationFormListSerializer(serializers.ModelSerializer):
     '''Application list'''
     company = serializers.SlugRelatedField(slug_field='name', read_only=True)
-    main_client = serializers.SlugRelatedField(slug_field='username', read_only=True)
-    main_manager = serializers.SlugRelatedField(slug_field='username', read_only=True)
+    main_client = serializers.SlugRelatedField(slug_field='full_name', read_only=True)
+    main_manager = serializers.SlugRelatedField(slug_field='full_name', read_only=True)
 
     class Meta:
         model = ApplicationForm
@@ -84,8 +84,8 @@ class ApplicationFormListSerializer(serializers.ModelSerializer):
 class ApplicationFormUpdateSerializer(serializers.ModelSerializer):
     '''Application ypdate'''
     company = serializers.SlugRelatedField(slug_field='name', read_only=True, required=False)
-    main_client = serializers.SlugRelatedField(slug_field='username', read_only=True, required=False)
-    main_manager = serializers.SlugRelatedField(slug_field='username', read_only=True, required=False)
+    main_client = serializers.SlugRelatedField(slug_field='full_name', read_only=True, required=False)
+    main_manager = serializers.SlugRelatedField(slug_field='full_name', read_only=True, required=False)
     checklists = ChecklistSerializer(many=True, read_only=True)
     files = FileSerializer(many=True, read_only=True)
 
@@ -98,8 +98,8 @@ class ApplicationFormDetailViewSerializer(serializers.ModelSerializer):
     '''Application detail view'''
     logs = LogsSerializer(many=True, read_only=True)
     company = serializers.SlugRelatedField(slug_field='name', read_only=True)
-    main_client = serializers.SlugRelatedField(slug_field='username', read_only=True)
-    main_manager = serializers.SlugRelatedField(slug_field='username', read_only=True)
+    main_client = serializers.SlugRelatedField(slug_field='full_name', read_only=True)
+    main_manager = serializers.SlugRelatedField(slug_field='full_name', read_only=True)
     checklists = ChecklistSerializer(many=True, read_only=True)
     comments = CommentsSerializer(many=True, read_only=True)
     files = FileSerializer(many=True, read_only=True)

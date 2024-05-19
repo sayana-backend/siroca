@@ -49,7 +49,7 @@ class ApplicationFormListAPIView(generics.ListAPIView):
     filterset_class = ApplicationFormFilter
     pagination_class = CustomPagination
     search_fields = ['task_number', 'title', 'company__name', 'short_description',
-                     'main_client__first_name', 'main_manager__first_name',
+                     'main_client__full_name', 'main_manager__full_name',
                      'start_date', 'finish_date', 'priority', 'payment_state', 'comments__text']
 
     def get_queryset(self):

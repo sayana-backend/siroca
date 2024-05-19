@@ -16,7 +16,7 @@ class CompanyListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Company
         fields = ['id', 'name', 'country', 'count_users', 'count_applications',
-                  'main_manager', 'created_at', 'last_updated_at']
+                  'main_manager', 'created_at', 'last_updated_at'] ##### manager peredat egoo full name
     
 
 class CompanyDetailSerializer(serializers.ModelSerializer):

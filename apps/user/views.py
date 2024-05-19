@@ -50,7 +50,7 @@ class ListUserProfileView(generics.ListAPIView):
     permission_classes = [IsManagerCanCreateAndEditUserOrIsAdminUser]
     pagination_class = CustomPagination
     filter_backends = [filters.SearchFilter]
-    search_fields = ['first_name', 'surname', 'main_company__name']
+    search_fields = ['first_name', 'surname', 'full_name', 'main_company__name']
 
 
 class DetailUserProfileView(generics.RetrieveDestroyAPIView):
@@ -75,7 +75,7 @@ class ListUserONlyNameView(generics.ListAPIView):
     serializer_class = UserListOnlyNameSerializer
     permission_classes = [IsAuthenticated]
     filter_backends = [filters.SearchFilter]
-    search_fields = ['first_name', 'surname', 'username', 'full_name']
+    search_fields = ['first_name', 'surname', 'full_name', 'username', 'full_name']
 
 
 class UserLoginView(generics.CreateAPIView):
@@ -94,7 +94,7 @@ class UserLoginView(generics.CreateAPIView):
                 'detail': 'Вы успешно вошли',
                 'id': user.id,
                 'role_type': user.role_type,
-                'name': user.first_name,
+                'name': user.full_name,
                 'refreshToken': str(refresh),
                 'access': str(access_token),
                 'refresh_lifetime_days': refresh.lifetime.days,
