@@ -45,7 +45,7 @@ class ApplicationForm(models.Model):
     priority = models.CharField(max_length=100, choices=PRIORITY, verbose_name='Приоритет заявки',
                                 blank=True, default='Средний')
 
-    company = models.ForeignKey('company.Company', on_delete=models.CASCADE, verbose_name='Компания')
+    company = models.ForeignKey('company.Company', on_delete=models.CASCADE, related_name='company_application', verbose_name='Компания')
     main_client = models.ForeignKey('user.CustomUser',
                                     on_delete=models.SET_NULL,
                                     null=True,
