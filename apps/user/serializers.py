@@ -33,7 +33,6 @@ class UserListSerializer(serializers.ModelSerializer):
         fields = ['id', 'username', 'role_type', 'full_name', 'job_title', 'main_company']
 
 
-
 class UserProfileSerializer(serializers.ModelSerializer):
     '''User only view'''
     main_company = serializers.CharField(source='main_company.name', read_only=True)
