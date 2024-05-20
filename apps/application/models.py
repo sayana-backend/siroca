@@ -106,7 +106,7 @@ class SubTask(models.Model):
     completed = models.BooleanField(default=False)
     deadline = models.DateField(verbose_name='Дедлайн', blank=True, null=True)
     manager = models.ForeignKey('user.CustomUser', on_delete=models.SET_NULL, verbose_name='Отмеченный менеджер',
-                                blank=True, null=True, limit_choices_to={'is_manager': True})
+                                related_name='sabtasks', blank=True, null=True, limit_choices_to={'is_manager': True})
 
     def __str__(self):
         return self.text

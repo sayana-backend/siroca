@@ -63,7 +63,7 @@ class ApplicationFormListAPIView(generics.ListAPIView):
                                                       Q(company=user.main_company))
         elif user.is_manager:
             queryset = ApplicationForm.objects.filter(Q(main_manager=user) |
-                                                      Q(checklists__manager=user) |
+                                                      Q(checklists__subtasks__manager=user) |
                                                       Q(company=user.main_company))
 
         queryset = queryset.select_related('main_client', 'main_manager', 'company').annotate(
