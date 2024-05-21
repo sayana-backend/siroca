@@ -75,7 +75,7 @@ class ListUserONlyNameView(generics.ListAPIView):
     serializer_class = UserListOnlyNameSerializer
     permission_classes = [IsAuthenticated]
     filter_backends = [filters.SearchFilter]
-    search_fields = ['first_name', 'surname', 'full_name', 'username', 'full_name']
+    search_fields = ['first_name', 'surname', 'main_company', 'username', 'full_name']
 
 
 class UserLoginView(generics.CreateAPIView):

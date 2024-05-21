@@ -66,7 +66,7 @@ class UserListOnlyNameSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = CustomUser
-        fields = ['id', 'username', 'full_name', 'surname', 'first_name', 'role_type']
+        fields = ['id', 'full_name', 'role_type', 'main_company']
 
 
 '''Serializers for admin contact and password change and reset'''
