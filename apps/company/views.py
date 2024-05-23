@@ -37,7 +37,7 @@ class CompanyDetailAPIView(generics.RetrieveAPIView):
     def get_queryset(self):
         queryset = Company.objects.annotate(
             count_users=Count('company_users', distinct=True),
-            count_applications=Count('applications_count', distinct=True),
+            count_applications=Count('count_applications', distinct=True),
         )
         return queryset
 
