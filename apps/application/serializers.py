@@ -82,7 +82,7 @@ class ApplicationFormListSerializer(serializers.ModelSerializer):
 
 
 class ApplicationFormUpdateSerializer(serializers.ModelSerializer):
-    '''Application ypdate'''
+    '''Application update'''
     company = serializers.SlugRelatedField(slug_field='name', read_only=True, required=False)
     main_client = serializers.SlugRelatedField(slug_field='full_name',
                                                queryset=CustomUser.objects.filter(role_type='client'),

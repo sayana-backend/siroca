@@ -23,6 +23,16 @@ class UserProfileRegisterSerializer(serializers.ModelSerializer):
         fields = "id role_type image first_name surname username password main_company job_title".split()
 
 
+class UserListSerializer(serializers.ModelSerializer):
+    '''List user'''
+    main_company = serializers.CharField(source='main_company.name', read_only=True)
+    job_title = serializers.CharField(source='job_title.title', read_only=True)
+
+    class Meta:
+        model = CustomUser
+        fields = ['id', 'username', 'role_type', 'full_name', 'job_title', 'main_company']
+
+
 class UserProfileSerializer(serializers.ModelSerializer):
     '''User only view'''
     main_company = serializers.CharField(source='main_company.name', read_only=True)
@@ -34,11 +44,11 @@ class UserProfileSerializer(serializers.ModelSerializer):
         fields = ['id', 'username', 'role_type',  'surname', 'main_manager',
                   'first_name', 'image', 'created_at', 'job_title', 'main_company']
 
-    def to_representation(self, instance):
-        representation = super().to_representation(instance)
-        if instance.role_type != 'client':
-            representation.pop('main_manager')
-        return representation
+    # def to_representation(self, instance):
+    #     representation = super().to_representation(instance)
+    #     if instance.role_type != 'client':
+    #         representation.pop('main_manager')
+    #     return representation
 
 
 class UserUpdateSerializer(serializers.ModelSerializer):
@@ -48,15 +58,16 @@ class UserUpdateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = CustomUser
-        fields = ['id', 'username', 'role_type',  'surname', 'first_name', 'image', 'created_at', 'job_title', 'main_company']
+        fields = ['id', 'username', 'role_type', 'surname', 'first_name', 'image', 'created_at', 'job_title', 'main_company']
 
 
 class UserListOnlyNameSerializer(serializers.ModelSerializer):
     '''User list for frontenders'''
+    main_company = serializers.CharField(source='main_company.name', read_only=True)
 
     class Meta:
         model = CustomUser
-        fields = ['id', 'username', 'full_name', 'surname', 'first_name', 'role_type']
+        fields = ['id', 'full_name', 'role_type', 'main_company']
 
 
 '''Serializers for admin contact and password change and reset'''

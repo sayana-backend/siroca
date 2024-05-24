@@ -10,7 +10,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin, UsersPermissions):
         'client': 'Клиент',
         'manager': 'Менеджер',
     }
-    role_type = models.CharField(max_length=20, choices=RoleType.items(), verbose_name='Тип роли')
+    role_type = models.CharField(max_length=20, choices=RoleType.items(), default="", verbose_name='Тип роли')
     username = models.CharField(max_length=100, verbose_name="Логин", unique=True)
     first_name = models.CharField(max_length=30, verbose_name="Имя")
     surname = models.CharField(max_length=30, verbose_name="Фамилия")
