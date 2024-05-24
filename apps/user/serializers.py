@@ -63,6 +63,7 @@ class UserUpdateSerializer(serializers.ModelSerializer):
 
 class UserListOnlyNameSerializer(serializers.ModelSerializer):
     '''User list for frontenders'''
+    main_company = serializers.CharField(source='main_company.name', read_only=True)
 
     class Meta:
         model = CustomUser
