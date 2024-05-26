@@ -66,7 +66,7 @@ class ApplicationForm(models.Model):
     offer_date = models.DateField(null=True, verbose_name='Дата отправки КП', blank=True)
     start_date = models.DateField(null=True, verbose_name='Дата начала', blank=True)
     finish_date = models.DateField(null=True, verbose_name='Дата окончания', blank=True)
-    deadline_date = models.DateField(null=True, verbose_name='Срок выполнения', blank=True)
+    deadline_date = models.CharField(null=True, verbose_name='Срок выполнения', blank=True, max_length=20)
 
     def __str__(self):
         return self.title
