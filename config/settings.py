@@ -12,8 +12,7 @@ import os
 from pathlib import Path
 from datetime import timedelta
 from . import jazzmin_settings
-import os
-
+from decouple import config
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -26,8 +25,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-#)307js-u)hl19%@!4i$90_24)2f7m!ro61)&$rbgq2+0p-x@z'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-# DEBUG = True if os.environ.get('DEBUG') == 'on' else False
-DEBUG = True
+DEBUG = True if config('DEBUG') == 'on' else False
+
 
 ALLOWED_HOSTS = ['*']
 CORS_ALLOW_ALL_ORIGINS = True
@@ -114,23 +113,23 @@ ASGI_APPLICATION = 'config.asgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
-}
-
 # DATABASES = {
 #     'default': {
-#         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-#         'NAME': os.environ.get('POSTGRES_DB'),
-#         'USER': os.environ.get('POSTGRES_USER'),
-#         'PASSWORD': os.environ.get('POSTGRES_PASSWORD'),
-#         'HOST': os.environ.get('POSTGRES_HOST'),
-#         'PORT': os.environ.get('POSTGRES_PORT', cast=int)
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': BASE_DIR / 'db.sqlite3',
 #     }
 # }
+
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': config('POSTGRES_DB'),
+        'USER': config('POSTGRES_USER'),
+        'PASSWORD': config('POSTGRES_PASSWORD'),
+        'HOST': config('POSTGRES_HOST'),
+        'PORT': config('POSTGRES_PORT',)
+    }
+}
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
@@ -180,7 +179,5 @@ JAZZMIN_SETTINGS = jazzmin_settings.JAZZMIN_SETTINGS
 AUTH_USER_MODEL = 'user.CustomUser'
 
 INTERNAL_IPS = [
-    # ...
     "127.0.0.1",
-    # ...
 ]

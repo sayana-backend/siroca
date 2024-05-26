@@ -44,12 +44,6 @@ class UserProfileSerializer(serializers.ModelSerializer):
         fields = ['id', 'username', 'role_type',  'surname', 'main_manager',
                   'first_name', 'image', 'created_at', 'job_title', 'main_company']
 
-    # def to_representation(self, instance):
-    #     representation = super().to_representation(instance)
-    #     if instance.role_type != 'client':
-    #         representation.pop('main_manager')
-    #     return representation
-
 
 class UserUpdateSerializer(serializers.ModelSerializer):
     '''Update user'''
