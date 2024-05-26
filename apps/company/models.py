@@ -19,6 +19,7 @@ class Company(models.Model):
         blank=True,
         limit_choices_to={'role_type': 'manager'}
     )
+
     managers = models.ManyToManyField(
         'user.CustomUser',
         verbose_name='Менеджеры',

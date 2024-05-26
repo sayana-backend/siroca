@@ -4,8 +4,9 @@ config.py
 main.py
 .env
 
-migrations/*
-!migrations/__init__.py
+*/migrations/*
+!*/migrations/__init__.py
+
 
 # Django #
 *.log
