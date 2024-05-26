@@ -4,9 +4,12 @@ config.py
 main.py
 .env
 
-*/migrations/*
-!*/migrations/__init__.py
-
+/apps/application/migrations/*
+/apps/application/migrations/!__init__.py
+/apps/company/migrations/*
+/apps/company/migrations/!__init__.py
+/apps/user/migrations/*
+/apps/user/migrations/!__init__.py
 
 # Django #
 *.log
@@ -14,10 +17,11 @@ main.py
 *.pyc
 __pycache__
 db.sqlite3
-media
+back_media/
 
 # Backup files #
 *.bak
+.idea
 .idea/misc.xml
 # If you are using PyCharm #
 # User-specific stuff
