@@ -1,3 +1,4 @@
+from django.http import Http404
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.response import Response
 from django.contrib.auth import authenticate
@@ -121,25 +122,20 @@ class UserLogoutView(generics.GenericAPIView):
 class AdminContactDetailView(generics.RetrieveUpdateAPIView):
     '''Редактирование контактов админа в профиле админа'''
     serializer_class = AdminContactSerializer
+    queryset = AdminContact.objects.all()
     permission_classes = [IsAdminUser]
-
-    def get_queryset(self):
-        if self.request.user.is_superuser:
-            return AdminContact.objects.prefetch_related("user").all()
-        return AdminContact.objects.filter(user=self.request.user)
 
     def get_object(self):
         queryset = self.get_queryset()
         obj = queryset.first()
-
         if obj is None:
-            return Response({'detail': 'Ошибка аутентификации'}, status=status.HTTP_404_NOT_FOUND)
+            raise Http404("Контакт администратора не найден")
         return obj
 
 
 class AdminContactListView(generics.ListAPIView):
     '''Контакты админа при авторизации'''
-    queryset = AdminContact.objects.prefetch_related("user").all()
+    queryset = AdminContact.objects.all()
     serializer_class = AdminContactSerializer
 
 

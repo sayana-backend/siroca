@@ -61,13 +61,12 @@ class CustomUser(AbstractBaseUser, PermissionsMixin, UsersPermissions):
 
 
 class AdminContact(models.Model):
-    user = models.OneToOneField('CustomUser', on_delete=models.CASCADE, related_name='contact')
     email = models.EmailField(verbose_name='Электронная почта')
     phone_number = models.CharField(max_length=20, verbose_name='Телефонный номер')
     whatsapp_number = models.CharField(max_length=20, verbose_name='Номер WhatsApp')
 
     def __str__(self):
-        return f"Контакт для админа {self.user}"
+        return f"Контакт для админа"
 
     class Meta:
         verbose_name = 'Контакт для админа'
