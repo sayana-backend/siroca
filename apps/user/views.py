@@ -128,9 +128,10 @@ class AdminContactDetailView(generics.RetrieveUpdateAPIView):
     def get_object(self):
         queryset = self.get_queryset()
         obj = queryset.first()
-        if obj is None:
-            raise Http404("Контакт администратора не найден")
-        return obj
+        try:
+            return obj
+        except AdminContact.DoesNotExist:
+            AdminContact.objects.create(email='', phone_number='', whatsapp_number='')
 
 
 class AdminContactListView(generics.ListAPIView):
