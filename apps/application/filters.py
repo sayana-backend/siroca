@@ -13,12 +13,13 @@ class ApplicationFormFilter(django_filters.FilterSet):
     company = django_filters.CharFilter(method='filter_by_multiple_values', field_name='company__name')
     title = django_filters.CharFilter(method='filter_by_multiple_values', field_name='title')
     short_description = django_filters.CharFilter(method='filter_by_multiple_values', field_name='short_description')
-    main_client = django_filters.CharFilter(method='filter_by_multiple_values', field_name='main_client__first_name')
-    main_manager = django_filters.CharFilter(method='filter_by_multiple_values', field_name='main_manager__first_name')
+    main_client = django_filters.CharFilter(method='filter_by_multiple_values', field_name='main_client__full_name')
+    main_manager = django_filters.CharFilter(method='filter_by_multiple_values', field_name='main_manager__full_name')
     start_date = django_filters.DateFilter(field_name='start_date', lookup_expr='gte')
     finish_date = django_filters.DateFilter(field_name='finish_date', lookup_expr='lte')
-    priority = django_filters.NumberFilter(method='filter_by_multiple_values', field_name='priority')
+    priority = django_filters.CharFilter(method='filter_by_multiple_values', field_name='priority')
     payment_state = django_filters.CharFilter(method='filter_by_multiple_values', field_name='payment_state')
+    status = django_filters.CharFilter(method='filter_by_multiple_values', field_name='status')
 
     def filter_by_interval(self, queryset, name, value):
         if value == 'week':
@@ -39,7 +40,7 @@ class ApplicationFormFilter(django_filters.FilterSet):
     class Meta:
         model = ApplicationForm
         fields = ['interval', 'task_number', 'company', 'title', 'short_description', 'main_client', 
-                  'main_manager', 'start_date', 'finish_date', 'priority', 'payment_state']
+                  'main_manager', 'start_date', 'finish_date', 'priority', 'payment_state', 'status']
 
 
 class CustomPagination(PageNumberPagination):
