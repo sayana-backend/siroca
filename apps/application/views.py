@@ -34,7 +34,7 @@ class ApplicationFormCreateAPIView(generics.CreateAPIView):
             Notification(
                 task_number=f'Номер заявки: {instance.task_number}',
                 text='Создана новая заявка', title=instance.title,
-                made_change=user_name, is_admin=True, admin_id=admin.id
+                made_change=f"{user_name} создал(а) заявку", is_admin=True, admin_id=admin.id
             )
             for admin in admin_notification
         ]
@@ -143,7 +143,7 @@ class ApplicationFormRetrieveUpdateAPIView(generics.RetrieveUpdateAPIView):
                 f"Приоритет изменен с '{old_instance.get_priority_display()}' на '{instance.get_priority_display()}'")
 
         if changes:
-            manager_name = f"{user_name}"
+            manager_name = f"{user_name} изменил(а)"
             for change in changes:
                 Notification.objects.create(task_number=instance.task_number, title=instance.title,
                                             text=change, made_change=manager_name, form_id=instance.id,
