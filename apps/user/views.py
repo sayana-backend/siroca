@@ -95,6 +95,7 @@ class UserLoginView(generics.CreateAPIView):
                 'detail': 'Вы успешно вошли',
                 'id': user.id,
                 'role_type': user.role_type,
+                'is_superuser': user.is_superuser,
                 'name': user.full_name,
                 'refreshToken': str(refresh),
                 'access': str(access_token),

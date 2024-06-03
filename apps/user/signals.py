@@ -26,7 +26,7 @@ def set_superuser_for_manager(sender, instance, **kwargs):
             instance.manager_can_create_and_delete_job_title_extra
         ]
         if all(manager_permissions):
-            CustomUser.objects.filter(id=instance.id).update(is_manager=False, is_superuser=True)
+            CustomUser.objects.filter(id=instance.id).update(is_superuser=True)
 
 
 @receiver(post_save, sender=CustomUser)
@@ -43,5 +43,5 @@ def remove_superuser_for_manager(sender, instance, **kwargs):
             instance.manager_can_create_and_delete_job_title_extra
         ]
         if not all(manager_permissions):
-            CustomUser.objects.filter(id=instance.id).update(is_manager=True, is_superuser=False)
+            CustomUser.objects.filter(id=instance.id).update(is_superuser=False)
 
