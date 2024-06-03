@@ -12,11 +12,6 @@ class ApplicationFormFilter(django_filters.FilterSet):
     start_date = django_filters.DateFilter(field_name='application_date', method='filter_by_start_date')
     finish_date = django_filters.DateFilter(field_name='finish_date', method='filter_by_finish_date')
 
-    # class Meta:
-    #     model = ApplicationForm
-    #     fields = ['company_name', 'manager_first_name',
-    #               'start_date', 'finish_date']
-
     class Meta:
         model = ApplicationForm
         fields = ['company_name', 'manager_name', 'start_date', 'finish_date']
@@ -26,12 +21,6 @@ class ApplicationFormFilter(django_filters.FilterSet):
             return queryset
         companies = [company.strip() for company in value.split(',')]
         return queryset.filter(company__name__in=companies)
-
-    # def filter_by_manager(self, queryset, name, value):
-    #     if not value:
-    #         return queryset
-    #     managers = [manager.strip() for manager in value.split(',')]
-    #     return queryset.filter(main_manager__first_name__in=managers)
 
     def filter_by_manager(self, queryset, name, value):
         if not value:

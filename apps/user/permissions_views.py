@@ -12,7 +12,8 @@ from rest_framework.permissions import IsAuthenticated
 class ManagerPermissionsGeneralView(generics.UpdateAPIView, generics.ListAPIView):
     queryset = CustomUser.objects.filter(role_type='manager')
     serializer_class = ManagerPermissionsGeneralSerializer
-    permission_classes = [IsAdminUser]
+    # permission_classes = [IsAdminUser]
+    permission_classes = [IsAuthenticated]
 
     def get(self, request, *args, **kwargs):
         managers = CustomUser.objects.filter(role_type='manager')
@@ -64,7 +65,8 @@ class ManagerPermissionsDetailAPIView(generics.ListAPIView):
 class ClientPermissionsGeneralView(generics.UpdateAPIView, generics.ListAPIView):
     queryset = CustomUser.objects.filter(role_type='client')
     serializer_class = ClientPermissionsGeneralSerializer
-    permission_classes = [IsAdminUser]
+    # permission_classes = [IsAdminUser]
+    permission_classes = [IsAuthenticated]
 
     def update(self, request, *args, **kwargs):
         client_can_edit_comments = request.data.get('client_can_edit_comments')
