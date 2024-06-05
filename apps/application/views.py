@@ -45,7 +45,7 @@ class ApplicationFormCreateAPIView(generics.CreateAPIView):
 class ApplicationFormListAPIView(generics.ListAPIView):
     serializer_class = ApplicationFormListSerializer
     filter_backends = [filters.SearchFilter, DjangoFilterBackend]
-    permission_classes = [IsClientCanCreateApplicationOrIsAdminAndManagerUser]
+    permission_classes = [IsAuthenticated]
     filterset_class = ApplicationFormFilter
     pagination_class = CustomPagination
     search_fields = ['task_number', 'title', 'company__name', 'short_description',
@@ -54,7 +54,6 @@ class ApplicationFormListAPIView(generics.ListAPIView):
 
     def get_queryset(self):
         user = self.request.user
-        queryset = ApplicationForm.objects.none()
 
         if user.is_superuser:
             queryset = ApplicationForm.objects.all()
@@ -63,8 +62,9 @@ class ApplicationFormListAPIView(generics.ListAPIView):
                                                       Q(company=user.main_company))
         elif user.is_manager:
             queryset = ApplicationForm.objects.filter(Q(main_manager=user) |
-                                                      Q(checklists__subtasks__manager=user) |
-                                                      Q(company=user.main_company))
+                                                      Q(checklists__subtasks__manager=user)|
+                                                      Q(company=user.main_company)).distinct()
+                                                      
 
         queryset = queryset.select_related('main_client', 'main_manager', 'company').annotate(
             priority_order=Case(
