@@ -10,11 +10,11 @@ from datetime import timedelta
 class ApplicationFormFilter(django_filters.FilterSet):
     interval = django_filters.CharFilter(method='filter_by_interval')
     task_number = django_filters.CharFilter(method='filter_by_multiple_values', field_name='task_number')
-    company = django_filters.CharFilter(method='filter_by_multiple_values', field_name='company__name')
-    title = django_filters.CharFilter(method='filter_by_multiple_values', field_name='title')
-    short_description = django_filters.CharFilter(method='filter_by_multiple_values', field_name='short_description')
-    main_client = django_filters.CharFilter(method='filter_by_multiple_values', field_name='main_client__full_name')
-    main_manager = django_filters.CharFilter(method='filter_by_multiple_values', field_name='main_manager__full_name')
+    company = django_filters.CharFilter(method='filter_by_multiple_values_register', field_name='company__name')
+    title = django_filters.CharFilter(method='filter_by_multiple_values_register', field_name='title')
+    short_description = django_filters.CharFilter(method='filter_by_multiple_values_register', field_name='short_description')
+    main_client = django_filters.CharFilter(method='filter_by_multiple_values_register', field_name='main_client__full_name')
+    main_manager = django_filters.CharFilter(method='filter_by_multiple_values_register', field_name='main_manager__full_name')
     start_date = django_filters.DateFilter(field_name='start_date', lookup_expr='gte')
     finish_date = django_filters.DateFilter(field_name='finish_date', lookup_expr='lte')
     priority = django_filters.CharFilter(method='filter_by_multiple_values', field_name='priority')
@@ -30,11 +30,18 @@ class ApplicationFormFilter(django_filters.FilterSet):
             queryset = queryset.filter(application_date__gte=start_date)
         return queryset
 
-    def filter_by_multiple_values(self, queryset, name, value):
+    def filter_by_multiple_values_register(self, queryset, name, value):
         values = value.split(',')
         filtered_queryset = queryset.none()
         for val in values:
             filtered_queryset |= queryset.filter(**{f"{name}__icontains": val.strip()})
+        return filtered_queryset.distinct()
+    
+    def filter_by_multiple_values(self, queryset, name, value):
+        values = value.split(',')
+        filtered_queryset = queryset.none()
+        for val in values:
+            filtered_queryset |= queryset.filter(**{name: val.strip()})
         return filtered_queryset.distinct()
 
     class Meta:
