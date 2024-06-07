@@ -64,7 +64,6 @@ class ApplicationFormListAPIView(generics.ListAPIView):
             queryset = ApplicationForm.objects.filter(Q(main_manager=user) |
                                                       Q(checklists__subtasks__manager=user)|
                                                       Q(company=user.main_company)).distinct()
-                                                      
 
         queryset = queryset.select_related('main_client', 'main_manager', 'company').annotate(
             priority_order=Case(
