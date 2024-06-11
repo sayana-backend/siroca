@@ -28,13 +28,12 @@ class ApplicationFormCreateAPIView(generics.CreateAPIView):
 
         admin_notification = CustomUser.objects.filter(is_superuser=True)
         user = self.request.user
-        user_name = f"{user.first_name}. {user.surname}"
 
         notifications = [
             Notification(
-                task_number=f'Номер заявки: {instance.task_number}',
+                task_number=instance.task_number,
                 text='Создана новая заявка', title=instance.title,
-                made_change=f"{user_name} создал(а) заявку", is_admin=True, admin_id=admin.id
+                made_change=f"{user.full_name} создал(а) заявку", is_admin=True, admin_id=admin.id
             )
             for admin in admin_notification
         ]
@@ -123,7 +122,6 @@ class ApplicationFormRetrieveUpdateAPIView(generics.RetrieveUpdateAPIView):
         instance = self.get_object()
         user = request.user
         user_id = user.id
-        user_name = f"{user.first_name} {user.surname}"
         user_image = user.image
         for field in instance._meta.fields:
             old_value = getattr(old_instance, field.name)
@@ -131,7 +129,8 @@ class ApplicationFormRetrieveUpdateAPIView(generics.RetrieveUpdateAPIView):
             if old_value != new_value:
                 ApplicationLogs.objects.create(field=field.verbose_name,
                                                initially=old_value, new=new_value,
-                                               form=instance, user=user_name, user_id=user_id, user_image=user_image)
+                                               form=instance, user=user.full_name,
+                                               user_id=user_id, user_image=user_image)
 
         changes = []
         if old_instance.status != instance.status:
@@ -142,7 +141,7 @@ class ApplicationFormRetrieveUpdateAPIView(generics.RetrieveUpdateAPIView):
                 f"Приоритет изменен с '{old_instance.get_priority_display()}' на '{instance.get_priority_display()}'")
 
         if changes:
-            manager_name = f"{user_name} изменил(а)"
+            manager_name = f"{user.full_name} изменил(а)"
             for change in changes:
                 Notification.objects.create(task_number=instance.task_number, title=instance.title,
                                             text=change, made_change=manager_name, form_id=instance.id,
@@ -153,11 +152,11 @@ class ApplicationFormRetrieveUpdateAPIView(generics.RetrieveUpdateAPIView):
 
         admin_notification = CustomUser.objects.filter(is_superuser=True)
         user = request.user
-        manager_name = f"{user.first_name} {user.surname}"
+        manager_name = user.full_name
         for admin in admin_notification:
             if instance.status == 'Проверено':
-                Notification.objects.create(task_number=f'Номер заявки: {instance.task_number}',
-                                            text=f"Заявка закрыто",
+                Notification.objects.create(task_number=instance.task_number,
+                                            text=f"Заявка закрыта",
                                             title=instance.title, made_change=manager_name, is_admin=True,
                                             admin_id=admin.id)
 
@@ -287,14 +286,14 @@ class SubTaskDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
         user = request.user
         user_id = user.id
         user_image = user.image
-        user_name = f"{user.first_name} {user.surname}"
+
         for field in instance._meta.fields:
             old_value = getattr(old_instance, field.name)
             new_value = getattr(instance, field.name)
             if old_value != new_value:
                 ApplicationLogs.objects.create(field=field.verbose_name,
                                                initially=old_value, new=new_value,
-                                               check_list_id=instance.checklist, user=user_name,
+                                               check_list_id=instance.checklist, user=user.full_name,
                                                user_id=user_id, user_image=user_image)
 
         return Response(serializer.data)
