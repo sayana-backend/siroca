@@ -27,6 +27,7 @@ import os
 
 
 class ApplicationFormFilterAPIView(viewsets.GenericViewSet):
+    '''Filter for report API'''
     queryset = ApplicationForm.objects.all()
     serializer_class = ApplicationFormFilterSerializer
     permission_classes = [IsManagerAndClientCanGetReportsOrIsAdminUser]
@@ -55,6 +56,7 @@ class ApplicationFormFilterAPIView(viewsets.GenericViewSet):
 
 
 class ExportToExcelView(APIView):
+    '''Load report API'''
     permission_classes = [IsManagerAndClientCanGetReportsOrIsAdminUser]
 
     def generate_random_string(self, length=6):

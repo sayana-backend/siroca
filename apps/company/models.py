@@ -53,7 +53,7 @@ class Company(models.Model):
 
 
 class JobTitle(models.Model):
-    title = models.CharField(max_length=255, verbose_name='Должность')
+    title = models.CharField(max_length=255, verbose_name='Должность', unique=True)
 
     def __str__(self):
         return self.title

@@ -1,7 +1,6 @@
 from ..application.views import CustomPagination
 from rest_framework.response import Response
 from rest_framework import generics, status
-from rest_framework.permissions import IsAuthenticated
 from rest_framework import filters
 from .serializers import *
 from .permissions import *
@@ -12,7 +11,6 @@ from rest_framework.permissions import IsAuthenticated
 class ManagerPermissionsGeneralView(generics.UpdateAPIView, generics.ListAPIView):
     queryset = CustomUser.objects.filter(role_type='manager')
     serializer_class = ManagerPermissionsGeneralSerializer
-    # permission_classes = [IsAdminUser]
     permission_classes = [IsAuthenticated]
 
     def get(self, request, *args, **kwargs):
@@ -65,7 +63,6 @@ class ManagerPermissionsDetailAPIView(generics.ListAPIView):
 class ClientPermissionsGeneralView(generics.UpdateAPIView, generics.ListAPIView):
     queryset = CustomUser.objects.filter(role_type='client')
     serializer_class = ClientPermissionsGeneralSerializer
-    # permission_classes = [IsAdminUser]
     permission_classes = [IsAuthenticated]
 
     def update(self, request, *args, **kwargs):
@@ -84,7 +81,6 @@ class ClientPermissionsGeneralView(generics.UpdateAPIView, generics.ListAPIView)
         )
         return Response('Права клиента обновлены')
 
-    # @staticmethod
     def get(self, request, *args, **kwargs):
         clients = CustomUser.objects.filter(role_type='client')
         client_permissions = {}

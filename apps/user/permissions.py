@@ -26,8 +26,8 @@ class UsersPermissions(models.Model):
     manager_can_delete_application_extra = models.BooleanField(null=True, verbose_name='Удаление заявки')
 
     '''
-    При присвоении трех рашсиренных прав ниже менеджер становится полноценным админом с полями
-    из_суперюзер Тру из_менеджер Фолс(см. сигналс)
+    При присвоении трех рашсиренных прав ниже менеджер становится полноценным админом с полем
+    из_суперюзер Тру(см. сигналс)
     '''
 
     manager_can_create_and_edit_company_extra = models.BooleanField(null=True,

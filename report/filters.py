@@ -6,8 +6,8 @@ import django_filters
 
 
 class ApplicationFormFilter(django_filters.FilterSet):
+    '''Filter for report'''
     company_name = django_filters.CharFilter(field_name='company__name', lookup_expr='icontains', method='filter_by_company_name')
-    # manager_first_name = django_filters.CharFilter(field_name='main_manager__first_name', lookup_expr='icontains', method='filter_by_manager')
     manager_name = django_filters.CharFilter(method='filter_by_manager')
     start_date = django_filters.DateFilter(field_name='application_date', method='filter_by_start_date')
     finish_date = django_filters.DateFilter(field_name='finish_date', method='filter_by_finish_date')
@@ -28,7 +28,9 @@ class ApplicationFormFilter(django_filters.FilterSet):
         managers = [manager.strip() for manager in value.split(',')]
         q_filter = Q()
         for manager in managers:
-            q_filter |= Q(main_manager__first_name__icontains=manager) | Q(main_manager__surname__icontains=manager) | Q(main_manager__full_name__icontains=manager)
+            q_filter |= (Q(main_manager__first_name__icontains=manager) |
+                         Q(main_manager__surname__icontains=manager) |
+                         Q(main_manager__full_name__icontains=manager))
         return queryset.filter(q_filter)
 
     def filter_by_start_date(self, queryset, name, value):

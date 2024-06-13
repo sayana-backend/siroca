@@ -1,9 +1,6 @@
 from django.contrib.auth.models import Group
 from ..user.models import CustomUser
 from django.db import models
-from django.utils import timezone
-import datetime
-import pytz
 
 
 class ApplicationForm(models.Model):

@@ -91,6 +91,9 @@ class JobTitleCreateAPIView(generics.CreateAPIView):
     permission_classes = [IsManagerCanCreateAndDeleteJobTitleOrIsAdminUser]
 
 
+''' '''
+
+
 @csrf_exempt
 def generate_codes_view(request):
     if request.method == 'GET':
