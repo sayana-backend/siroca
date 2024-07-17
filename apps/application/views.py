@@ -163,7 +163,14 @@ class ApplicationFormRetrieveUpdateAPIView(generics.RetrieveUpdateAPIView):
         return Response(serializer.data)
 
 
-class ApplicationFormRetrieveDestroyAPIView(generics.RetrieveDestroyAPIView):
+class ApplicationFormRetrieveAPIView(generics.RetrieveAPIView):
+    queryset = ApplicationForm.objects.all().select_related('main_client', 'main_manager', 'company')
+    serializer_class = ApplicationFormDetailViewSerializer
+    lookup_field = 'id'
+    permission_classes = [IsAuthenticated]
+
+
+class ApplicationFormDestroyAPIView(generics.DestroyAPIView):
     queryset = ApplicationForm.objects.all().select_related('main_client', 'main_manager', 'company')
     serializer_class = ApplicationFormDetailViewSerializer
     lookup_field = 'id'
