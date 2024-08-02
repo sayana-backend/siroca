@@ -15,7 +15,7 @@ from .serializers import *
 from .models import *
 
 
-class ApplicationFormCreateAPIView(generics.CreateAPIView):
+class ApplicationFormCreateAPIView(generics.CreateAPIView, BaseLoggingCreateDestroy):
     '''Create new application'''
     queryset = ApplicationForm.objects.all().select_related('main_client', 'main_manager', 'company')
     serializer_class = ApplicationFormCreateSerializer
@@ -25,6 +25,7 @@ class ApplicationFormCreateAPIView(generics.CreateAPIView):
     def perform_create(self, serializer):
         '''Tracking the creation of an application for notifications'''
         instance = serializer.save()
+        self.log_application_create(instance)
 
         admin_notification = CustomUser.objects.filter(is_superuser=True)
         user = self.request.user

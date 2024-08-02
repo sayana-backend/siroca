@@ -8,6 +8,15 @@ from datetime import timedelta
 
 
 class BaseLoggingCreateDestroy:
+    def log_application_create(self, instance):
+        user = self.request.user
+        user_id = user.id
+        user_name = f"{user.first_name} {user.surname}"
+        user_image = user.image
+        ApplicationLogs.objects.create(
+            user=user_name, user_id=user_id, user_image=user_image,
+            field=f'Создал заявку "{instance.application.task_number}"', form=instance.application)
+
     def log_create(self, serializer, log_field_name, new_value):
         instance = serializer.save()
         user = self.request.user
