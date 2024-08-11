@@ -24,11 +24,9 @@ urlpatterns = [
     path('comments/', CommentsAPIView.as_view()),
     path('comments/<int:id>/', CommentsDetailAPIView.as_view()),
 
-    path('notifications/', NotificationAPIView.as_view()),
+    path('notifications/', NotificationListAPIView.as_view()),
     path('notifications/delete/<int:id>/', NotificationDeleteViewAPI.as_view()),
     path('notifications/delete/all/', NotificationDeleteViewAPI.as_view()),
-    path('notifications/true/', NotificationTrueAPIView.as_view()),
-
 ]
 
 

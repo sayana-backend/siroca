@@ -129,5 +129,4 @@ class ApplicationsOnlyDescriptionSerializer(serializers.ModelSerializer):
 class NotificationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Notification
-        fields = ('id', 'task_number', 'title', 'text', 'created_at', 'made_change',
-                  'form_id', 'is_read', 'is_manager_notic', 'is_client_notic', 'admin_id')
+        fields = ('id', 'task_number', 'title', 'made_change', 'text', 'created_at', 'form_id')

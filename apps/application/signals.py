@@ -2,9 +2,79 @@ from .models import (ApplicationForm, ApplicationLogs, TrackingStatus,
                      TrackingPriority, Notification, Checklist)
 from django.db.models.signals import post_save, pre_save
 from apps.user.models import CustomUser
+from apps.company.models import Company
 from django.dispatch import receiver
 from django.utils import timezone
 from datetime import timedelta
+
+
+class NotificationService:
+    TEXT_CHOICE = (
+        ("create", "создал(а) заявку"),  #есть
+        ("delete", "удалил(а) заявку"), #есть
+        ("close", "закрыл(а) заявку"),  #есть
+        ("checklist", "добавил(а) чек-лист"),  #есть
+        ("status", "изменил(а) статус"),  #есть
+        ("priority", "изменил(а) приоритет"),  #есть
+        ("manager", "назначил(а) Вас менеджером по заявке")  #есть
+    )
+
+    @staticmethod
+    def get_text_for_action(action):
+        for choice in NotificationService.TEXT_CHOICE:
+            if choice[0] == action:
+                return choice[1]
+        return None
+
+    def notification_read(self, instances, user):
+        for instance in instances:
+            try:
+                notic = Notification.objects.get(id=instance['id'])
+                notic.readed.add(user)
+                notic.save()
+                print(f"User {user} added to readed for notification {notic.id}")
+            except Notification.DoesNotExist:
+                print(f"Notification with id {instance['id']} does not exist.")
+
+    def create_notification(self, application, action):
+        user = self.request.user
+        text = self.get_text_for_action(action)
+        managers = CustomUser.objects.filter(companies__company_application=application)
+        # print("КОМПАНИЯ", application.company)
+        # print("ОТВЕТСТВЕННЫЙ МЕНЕДЖЕР", application.company.main_manager)
+        # print("МЕНЕДЖЕРЫ КОМПАНИИ", managers)
+        # print("ПОЛЬЗОВТЕЛИ КОМПАНИИ", application.company.get_users())
+        users = []
+        if action in ['create', 'delete', 'close']:
+            for admin in CustomUser.objects.filter(is_superuser=True):
+                users.append(admin)
+        main_manager = application.company.main_manager
+        if main_manager:
+            users.append(CustomUser.objects.get(username=main_manager))
+        company_users = application.company.get_users()
+        if company_users:
+            for c_user in company_users:
+                users.append(CustomUser.objects.get(id=c_user.get("id")))
+        if managers:
+            for i in managers:
+                users.append(i)
+        # print('====================================================')
+        # print(users)
+        users = set(users)
+        # print(users)
+        if text:
+            notification = Notification.objects.create(
+                task_number=application.task_number,
+                text=text,
+                title=application.title,
+                made_change=user.full_name,
+                form_id=application.id
+            )
+            notification.users.set(users)
+            notification.save()
+
+        else:
+            raise ValueError(f"Action '{action}' not recognized.")
 
 
 class BaseLoggingCreateDestroy:
@@ -15,7 +85,7 @@ class BaseLoggingCreateDestroy:
         user_image = user.image
         ApplicationLogs.objects.create(
             user=user_name, user_id=user_id, user_image=user_image,
-            field=f'Создал заявку "{instance.application.task_number}"', form=instance.application)
+            field=f'Создал заявку "{instance.task_number}"', form=instance)
 
     def log_create(self, serializer, log_field_name, new_value):
         instance = serializer.save()

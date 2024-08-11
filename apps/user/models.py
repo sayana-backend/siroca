@@ -25,8 +25,8 @@ class CustomUser(AbstractBaseUser, PermissionsMixin, UsersPermissions):
 
     main_company = models.ForeignKey('company.Company', verbose_name="Компания", related_name='company_users',
                                      on_delete=models.CASCADE, default=1)
-    managers_company = models.ManyToManyField('company.Company', verbose_name="Компании менеджеров",
-                                              related_name='managers_company')
+    # managers_company = models.ManyToManyField('company.Company', verbose_name="Компании менеджеров",
+    #                                           related_name='managers_company')
     job_title = models.ForeignKey('company.JobTitle',
                                   verbose_name="Должность",
                                   null=True,
