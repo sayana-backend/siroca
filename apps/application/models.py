@@ -162,6 +162,15 @@ class TrackingPriority(models.Model):
 
 
 class Notification(models.Model):
+    TEXT_CHOICE = (
+        ("create", "создал(а) заявку"),
+        ("delete", "удалил(а) заявку"),
+        ("close", "закрыл(а) заявку"),
+        ("checklist", "добавил(а) чек-лист"),
+        ("status", "изменил(а) статус"),
+        ("priority", "изменил(а) приоритет"),
+        ("manager", "назначил(а) Вас менеджером по заявке")
+    )
     task_number = models.CharField(max_length=50, null=True, blank=True)
     title = models.CharField(max_length=50, blank=True, null=True)
     text = models.CharField(max_length=300, null=True, blank=True)
@@ -169,8 +178,10 @@ class Notification(models.Model):
     made_change = models.CharField(max_length=70, null=True, blank=True)
     form = models.ForeignKey(ApplicationForm, on_delete=models.CASCADE, null=True, blank=True)
 
-    is_read = models.BooleanField(default=False)
-    is_admin = models.BooleanField(default=False, null=True, blank=True)
-    is_manager_notic = models.BooleanField(default=False, null=True, blank=True)
-    is_client_notic = models.BooleanField(default=False, null=True, blank=True)
-    admin_id = models.IntegerField(null=True, blank=True)
+    users = models.ManyToManyField(CustomUser, related_name='notifications')
+    readed = models.ManyToManyField(CustomUser, blank=True, related_name='readed_notifications')
+    cleared = models.ManyToManyField(CustomUser, blank=True, related_name='cleared_notifications')
+
+    def __str__(self):
+        return f"{self.made_change} {self.text}"
+

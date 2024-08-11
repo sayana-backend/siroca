@@ -1,4 +1,4 @@
-from apps.application.signals import BaseLoggingCreateDestroy, BaseLoggingUpdate
+from apps.application.signals import BaseLoggingCreateDestroy, BaseLoggingUpdate, NotificationService
 from django.db.models import Count, Q, Case, When, Value, CharField
 from django_filters.rest_framework import DjangoFilterBackend
 from .filters import ApplicationFormFilter, CustomPagination
@@ -6,6 +6,7 @@ from rest_framework.permissions import IsAuthenticated
 from django.db.models.functions import Coalesce
 from rest_framework.response import Response
 from rest_framework import generics, filters
+from .signals import NotificationService
 from django.db.models import Prefetch
 from django.core.cache import cache
 from django.db import transaction
@@ -15,7 +16,7 @@ from .serializers import *
 from .models import *
 
 
-class ApplicationFormCreateAPIView(generics.CreateAPIView):
+class ApplicationFormCreateAPIView(generics.CreateAPIView, BaseLoggingCreateDestroy, NotificationService):
     '''Create new application'''
     queryset = ApplicationForm.objects.all().select_related('main_client', 'main_manager', 'company')
     serializer_class = ApplicationFormCreateSerializer
@@ -25,20 +26,9 @@ class ApplicationFormCreateAPIView(generics.CreateAPIView):
     def perform_create(self, serializer):
         '''Tracking the creation of an application for notifications'''
         instance = serializer.save()
+        self.log_application_create(instance)
 
-        admin_notification = CustomUser.objects.filter(is_superuser=True)
-        user = self.request.user
-
-        notifications = [
-            Notification(
-                task_number=instance.task_number,
-                text='Создана новая заявка', title=instance.title,
-                made_change=f"{user.full_name} создал(а) заявку", is_admin=True, admin_id=admin.id
-            )
-            for admin in admin_notification
-        ]
-
-        Notification.objects.bulk_create(notifications)
+        self.create_notification(instance, 'create')
 
 
 class ApplicationFormListAPIView(generics.ListAPIView):
@@ -101,7 +91,7 @@ class ApplicationFormListAPIView(generics.ListAPIView):
         return Response({'detail': 'Not found'}, status=404)
 
 
-class ApplicationFormRetrieveUpdateAPIView(generics.RetrieveUpdateAPIView):
+class ApplicationFormRetrieveUpdateAPIView(generics.RetrieveUpdateAPIView, NotificationService):
     '''  update API '''
     queryset = ApplicationForm.objects.all().select_related('main_client', 'main_manager', 'company')
     serializer_class = ApplicationFormUpdateSerializer
@@ -119,7 +109,6 @@ class ApplicationFormRetrieveUpdateAPIView(generics.RetrieveUpdateAPIView):
         serializer.is_valid(raise_exception=True)
         self.perform_update(serializer)
 
-        instance = self.get_object()
         user = request.user
         user_id = user.id
         user_image = user.image
@@ -132,33 +121,15 @@ class ApplicationFormRetrieveUpdateAPIView(generics.RetrieveUpdateAPIView):
                                                form=instance, user=user.full_name,
                                                user_id=user_id, user_image=user_image)
 
-        changes = []
+        if old_instance.main_manager != instance.main_manager:
+            self.create_notification(instance, 'manager')
         if old_instance.status != instance.status:
-            changes.append(
-                f"Статус изменен с '{old_instance.get_status_display()}' на '{instance.get_status_display()}'")
-        if old_instance.priority != instance.priority:
-            changes.append(
-                f"Приоритет изменен с '{old_instance.get_priority_display()}' на '{instance.get_priority_display()}'")
-
-        if changes:
-            manager_name = f"{user.full_name} изменил(а)"
-            for change in changes:
-                Notification.objects.create(task_number=instance.task_number, title=instance.title,
-                                            text=change, made_change=manager_name, form_id=instance.id,
-                                            is_manager_notic=True)
-                Notification.objects.create(task_number=instance.task_number, title=instance.title, text=change,
-                                            made_change=manager_name, form_id=instance.id,
-                                            is_client_notic=True)
-
-        admin_notification = CustomUser.objects.filter(is_superuser=True)
-        user = request.user
-        manager_name = user.full_name
-        for admin in admin_notification:
             if instance.status == 'Проверено':
-                Notification.objects.create(task_number=instance.task_number,
-                                            text=f"Заявка закрыта",
-                                            title=instance.title, made_change=manager_name, is_admin=True,
-                                            admin_id=admin.id)
+                self.create_notification(instance, 'close')
+            else:
+                self.create_notification(instance, 'status')
+        if old_instance.priority != instance.priority:
+            self.create_notification(instance, 'priority')
 
         return Response(serializer.data)
 
@@ -170,11 +141,14 @@ class ApplicationFormRetrieveAPIView(generics.RetrieveAPIView):
     permission_classes = [IsAuthenticated]
 
 
-class ApplicationFormDestroyAPIView(generics.DestroyAPIView):
+class ApplicationFormDestroyAPIView(generics.DestroyAPIView, NotificationService):
     queryset = ApplicationForm.objects.all().select_related('main_client', 'main_manager', 'company')
     serializer_class = ApplicationFormDetailViewSerializer
     lookup_field = 'id'
     permission_classes = [IsManagerCanDeleteApplicationOrIsAdminUser]
+
+    def perform_destroy(self, instance):
+        self.create_notification(instance, 'delete')
 
 
 class ApplicationLogsListCreateAPIView(generics.ListCreateAPIView):
@@ -182,7 +156,6 @@ class ApplicationLogsListCreateAPIView(generics.ListCreateAPIView):
     serializer_class = LogsSerializer
     lookup_field = 'id'
     # permission_classes = [IsClientCanViewLogsOrIsAdminAndManagerUser]
-
 
 
 class FileListCreateAPIView(generics.ListCreateAPIView):
@@ -220,7 +193,7 @@ class ApplicationsOnlyDescriptionAPIView(generics.RetrieveUpdateAPIView):
     permission_classes = [IsAuthenticated]
 
 
-class ChecklistListCreateAPIView(generics.ListCreateAPIView, BaseLoggingCreateDestroy):
+class ChecklistListCreateAPIView(generics.ListCreateAPIView, BaseLoggingCreateDestroy, NotificationService):
     queryset = Checklist.objects.all()
     serializer_class = ChecklistSerializer
     lookup_field = 'id'
@@ -229,6 +202,7 @@ class ChecklistListCreateAPIView(generics.ListCreateAPIView, BaseLoggingCreateDe
     def perform_create(self, serializer):
         instans = serializer.save()
         self.log_create(serializer, "Чеклист", f"Чеклист создан {instans.name}")
+        self.create_notification(instans.application, 'checklist')
 
 
 class CheckListDetailAPIView(generics.RetrieveUpdateDestroyAPIView, BaseLoggingUpdate, BaseLoggingCreateDestroy):
@@ -340,80 +314,48 @@ class CommentsDetailAPIView(generics.RetrieveUpdateDestroyAPIView, BaseLoggingUp
         self.log_destroy(instance, "Комментарий", "Комментарий удалён")
 
 
-class NotificationAPIView(generics.ListAPIView):
-    '''Sending notifications'''
+class NotificationListAPIView(generics.ListAPIView, NotificationService):
     queryset = Notification.objects.all()
     serializer_class = NotificationSerializer
-    permission_classes = [IsAuthenticated]
-    lookup_field = 'id'
 
-    def get(self, request):
-        if request.user.is_superuser:
-            admin_id_n = request.user.id
-            admin_notifications = Notification.objects.filter(is_admin=True, admin_id=admin_id_n)
-
-            for notification in admin_notifications:
-                cache.set(f'notification_sent_{notification.id}', True)
-
-            serializer = NotificationSerializer(admin_notifications, many=True)
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        else:
-            user_application = ApplicationForm.objects.filter(
-                Q(main_client=request.user) | Q(main_manager=request.user))
-            notification_user_application = Notification.objects.filter(form__in=user_application)
-            if request.user.is_manager:
-                notification_user_application = notification_user_application.filter(is_manager_notic=True)
-            elif request.user.is_client:
-                notification_user_application = notification_user_application.filter(is_client_notic=True)
-
-            for notification in notification_user_application:
-                cache.set(f'notification_sent_{notification.id}', True)
-
-            serializer = NotificationSerializer(notification_user_application, many=True)
-            return Response(serializer.data, status=status.HTTP_200_OK)
+    def list(self, request):
+        user = request.user
+        print(user)
+        new = self.queryset.filter(users=user).exclude(Q(readed=user) | Q(cleared=user))
+        old = self.queryset.filter(users=user, readed=user).exclude(cleared=user)
+        new_ser = self.serializer_class(new, many=True).data
+        old_ser = self.serializer_class(old, many=True).data
+        self.notification_read(new_ser, user)
+        return Response({"new": new_ser, "read": old_ser})
 
 
 class NotificationDeleteViewAPI(generics.DestroyAPIView):
     '''Deleting notifications'''
 
     def delete(self, request, id=None):
-        admin_id = request.user.id
+        user = request.user.id
         if id is None or id == 'all':
-            for notification in Notification.objects.all():
-                if cache.get(f'notification_sent_{notification.id}'):
-                    cache.delete(f'notification_sent_{notification.id}')
-                    notification.delete()
-                elif admin_id == notification.admin_id:
-                    notification.delete()
+            for notification in Notification.objects.filter(users=user):
+                notification.cleared.add(user)
             return Response(status=status.HTTP_204_NO_CONTENT)
         else:
             try:
                 notification = Notification.objects.get(id=id)
-                if cache.get(f'notification_sent_{notification.id}'):
-                    cache.delete(f'notification_sent_{notification.id}')
-                notification.delete()
+                notification.cleared.add(user)
                 return Response(status=status.HTTP_204_NO_CONTENT)
             except Notification.DoesNotExist:
                 return Response(status=status.HTTP_404_NOT_FOUND)
 
 
-class NotificationTrueAPIView(generics.ListAPIView):
-    '''API for separating notifications into read and unread'''
-    queryset = Notification.objects.all().select_related('form')
+class NewNotificationAPIView(generics.ListAPIView):
+    queryset = Notification.objects.all()
     serializer_class = NotificationSerializer
-    permission_classes = [IsAuthenticated]
 
-    def get(self, request):
-        if request.user.is_superuser:
-            admin_id_get = request.user.id
-            admin_notifications = Notification.objects.filter(is_admin=True, admin_id=admin_id_get)
-            serializer = NotificationSerializer(admin_notifications, many=True)
-            admin_notifications.update(is_read=True)
-            return Response(serializer.data, status=status.HTTP_200_OK)
+    def list(self, request):
+        user = request.user
+        print(user)
+        new = self.queryset.filter(users=user).exclude(Q(readed=user) | Q(cleared=user))
+        if new:
+            return Response(True)
         else:
-            user_application = ApplicationForm.objects.filter(
-                Q(main_client=request.user) | Q(main_manager=request.user))
-            notification_user_application = Notification.objects.filter(form__in=user_application)
-            serializer = NotificationSerializer(notification_user_application, many=True)
-            notification_user_application.update(is_read=True)
-            return Response(serializer.data, status=status.HTTP_200_OK)
+            return Response(False)

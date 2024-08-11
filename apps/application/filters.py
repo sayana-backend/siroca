@@ -23,10 +23,10 @@ class ApplicationFormFilter(django_filters.FilterSet):
 
     def filter_by_interval(self, queryset, name, value):
         if value == 'week':
-            start_date = timezone.now() - timedelta(days=7)
+            start_date = timezone.now().date() - timedelta(days=7)
             queryset = queryset.filter(application_date__gte=start_date)
         elif value == 'month':
-            start_date = timezone.now() - timedelta(days=30)
+            start_date = timezone.now().date() - timedelta(days=30)
             queryset = queryset.filter(application_date__gte=start_date)
         return queryset
 
