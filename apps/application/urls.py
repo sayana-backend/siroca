@@ -27,6 +27,7 @@ urlpatterns = [
     path('notifications/', NotificationListAPIView.as_view()),
     path('notifications/delete/<int:id>/', NotificationDeleteViewAPI.as_view()),
     path('notifications/delete/all/', NotificationDeleteViewAPI.as_view()),
+    path('notifications/has_new/', NewNotificationAPIView.as_view()),
 ]
 
 

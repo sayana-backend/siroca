@@ -345,3 +345,17 @@ class NotificationDeleteViewAPI(generics.DestroyAPIView):
                 return Response(status=status.HTTP_204_NO_CONTENT)
             except Notification.DoesNotExist:
                 return Response(status=status.HTTP_404_NOT_FOUND)
+
+
+class NewNotificationAPIView(generics.ListAPIView):
+    queryset = Notification.objects.all()
+    serializer_class = NotificationSerializer
+
+    def list(self, request):
+        user = request.user
+        print(user)
+        new = self.queryset.filter(users=user).exclude(Q(readed=user) | Q(cleared=user))
+        if new:
+            return Response(True)
+        else:
+            return Response(False)
