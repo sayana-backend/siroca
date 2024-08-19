@@ -63,8 +63,13 @@ class ApplicationFormListAPIView(generics.ListAPIView):
                 When(priority='Самый низкий', then=Value(5)),
                 default=Value(6),
                 output_field=CharField(),
+            ),
+            status_order=Case(
+                When(status='Проверено', then=Value(2)),
+                default=Value(1),
+                output_field=CharField(),
             )
-        ).order_by('priority_order', '-application_date')
+        ).order_by('status_order', 'priority_order', '-application_date')
 
         return queryset
 
