@@ -326,8 +326,8 @@ class NotificationListAPIView(generics.ListAPIView, NotificationService):
     def list(self, request):
         user = request.user
         print(user)
-        new = self.queryset.filter(users=user).exclude(Q(readed=user) | Q(cleared=user))
-        old = self.queryset.filter(users=user, readed=user).exclude(cleared=user)
+        new = self.queryset.filter(users=user).exclude(Q(readed=user) | Q(cleared=user)).order_by('-id')
+        old = self.queryset.filter(users=user, readed=user).exclude(cleared=user).order_by('-id')
         new_ser = self.serializer_class(new, many=True).data
         old_ser = self.serializer_class(old, many=True).data
         self.notification_read(new_ser, user)
