@@ -153,6 +153,7 @@ class ApplicationFormDestroyAPIView(generics.DestroyAPIView, NotificationService
     permission_classes = [IsManagerCanDeleteApplicationOrIsAdminUser]
 
     def perform_destroy(self, instance):
+        super().perform_destroy(instance)
         self.create_notification(instance, 'delete')
 
 
@@ -359,8 +360,5 @@ class NewNotificationAPIView(generics.ListAPIView):
     def list(self, request):
         user = request.user
         print(user)
-        new = self.queryset.filter(users=user).exclude(Q(readed=user) | Q(cleared=user))
-        if new:
-            return Response(True)
-        else:
-            return Response(False)
+        new = self.queryset.filter(users=user).exclude(Q(readed=user) | Q(cleared=user)).count()
+        return Response({"count": new})

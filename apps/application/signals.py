@@ -39,29 +39,30 @@ class NotificationService:
     def create_notification(self, application, action):
         user = self.request.user
         text = self.get_text_for_action(action)
-        managers = CustomUser.objects.filter(companies__company_application=application)
-        # print("КОМПАНИЯ", application.company)
-        # print("ОТВЕТСТВЕННЫЙ МЕНЕДЖЕР", application.company.main_manager)
-        # print("МЕНЕДЖЕРЫ КОМПАНИИ", managers)
-        # print("ПОЛЬЗОВТЕЛИ КОМПАНИИ", application.company.get_users())
-        users = []
-        if action in ['create', 'delete', 'close']:
-            for admin in CustomUser.objects.filter(is_superuser=True):
-                users.append(admin)
-        main_manager = application.company.main_manager
-        if main_manager:
-            users.append(CustomUser.objects.get(username=main_manager))
-        company_users = application.company.get_users()
-        if company_users:
-            for c_user in company_users:
-                users.append(CustomUser.objects.get(id=c_user.get("id")))
-        if managers:
-            for i in managers:
-                users.append(i)
-        # print('====================================================')
-        # print(users)
-        users = set(users)
-        # print(users)
+        main_manager = application.main_manager
+        users = set()
+
+        if action == 'manager':
+            users.add(main_manager.id)
+        else:
+            admins = CustomUser.objects.filter(is_superuser=True)
+            managers = CustomUser.objects.filter(companies__company_application=application)
+            company_main_manager = application.company.main_manager
+            company_users = application.company.get_users()
+
+            if action in ['create', 'delete', 'close']:
+                users.update(admins.values_list('id', flat=True))
+            if main_manager:
+                users.add(main_manager.id)
+            if company_main_manager:
+                users.add(company_main_manager.id)
+            if company_users:
+                users.update([user.get("id") for user in company_users])
+            if managers:
+                users.update(managers.values_list('id', flat=True))
+
+        users = CustomUser.objects.filter(id__in=users)
+
         if text:
             notification = Notification.objects.create(
                 task_number=application.task_number,
@@ -72,7 +73,6 @@ class NotificationService:
             )
             notification.users.set(users)
             notification.save()
-
         else:
             raise ValueError(f"Action '{action}' not recognized.")
 
