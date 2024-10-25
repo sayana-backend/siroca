@@ -9,7 +9,7 @@ from django.utils import timezone
 class SubTaskSerializer(serializers.ModelSerializer):
     manager = serializers.SlugRelatedField(slug_field='full_name',
                                            queryset=CustomUser.objects.filter(role_type='manager'),
-                                           required=False)
+                                           required=False, allow_null=True)
 
     class Meta:
         model = SubTask
