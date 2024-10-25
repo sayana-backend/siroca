@@ -24,4 +24,3 @@ urlpatterns = [
     path('userpermissions/<int:id>/', UserPermissionsDetailAPIView.as_view()),
 
 ]
-

@@ -156,10 +156,10 @@ class IsClientCanEditApplicationAndIsManagerUser(permissions.BasePermission):
         if request.user.is_superuser or request.user.is_manager:
             return True
         if request.user.client_can_edit_application_extra:
-            if obj.company == request.user.main_company.name:
-                return request.user.client_can_edit_application_extra
-        else:
+            # if obj.company == request.user.main_company.name:
             return request.user.client_can_edit_application_extra
+        # else:
+        #     return request.user.client_can_edit_application_extra
 
 
 '''''Manager's permissions'''''
